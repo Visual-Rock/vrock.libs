@@ -10,5 +10,6 @@ include_directories(utils/src)
 
 add_executable(vrock_libs
         utils/examples/example_ByteArray.cpp
-        utils/src/Queryable.hpp
-        utils/src/vrock.utils.ByteArray.ixx)
+        utils/src/ByteArray.ixx
+        utils/src/List.ixx
+)

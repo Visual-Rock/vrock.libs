@@ -1,10 +1,16 @@
 import vrock.utils.ByteArray;
+import vrock.utils.List;
 
 #include <iostream>
 
-int main()
+using namespace vrock::utils;
+
+int main( )
 {
-    vrock::utils::ByteArray data("alksd");
-    std::cout << data.to_string() << std::endl;
+    ByteArray data( "alksd" );
+    ByteArray data1( 8 );
+
+    auto subarr = data.subarr(1, 2);
+
     return 0;
 }

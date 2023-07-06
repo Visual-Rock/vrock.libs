@@ -1,0 +1,12 @@
+---
+BasedOnStyle: Microsoft
+AccessModifierOffset: -4
+Cpp11BracedListStyle: "false"
+NamespaceIndentation: All
+SpaceInEmptyParentheses: "true"
+SpacesBeforeTrailingComments: "1"
+SpacesInParentheses: "true"
+SpacesInSquareBrackets: "true"
+TabWidth: "4"
+UseTab: Never
+...

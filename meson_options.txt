@@ -1,0 +1,5 @@
+option('tests', type: 'boolean', value: false, description: 'build tests for all libs')
+option('examples', type: 'boolean', value: false, description: 'build examples for all libs')
+option('docs', type: 'boolean', value: false, description: 'build docs for vrock.libs')
+
+option('utils', type: 'boolean', value: false, description: 'build the utils module')
