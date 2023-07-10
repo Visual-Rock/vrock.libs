@@ -2,3 +2,5 @@ cmake-build-debug/
 .idea/
 /build/*
 !/build/build.sh
+/subprojects/*
+!/subprojects/*.wrap

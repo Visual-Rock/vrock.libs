@@ -1,10 +1,10 @@
 module;
 
-#include <cinttypes>
 #include <cstring>
 #include <iomanip>
-#include <sstream>
+export import <cinttypes>;
 #include <string>
+#include <sstream>
 
 /**
  * @brief module that holds the ByteArray class
@@ -42,6 +42,7 @@ namespace vrock::utils
          */
         explicit ByteArray(std::size_t len) : size_(len), data_(allocate_ptr(len))
         {
+            std::memset( data_, 0, size_ );
         }
 
         /**
@@ -168,6 +169,11 @@ namespace vrock::utils
             return at(i);
         }
 
+        uint8_t &operator[]( std::size_t i )
+        {
+            return at( i );
+        }
+
       private:
         std::size_t size_;
         std::uint8_t *data_;
@@ -186,6 +192,17 @@ namespace vrock::utils
         auto deallocate_ptr(std::size_t len, std::uint8_t* ptr) -> void
         {
             alloc_.deallocate(ptr, len);
+        }
+
+    public:
+        bool operator==( const ByteArray &other ) const
+        {
+            if ( size_ != other.size_ )
+                return false;
+            for ( std::size_t i = 0; i < size_; i++ )
+                if ( other[ i ] != this->at( i ) )
+                    return false;
+            return true;
         }
     };
 } // namespace vrock::utils
