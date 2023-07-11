@@ -13,3 +13,5 @@ vrockutils_dep = declare_dependency(
 )
 
 set_variable('vrockutils_dep', vrockutils_dep)
+
+to_doc += {'name': 'utils', 'files': src, 'pages': ['ByteArray'] }
