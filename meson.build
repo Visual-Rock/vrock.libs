@@ -4,4 +4,6 @@ to_doc = []
 
 subdir('utils')
 
-subdir('docs')
+if get_option('docs')
+    subdir('docs')
+endif

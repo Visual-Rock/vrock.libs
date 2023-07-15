@@ -7,8 +7,8 @@ gtest_dep = gtest_proj.get_variable('gtest_main_dep')
 
 
 tests = executable(
-    'tests', test_src,
+    'utils tests', test_src,
     dependencies: [ gtest_dep, vrockutils_dep]
 )
 
-test('gtest tests', tests)
+test('utils tests', tests)
