@@ -80,12 +80,11 @@ if doxygen.found()
         )
 
         if sphinx_build.found()
-            custom_target('docs',
-                output: '.',
+            custom_target('html-docs',
+                output: 'htmldocs',
                 command: [ sphinx_build, '-b', 'html', meson.source_root() + '/docs/', meson.source_root() + '/docs/html'],
-                install: false,
                 depends: [ apidoc_gen ],
-                 build_always_stale: true,
+                build_always_stale: true,
                 input: index_file
             )
         else

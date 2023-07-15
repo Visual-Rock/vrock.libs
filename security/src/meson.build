@@ -19,4 +19,4 @@ vrocksecurity_dep = declare_dependency(
 
 set_variable('vrocksecurity_dep', vrocksecurity_dep)
 
-to_doc += {'name': 'security', 'files': src, 'pages': ['ByteArray'] }
+to_doc += {'name': 'security', 'files': src, 'pages': [] }
