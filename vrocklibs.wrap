@@ -5,4 +5,4 @@ depth=2
 clone-recursive=true
 
 [provide]
-vrockutils=vrockutils_dep
+vrocklibs=vrockutils_dep

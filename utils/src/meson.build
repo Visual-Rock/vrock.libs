@@ -5,11 +5,11 @@ src = [
     'FutureHelper.ixx'
 ]
 
-utilslib = library('vrockutils', src)
+utilslib = static_library('vrockutils', src)
 
 vrockutils_dep = declare_dependency(
     include_directories: include_directories('.'),
-    sources: src
+    sources: src,
 )
 
 set_variable('vrockutils_dep', vrockutils_dep)

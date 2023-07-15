@@ -4,5 +4,8 @@
     "C_Cpp.autocompleteAddParentheses": false,
     "C_Cpp.default.compilerPath": "/usr/lib64/ccache/clang++",
     "C_Cpp.default.intelliSenseMode": "linux-clang-x64",
-    "C_Cpp.inlayHints.autoDeclarationTypes.enabled": false
+    "C_Cpp.inlayHints.autoDeclarationTypes.enabled": false,
+    "files.associations": {
+        "*.ixx": "cpp"
+    }
 }
