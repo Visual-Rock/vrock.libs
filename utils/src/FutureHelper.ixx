@@ -1,6 +1,6 @@
 module;
 
-export import <future>;
+#include <future>
 
 export module vrock.utils.FutureHelper;
 
