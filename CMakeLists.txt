@@ -11,9 +11,12 @@ option(TESTS "Build all vrock.lib Tests" ON)
 option(EXAMPLES "Build all vrock.lib Examples" ON)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
+option(LOG "Build the log module of vrock.lib" ON)
 
 include(FindPkgConfig)
 find_package(PkgConfig)
+
+add_subdirectory(external)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     include(gcc_modules.cmake)
@@ -35,4 +38,8 @@ add_subdirectory(utils) # utils is always included
 
 if (${SECURITY})
     add_subdirectory(security)
+endif ()
+
+if (${LOG})
+    add_subdirectory(log)
 endif ()
