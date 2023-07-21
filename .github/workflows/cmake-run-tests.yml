@@ -22,7 +22,7 @@ jobs:
     - name: submodules
       run: git submodule init && git submodule update
     - name: ninja
-      run: wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip && unzip ninja-linux.zip && sudo mv ninja ./usr/bin/ninja
+      run: wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip && unzip ninja-linux.zip && sudo mv ./ninja /usr/bin/ninja
     - name: install apt stuff
       run: sudo apt install libcrypto++8 libcrypto++-dev -y
 
