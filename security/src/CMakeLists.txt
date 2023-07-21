@@ -1,4 +1,4 @@
-pkg_check_modules(CRYPTOPP IMPORTED_TARGET cryptopp)
+pkg_check_modules(CRYPTOPP IMPORTED_TARGET cryptopp libcryptopp)
 
 add_library(vrocksecurity)
 target_sources(vrocksecurity
