@@ -21,8 +21,10 @@ jobs:
     - uses: actions/checkout@v3
     - name: submodules
       run: git submodule init && git submodule update
+    - name: ninja
+      run: wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip && unzip ninja-linux.zip && sudo mv ninja ./usr/bin/ninja
     - name: install apt stuff
-      run: sudo apt update && sudo apt upgrade -y && sudo apt install libcrypto++8 libcrypto++-dev ninja-build -y
+      run: sudo apt install libcrypto++8 libcrypto++-dev -y
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
