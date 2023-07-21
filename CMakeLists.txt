@@ -12,6 +12,7 @@ option(EXAMPLES "Build all vrock.lib Examples" ON)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
 option(LOG "Build the log module of vrock.lib" ON)
+option(PDF "Build the pdf module of vrock.lib" ON)
 
 include(FindPkgConfig)
 find_package(PkgConfig)
@@ -50,4 +51,8 @@ endif ()
 
 if (${LOG})
     add_subdirectory(log)
+endif ()
+
+if (${PDF})
+    add_subdirectory(pdf)
 endif ()

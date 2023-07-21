@@ -1,0 +1,2 @@
+add_executable(example_001 example_ByteArray.cpp)
+target_link_libraries(example_001 PRIVATE vrockpdf)
