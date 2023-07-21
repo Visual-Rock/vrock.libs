@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-
 import vrock.utils.ByteArray;
+
+#include <gtest/gtest.h>
 
 using namespace vrock::utils;
 
