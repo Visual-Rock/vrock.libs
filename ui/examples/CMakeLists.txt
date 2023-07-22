@@ -1,0 +1,2 @@
+add_executable(example_SimpleApp example_SimpleApp.cpp)
+target_link_libraries(example_SimpleApp PRIVATE vrockui)
