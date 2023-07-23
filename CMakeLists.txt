@@ -12,6 +12,8 @@ option(EXAMPLES "Build all vrock.lib Examples" ON)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
 option(LOG "Build the log module of vrock.lib" ON)
+option(NETWORKING "Build the networking module of vrock.lib" ON)
+option(SERVER "Build the server module of vrock.lib" ON)
 
 include(FindPkgConfig)
 find_package(PkgConfig)
@@ -29,7 +31,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FLAG
             "${compiler_flags_for_module_map} -fmodule-mapper=<MODULE_MAP_FILE>")
 endif ()
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 if (${TESTS})
     include(FetchContent)
@@ -50,4 +52,12 @@ endif ()
 
 if (${LOG})
     add_subdirectory(log)
+endif ()
+
+if (${NETWORKING})
+    add_subdirectory(networking)
+endif ()
+
+if (${SERVER})
+    add_subdirectory(server)
 endif ()
