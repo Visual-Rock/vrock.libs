@@ -22,13 +22,11 @@ module;
 #include <utility>
 #include <vector>
 
-export module vrock.ui.Application;
-
-export import vrock.ui.Widgets;
-
 import vrock.utils.Timer;
 import vrock.log.Logger;
 import vrock.ui.Widgets;
+
+export module vrock.ui.Application;
 
 static GLFWwindow *window = nullptr;
 
