@@ -8,6 +8,7 @@ module;
 #include <format>
 #include <functional>
 #include <iostream>
+#include <netdb.h>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -48,16 +49,24 @@ namespace vrock::server
 
         if ( setsockopt( sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof( opt ) ) < 0 )
             throw std::runtime_error( "failed to set socket options" );
-        server_address.sin_family = AF_INET;
-        server_address.sin_addr.s_addr = INADDR_ANY;
-        inet_pton( AF_INET, host_.c_str( ), &( server_address.sin_addr.s_addr ) );
-        server_address.sin_port = htons( port_ );
+        struct addrinfo hints;
+        struct addrinfo *servinfo; // will point to the results
 
-        if ( bind( sock, (sockaddr *)&server_address, sizeof( server_address ) ) < 0 )
+        memset( &hints, 0, sizeof hints ); // make sure the struct is empty
+        hints.ai_family = AF_UNSPEC;       // don't care IPv4 or IPv6
+        hints.ai_socktype = SOCK_STREAM;   // TCP stream sockets
+        hints.ai_flags = AI_PASSIVE;       // fill in my IP for me
+        getaddrinfo( "0.0.0.0", "8080", &hints, &servinfo );
+        //        server_address.sin_family = AF_INET;
+        //        server_address.sin_addr.s_addr = INADDR_ANY;
+        //        inet_pton( AF_INET, host_.c_str( ), &( server_address.sin_addr.s_addr ) );
+        //        server_address.sin_port = htons( port_ );
+        // (sockaddr *)&server_address sizeof( server_address )
+        if ( bind( sock, servinfo->ai_addr, servinfo->ai_addrlen ) < 0 )
             throw std::runtime_error( "failed to bind to socket" );
         if ( listen( sock, backlog_size ) < 0 )
             throw std::runtime_error( std::format( "failed to listen on port {}", port_ ) );
-
+        freeaddrinfo( servinfo );
         // epoll
         worker_epoll_.resize( max_threads_ );
         for ( size_t i = 0; i < max_threads_; ++i )
@@ -240,6 +249,8 @@ namespace vrock::server
                     request->fd = fd;
                     epoll_event_( epoll_fd, EPOLL_CTL_MOD, fd, EPOLLIN, request );
                     delete response;
+                    // delete request;
+                    close( fd );
                 }
             }
             else
@@ -266,7 +277,7 @@ namespace vrock::server
         HttpRequest request;
         HttpResponse response;
 
-        std::cout << request_string << std::endl;
+        // std::cout << request_string << std::endl;
 
         response_string = "HTTP/1.1 200 OK\r\n"
                           "Server: Hello\r\n"

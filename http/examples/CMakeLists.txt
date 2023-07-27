@@ -1,0 +1,2 @@
+add_executable(example_Socket example_Socket.cpp)
+target_link_libraries(example_Socket PRIVATE vrockhttp vrockutils)

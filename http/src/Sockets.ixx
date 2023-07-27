@@ -54,21 +54,29 @@ namespace vrock::networking
         {
         }
 
-        ~Socket( )
-        {
-            close( socket_ );
-        }
+        ~Socket( ) = default;
 
         [[nodiscard]] auto inline get_socket( ) const noexcept -> int
         {
             return socket_;
         }
 
+        auto close( ) const -> void
+        {
+            ::close( socket_ );
+        }
+
         auto send( const utils::ByteArray<> &data, int flags = 0 ) const -> void
         {
             ssize_t data_send = 0;
+            int ret;
             while ( data_send < data.size( ) )
-                data_send += ::send( socket_, data.data( ) + data_send, data.size( ) - data_send, flags );
+            {
+                ret = ::send( socket_, data.data( ) + data_send, data.size( ) - data_send, flags );
+                if ( ret == -1 )
+                    throw std::runtime_error( "send failed" );
+                data_send += ret;
+            }
         }
 
         [[nodiscard]] auto receive( int flags = 0 ) const -> utils::ByteArray<>
@@ -76,12 +84,14 @@ namespace vrock::networking
             utils::List<utils::ByteArray<>> data = { };
             ssize_t data_recv = 0;
             std::size_t i = 0;
-            while ( data_recv != -1 )
+            while ( true )
             {
                 data.emplace_back( 4096 );
                 auto r = ::recv( socket_, data[ i ].data( ), data[ i ].size( ), flags );
-                if ( r <= 0 )
-                    return { }; // connection closed
+                if ( r == -1 )
+                    throw std::runtime_error( "receive failed" );
+                else if ( r == 0 )
+                    return { };
                 data_recv += r;
                 if ( r < 4096 )
                     return utils::combine_arrays( data, data_recv ); // finished reading

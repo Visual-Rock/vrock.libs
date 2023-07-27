@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.26)
-project(vrocklibs CXX)
+project(vrocklibs)
 
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 # Default to C++ extensions being off. Clang's modules support have trouble
 # with extensions right now and it is not required for any other compiler
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
 
 option(TESTS "Build all vrock.lib Tests" ON)
 option(EXAMPLES "Build all vrock.lib Examples" ON)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
 option(LOG "Build the log module of vrock.lib" ON)
-option(NETWORKING "Build the networking module of vrock.lib" ON)
+option(HTTP "Build the networking module of vrock.lib" ON)
 option(SERVER "Build the server module of vrock.lib" ON)
 
 include(FindPkgConfig)
@@ -31,7 +32,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FLAG
             "${compiler_flags_for_module_map} -fmodule-mapper=<MODULE_MAP_FILE>")
 endif ()
-set(CMAKE_CXX_STANDARD 23)
 
 if (${TESTS})
     include(FetchContent)
@@ -54,8 +54,8 @@ if (${LOG})
     add_subdirectory(log)
 endif ()
 
-if (${NETWORKING})
-    add_subdirectory(networking)
+if (${HTTP})
+    add_subdirectory(http)
 endif ()
 
 if (${SERVER})

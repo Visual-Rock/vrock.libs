@@ -2,13 +2,17 @@
 #include <iostream>
 #include <thread>
 
-import vrock.networking.Server;
-import vrock.networking.Sockets;
-using namespace vrock::networking;
+import vrock.http.HttpServer;
+import vrock.utils.Timer;
+import vrock.utils.ByteArray;
+
+using namespace vrock::http;
 
 int main( )
 {
-    BaseServer server = BaseServer( Domain::IPv4, Type::TCP, 8080, 10 );
+    vrock::utils::ScopedTimer timer( []( auto time ) { std::cout << "took " << time << "ms!\n"; } );
+
+    HttpServer server( "0.0.0.0", 8080 );
 
     server.run( );
 
@@ -17,6 +21,5 @@ int main( )
         std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 
     server.stop( );
-
     return 0;
 }

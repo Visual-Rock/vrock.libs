@@ -7,7 +7,7 @@ using HttpServer = vrock::server::HttpServer;
 
 int main( )
 {
-    HttpServer server( "0.0.0.0", 8080 );
+    HttpServer server( "0.0.0.0", 8080, 8 );
 
     server.add_route( "/hello", vrock::server::HttpMethod::Get, []( const auto &req ) {
         auto res = vrock::server::HttpResponse( );
