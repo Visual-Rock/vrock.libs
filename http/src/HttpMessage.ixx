@@ -8,7 +8,7 @@ module;
 
 export module vrock.http.HttpMessage;
 
-import vrock.http.Url;
+import vrock.http.Path;
 
 namespace vrock::http
 {
@@ -166,7 +166,8 @@ namespace vrock::http
     {
     public:
         HttpMethod method;
-        Url url;
+        std::string path;
+        Parameters parameters;
     };
 
     export class HttpResponse : public HttpMessage

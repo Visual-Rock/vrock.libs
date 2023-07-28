@@ -13,7 +13,7 @@ export module vrock.http.HttpParser;
 
 import vrock.utils.ByteArray;
 import vrock.http.HttpMessage;
-import vrock.http.Url;
+import vrock.http.Path;
 
 namespace vrock::http
 {
@@ -32,7 +32,7 @@ namespace vrock::http
             if ( !data->is_request )
                 return HPE_USER;
             auto *req = (HttpRequest *)data->http_msg;
-            req->url = Url( std::string( at, length ) );
+            req->path = std::string( at, length );
             return 0;
         }
         return HPE_USER;
