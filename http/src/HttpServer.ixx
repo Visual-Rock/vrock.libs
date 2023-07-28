@@ -1,5 +1,6 @@
 module;
 
+#include <format>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -22,13 +23,6 @@ using Socket = vrock::networking::Socket;
 
 namespace vrock::http
 {
-    vrock::utils::ByteArray arr = vrock::utils::ByteArray( "HTTP/1.1 200 OK\r\n"
-                                                           "Server: Hello\r\n"
-                                                           "Content-Length: 13\r\n"
-                                                           "Content-Type: text/plain\r\n"
-                                                           "\r\n"
-                                                           "Hello, world\r\n" );
-
     export template <std::size_t MaxEvents = 10000, std::size_t BacklogSize = 1000>
     class HttpServer : public TCPServer<MaxEvents, BacklogSize>
     {
@@ -42,42 +36,51 @@ namespace vrock::http
         auto add_endpoint( const std::string &path, HttpMethod method,
                            std::function<HttpResponse( const HttpRequest & )> fn ) -> void
         {
-            auto res = path_cache.find( path );
-            if ( res == path_cache.end( ) )
+            if ( !path_cache.contains( path ) )
             {
                 endpoints.push_back( { compile_path( path ), { { method, fn } } } );
                 path_cache[ path ] = endpoints.size( ) - 1;
             }
             else
-                endpoints[ res->second ].second[ method ] = std::move( fn );
+                endpoints[ path_cache[ path ] ].second[ method ] = std::move( fn );
         }
 
     protected:
         auto handle_request( const Socket &socket, const vrock::utils::ByteArray<> &data ) -> bool override
         {
-            HttpParser parser;
-            auto str = data.to_string( );
-            auto req = parser.parse_request( str );
-            auto path_segments = split_path( req.path );
-            bool match = false;
-            for ( auto &e : endpoints )
+            try
             {
-                auto &[ matcher, map ] = e;
-                if ( path_segments.size( ) != matcher.size( ) )
-                    continue;
-                for ( int i = 0; i < path_segments.size( ); ++i )
-                    if ( !( match = matcher[ i ]->match( path_segments[ i ] ) ) )
-                        break;
-                if ( !match )
-                    continue;
-                for ( int i = 0; i < path_segments.size( ); ++i )
-                    matcher[ i ]->get_parameters( req.parameters, path_segments[ i ] );
-                socket.send( arr );
-                auto res = map[ req.method ]( req );
+                HttpParser parser;
+                auto str = data.to_string( );
+                auto req = parser.parse_request( str );
+                auto path_segments = split_path( req.path );
+                bool match = false;
+                for ( auto &e : endpoints )
+                {
+                    auto &[ matcher, map ] = e;
+                    if ( path_segments.size( ) != matcher.size( ) )
+                        continue;
+                    for ( int i = 0; i < path_segments.size( ); ++i )
+                        if ( !( match = matcher[ i ]->match( path_segments[ i ] ) ) )
+                            break;
+                    if ( !match )
+                        continue;
+                    for ( int i = 0; i < path_segments.size( ); ++i )
+                        matcher[ i ]->get_parameters( req.parameters, path_segments[ i ] );
+                    auto res = map[ req.method ]( req );
+                    socket.send( utils::ByteArray( to_string( res ) ) );
+                    return true;
+                }
                 return true;
             }
-            socket.send( arr );
-            return true;
+            catch ( std::exception &e )
+            {
+                HttpResponse res;
+                res.status_code = HttpStatusCode::InternalServerError;
+                res.version = HttpVersion::HTTP_1_1;
+                res.body = std::format( "exception: {}", e.what( ) );
+                socket.send( utils::ByteArray( to_string( res ) ) );
+            }
         }
 
         std::vector<std::pair<std::vector<std::shared_ptr<BaseMatcher>>,

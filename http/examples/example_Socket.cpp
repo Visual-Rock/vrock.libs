@@ -11,7 +11,6 @@ using namespace vrock::http;
 
 auto get_hello( const HttpMessage &msg ) -> HttpResponse
 {
-    std::cout << "Hello" << std::endl;
     HttpResponse response;
     response.status_code = HttpStatusCode::Ok;
     response.body = "Hello World!";
