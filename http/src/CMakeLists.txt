@@ -15,11 +15,12 @@ target_sources(vrockhttp
         HttpParser.ixx
         Sockets.ixx
         Path.ixx
+        Interceptor.ixx
 
         PRIVATE
         llhttp/llhttp.c
         llhttp/http.c
         llhttp/api.c
 )
-target_link_libraries(vrockhttp PRIVATE vrockutils llhttp::llhttp)
-target_include_directories(vrockhttp PRIVATE ${LLHTTP_HEADERS})
+target_link_libraries(vrockhttp PRIVATE vrockutils) # llhttp::llhttp
+#target_include_directories(vrockhttp PRIVATE ${LLHTTP_HEADERS})
