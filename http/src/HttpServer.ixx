@@ -10,6 +10,10 @@ module;
 #include <utility>
 #include <vector>
 
+#include <algorithm>
+#include <filesystem>
+#include <fstream>
+
 export module vrock.http.HttpServer;
 
 import vrock.http.TCPServer;
@@ -44,7 +48,8 @@ namespace vrock::http
         std::string msg;
     };
 
-    export template <std::size_t MaxEvents = 10000, std::size_t BacklogSize = 1000>
+    export template <class RequestData = EmptyRequestData, std::size_t MaxEvents = 10000,
+                     std::size_t BacklogSize = 1000>
     class HttpServer : public TCPServer<MaxEvents, BacklogSize>
     {
     public:
@@ -55,7 +60,7 @@ namespace vrock::http
         }
 
         auto add_endpoint( const std::string &path, HttpMethod method,
-                           std::function<HttpResponse( const HttpRequest & )> fn ) -> void
+                           std::function<HttpResponse<RequestData>( const HttpRequest<RequestData> & )> fn ) -> void
         {
             if ( !path_cache.contains( path ) )
             {
@@ -66,25 +71,51 @@ namespace vrock::http
                 endpoints[ path_cache[ path ] ].second[ method ] = std::move( fn );
         }
 
-        auto add_request_interceptor( std::shared_ptr<RequestInterceptor> interceptor ) -> void
+        auto serve_files( bool preload ) -> void
+        {
+            files = true;
+            if ( preload )
+            {
+                const std::filesystem::path curr{ "./" };
+                for ( auto const &dir_entry : std::filesystem::recursive_directory_iterator{ curr } )
+                {
+                    if ( dir_entry.is_regular_file( ) )
+                    {
+                        if ( file_extensions.empty( ) )
+                            load_file( dir_entry.path( ) );
+                        else
+                            for ( const auto &ext : file_extensions )
+                                if ( dir_entry.path( ).extension( ).string( ) == ext )
+                                    load_file( dir_entry.path( ) );
+                    }
+                }
+            }
+        }
+
+        auto set_file_extensions( const std::vector<std::string> &ext ) -> void
+        {
+            file_extensions = ext;
+        }
+
+        auto add_request_interceptor( std::shared_ptr<RequestInterceptor<RequestData>> interceptor ) -> void
         {
             req_interceptors.push_back( interceptor );
         }
 
-        auto add_response_interceptor( std::shared_ptr<ResponseInterceptor> interceptor ) -> void
+        auto add_response_interceptor( std::shared_ptr<ResponseInterceptor<RequestData>> interceptor ) -> void
         {
             res_interceptors.push_back( interceptor );
         }
 
-        auto add_interceptor( std::shared_ptr<Interceptor> interceptor ) -> void
+        auto add_interceptor( std::shared_ptr<Interceptor<RequestData>> interceptor ) -> void
         {
             req_interceptors.push_back( interceptor );
             res_interceptors.push_back( interceptor );
         }
 
-        auto handle_exception( HttpRequest &req, std::exception &exception ) -> HttpResponse
+        auto handle_exception( HttpRequest<RequestData> &req, std::exception &exception ) -> HttpResponse<RequestData>
         {
-            HttpResponse res;
+            HttpResponse<RequestData> res;
             res.status_code = HttpStatusCode::InternalServerError;
             res.version = HttpVersion::HTTP_1_1;
             res.body = exception.what( );
@@ -94,13 +125,25 @@ namespace vrock::http
     protected:
         auto handle_request( const Socket &socket, const vrock::utils::ByteArray<> &data ) -> bool override
         {
-            HttpRequest req;
+            HttpRequest<RequestData> req;
             try
             {
                 HttpParser parser;
                 auto str = data.to_string( );
-                req = parser.parse_request( str );
+                // parse request
+                auto r = parser.parse_request( str );
+                req.path = std::move( r.path );
+                req.method = r.method;
+                req.parameters = std::move( r.parameters );
+                req.body = std::move( r.body );
+                req.version = r.version;
+                req.headers = std::move( r.headers );
+                req.data = RequestData( );
+
+                // parse path
                 auto path_segments = split_path( req.path );
+
+                // search for endpoint handler
                 bool match = false;
                 for ( auto &[ matcher, map ] : endpoints )
                 {
@@ -116,6 +159,9 @@ namespace vrock::http
 
                     for ( auto &i : req_interceptors )
                         i->incoming( req );
+                    auto e = map.find( req.method );
+                    if ( e == map.end( ) )
+                        throw HttpError( HttpStatusCode::MethodNotAllowed, "" );
                     auto res = map[ req.method ]( req );
                     for ( auto &i : res_interceptors )
                         i->outgoing( res );
@@ -123,11 +169,17 @@ namespace vrock::http
                     socket.send( utils::ByteArray( to_string( res ) ) );
                     return true;
                 }
-                return true;
+                if ( files && req.method == HttpMethod::Get )
+                {
+                    auto res = get_file_response( req );
+                    socket.send( utils::ByteArray( to_string( res ) ) );
+                    return true;
+                }
+                throw HttpError( HttpStatusCode::NotFound, "" );
             }
             catch ( HttpError &err )
             {
-                HttpResponse res;
+                HttpResponse<RequestData> res;
                 res.status_code = err.code;
                 res.version = HttpVersion::HTTP_1_1;
                 res.body = err.body;
@@ -136,21 +188,63 @@ namespace vrock::http
             }
             catch ( std::exception &e )
             {
-                HttpResponse res = exception_handler( req, e );
+                HttpResponse<RequestData> res = exception_handler( req, e );
                 socket.send( utils::ByteArray( to_string( res ) ) );
                 return true;
             }
         }
 
+        auto load_file( const std::filesystem::path &path ) -> void
+        {
+            std::ifstream t( path.string( ) );
+            t.seekg( 0, std::ios::end );
+            size_t size = t.tellg( );
+            std::string buffer( size, ' ' );
+            t.seekg( 0 );
+            t.read( &buffer[ 0 ], size );
+
+            file_cache[ path.string( ).substr( 1 ) ] = buffer;
+            std::cout << std::format( "{} {} {}", path.string( ), path.extension( ).string( ),
+                                      path.filename( ).string( ) )
+                      << std::endl;
+        }
+
+        auto get_file_response( HttpRequest<RequestData> &req ) -> HttpResponse<RequestData>
+        {
+            auto f = file_cache.find( req.path );
+            if ( f == file_cache.end( ) )
+            {
+                std::filesystem::path p{ "." + req.path };
+                if ( !( is_regular_file( p ) &&
+                        ( file_extensions.empty( ) || std::find( file_extensions.begin( ), file_extensions.end( ),
+                                                                 p.extension( ) ) != file_extensions.end( ) ) ) )
+                    throw HttpError( HttpStatusCode::NotFound, "" );
+                load_file( p );
+            }
+            for ( auto &i : req_interceptors )
+                i->incoming( req );
+            auto res = HttpResponse<RequestData>( );
+            res.status_code = HttpStatusCode::Ok;
+            res.body = file_cache[ req.path ];
+            for ( auto &i : res_interceptors )
+                i->outgoing( res );
+            return res;
+        }
+
         std::vector<std::pair<std::vector<std::shared_ptr<BaseMatcher>>,
-                              std::unordered_map<HttpMethod, std::function<HttpResponse( const HttpRequest & )>>>>
+                              std::unordered_map<HttpMethod, std::function<HttpResponse<RequestData>(
+                                                                 const HttpRequest<RequestData> & )>>>>
             endpoints;
 
         std::unordered_map<std::string, std::size_t> path_cache;
 
-        std::vector<std::shared_ptr<RequestInterceptor>> req_interceptors = { };
-        std::vector<std::shared_ptr<ResponseInterceptor>> res_interceptors = { };
-        std::function<HttpResponse( HttpRequest &, std::exception & )> exception_handler =
+        std::vector<std::shared_ptr<RequestInterceptor<RequestData>>> req_interceptors = { };
+        std::vector<std::shared_ptr<ResponseInterceptor<RequestData>>> res_interceptors = { };
+        std::function<HttpResponse<RequestData>( HttpRequest<RequestData> &, std::exception & )> exception_handler =
             std::bind( &HttpServer::handle_exception, this, std::placeholders::_1, std::placeholders::_2 );
+
+        bool files = false;
+        std::vector<std::string> file_extensions = { };
+        std::unordered_map<std::string, std::string> file_cache = { };
     };
 } // namespace vrock::http

@@ -11,28 +11,32 @@ import vrock.http.HttpMessage;
 
 namespace vrock::http
 {
-    export class RequestInterceptor
+    export template <class T = EmptyRequestData>
+    class RequestInterceptor
     {
     public:
-        virtual auto incoming( HttpRequest &request ) -> void = 0;
+        virtual auto incoming( HttpRequest<T> &request ) -> void = 0;
     };
 
-    export class ResponseInterceptor
+    export template <class T = EmptyRequestData>
+    class ResponseInterceptor
     {
     public:
-        virtual auto outgoing( HttpResponse &response ) -> void = 0;
+        virtual auto outgoing( HttpResponse<T> &response ) -> void = 0;
     };
 
-    export class Interceptor : public RequestInterceptor, public ResponseInterceptor
+    export template <class T = EmptyRequestData>
+    class Interceptor : public RequestInterceptor<T>, public ResponseInterceptor<T>
     {
     };
 
-    export class CorsIntercepter : public ResponseInterceptor
+    export template <class T = EmptyRequestData>
+    class CorsIntercepter : public ResponseInterceptor<T>
     {
     public:
         CorsIntercepter( ) = default;
 
-        auto outgoing( HttpResponse &response ) -> void final
+        auto outgoing( HttpResponse<T> &response ) -> void final
         {
             response.headers[ "Access-Control-Allow-Origin" ] = allowed_origin;
 

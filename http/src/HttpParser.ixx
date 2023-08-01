@@ -31,7 +31,7 @@ namespace vrock::http
             auto *data = (ParseData *)p->data;
             if ( !data->is_request )
                 return HPE_USER;
-            auto *req = (HttpRequest *)data->http_msg;
+            auto *req = (HttpRequest<EmptyRequestData> *)data->http_msg;
             req->path = std::string( at, length );
             return 0;
         }
@@ -45,7 +45,7 @@ namespace vrock::http
             auto *data = (ParseData *)p->data;
             if ( !data->is_request )
                 return HPE_USER;
-            auto *req = (HttpRequest *)data->http_msg;
+            auto *req = (HttpRequest<EmptyRequestData> *)data->http_msg;
             req->method = to_method( std::string( at, length ) );
             return 0;
         }
@@ -113,12 +113,12 @@ namespace vrock::http
             settings.on_version = on_version;
         }
 
-        auto parse_request( const std::string &req ) -> HttpRequest
+        auto parse_request( const std::string &req ) -> HttpRequest<EmptyRequestData>
         {
             llhttp_t parser;
             llhttp_init( &parser, HTTP_REQUEST, &settings );
 
-            auto request = HttpRequest( );
+            auto request = HttpRequest<EmptyRequestData>( );
             ParseData d{ };
             d.http_msg = &request;
             d.is_request = true;
@@ -131,12 +131,12 @@ namespace vrock::http
                 throw std::runtime_error(
                     std::format( "failed to parse HTTP request: {} {}", llhttp_errno_name( err ), parser.reason ) );
         }
-        auto parse_response( const std::string &res ) -> HttpResponse
+        auto parse_response( const std::string &res ) -> HttpResponse<EmptyRequestData>
         {
             llhttp_t parser;
             llhttp_init( &parser, HTTP_RESPONSE, &settings );
 
-            auto response = HttpResponse( );
+            auto response = HttpResponse<EmptyRequestData>( );
             ParseData d{ };
             d.http_msg = &response;
             d.is_request = true;

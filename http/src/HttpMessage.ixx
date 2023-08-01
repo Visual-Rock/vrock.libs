@@ -222,6 +222,10 @@ namespace vrock::http
             throw std::invalid_argument( "Unexpected HTTP version" );
     }
 
+    export struct EmptyRequestData
+    {
+    };
+
     export class HttpMessage
     {
     public:
@@ -230,30 +234,38 @@ namespace vrock::http
         std::string body;
     };
 
-    export class HttpRequest : public HttpMessage
+    export template <class T>
+        requires std::is_default_constructible_v<T>
+    class HttpRequest : public HttpMessage
     {
     public:
         HttpMethod method;
         std::string path;
         Parameters parameters;
+
+        T data;
     };
 
-    export class HttpResponse : public HttpMessage
+    export template <class T>
+        requires std::is_default_constructible_v<T>
+    class HttpResponse : public HttpMessage
     {
     public:
         HttpResponse( ) : status_code( HttpStatusCode::Continue ), request( { } )
         {
         }
 
-        HttpResponse( HttpStatusCode code, HttpRequest req ) : status_code( code ), request( std::move( req ) )
+        HttpResponse( HttpStatusCode code, HttpRequest<T> req ) : status_code( code ), request( std::move( req ) )
         {
         }
 
         HttpStatusCode status_code;
-        HttpRequest request;
+        HttpRequest<T> request;
     };
 
-    export auto to_string( HttpResponse &res ) -> std::string
+    export template <class T>
+        requires std::is_default_constructible_v<T>
+    auto to_string( HttpResponse<T> &res ) -> std::string
     {
         std::string str;
         res.headers[ "Content-Length" ] = std::to_string( res.body.size( ) );

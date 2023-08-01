@@ -10,20 +10,27 @@ import vrock.utils.ByteArray;
 
 using namespace vrock::http;
 
-class LogReqest : public RequestInterceptor
+struct RequestData
+{
+    std::size_t i = 0;
+};
+
+class LogReqest : public RequestInterceptor<RequestData>
 {
 public:
     LogReqest( ) = default;
 
-    auto incoming( HttpRequest &request ) -> void final
+    auto incoming( HttpRequest<RequestData> &request ) -> void final
     {
-        std::cout << std::format( "{} {}", to_string( request.method ), request.path ) << std::endl;
+        static std::size_t req_count = 0;
+        request.data.i = req_count++;
+        std::cout << std::format( "{}: {} {}", request.data.i, to_string( request.method ), request.path ) << std::endl;
     }
 };
 
-auto get_hello( const HttpMessage &msg ) -> HttpResponse
+auto get_hello( const HttpMessage &msg ) -> HttpResponse<RequestData>
 {
-    HttpResponse response;
+    HttpResponse<RequestData> response;
     response.status_code = HttpStatusCode::Ok;
     response.body = "Hello World!";
     return response;
@@ -33,16 +40,17 @@ int main( )
 {
     vrock::utils::ScopedTimer timer( []( auto time ) { std::cout << "took " << time << "ms!\n"; } );
 
-    HttpServer server( "0.0.0.0", 8080 );
+    HttpServer<RequestData> server( "0.0.0.0", 8080 );
 
     server.add_endpoint( "/hello", HttpMethod::Get, get_hello );
     server.add_request_interceptor( std::make_shared<LogReqest>( ) );
-    auto cors = std::make_shared<CorsIntercepter>( );
+    auto cors = std::make_shared<CorsIntercepter<RequestData>>( );
     cors->allowed_headers = { "Content", "Test" };
     cors->allow_credentials = true;
     cors->expose_headers = { "*" };
     server.add_response_interceptor( cors );
-
+    server.set_file_extensions( { ".html", ".js", ".css" } );
+    server.serve_files( false );
     server.run( );
 
     std::string command;
