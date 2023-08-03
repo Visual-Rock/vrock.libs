@@ -5,11 +5,11 @@ module;
 
 module vrock.ui.Widgets;
 
+import vrock.ui.Application;
+
 namespace vrock::ui
 {
-    BaseWidget::BaseWidget( std::shared_ptr<vrock::ui::Application> app )
-    {
-    }
+    // BaseWidget::
 
     BaseWidget::~BaseWidget( )
     {

@@ -1,7 +1,7 @@
-if(NOT TARGET spdlog)
+if (NOT TARGET spdlog)
     # Stand-alone build
     find_package(spdlog REQUIRED)
-endif()
+endif ()
 
 add_library(vrocklog)
 target_sources(vrocklog
@@ -11,4 +11,4 @@ target_sources(vrocklog
         PRIVATE
         Logger.cpp
 )
-target_link_libraries(vrocklog vrockutils spdlog::spdlog)
+target_link_libraries(vrocklog PUBLIC vrockutils spdlog::spdlog)

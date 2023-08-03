@@ -6,10 +6,13 @@ module;
 
 #include "imgui.h"
 
-#include <spdlog/spdlog.h>
-
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+
+import vrock.utils.Timer;
+export import vrock.ui.Widgets;
+import vrock.utils.FutureHelper;
+export import vrock.ui.KeyCode;
 
 #define SPECTRUM_USE_DARK_THEME
 #include "./imgui_theme/spectrum.h"
@@ -17,14 +20,11 @@ module;
 #include "font.hpp"
 
 #include <functional>
-#include <future>
 #include <memory>
 #include <utility>
 #include <vector>
 
-import vrock.utils.Timer;
-import vrock.log.Logger;
-import vrock.ui.Widgets;
+#include <future>
 
 export module vrock.ui.Application;
 
@@ -141,7 +141,7 @@ using namespace vrock::ui::internal;
 
 static void glfw_error_callback( int error, const char *description )
 {
-    vrock::log::get_logger( "ui" ).error( "GLFW Error {}: {}", error, description );
+    // vrock::log::get_logger( "ui" ).error( "GLFW Error {}: {}", error, description );
 }
 
 static void SetupVulkan( const char **extensions, uint32_t extensions_count )
@@ -487,7 +487,7 @@ namespace vrock::ui
         ImGuiBackendFlags backend_flags = 0;
     };
 
-    class Application
+    export class Application : std::enable_shared_from_this<Application>
     {
     public:
         Application( ) = default;
@@ -602,6 +602,7 @@ namespace vrock::ui
             }
 
             // logger.debug( "initializing Main Window" );
+            // root->set_application( shared_from_this( ) );
             root->setup( );
 
             std::unique_ptr<std::future<bool>> close = nullptr;
@@ -726,7 +727,7 @@ namespace vrock::ui
         }
 
         template <class T>
-            requires std::is_base_of_v<Dialog, T>
+        // requires std::is_base_of_v<Dialog, T>
         auto open_modal_dialog( std::shared_ptr<ModalDialog<T>> dialog ) -> std::shared_future<T>
         {
             std::promise<T> p;
@@ -736,12 +737,28 @@ namespace vrock::ui
             return dialog->get_future( );
         }
 
-        // auto key_down( KeyCode ) -> bool;
+        auto key_down( KeyCode key ) -> bool
+        {
+            int status = glfwGetKey( window, (int)key );
+            return status == GLFW_PRESS || status == GLFW_REPEAT;
+        }
 
-        // auto mouse_button_pressed( MouseButton ) -> bool;
-        // auto mouse_position( ) -> std::pair<double, double>;
+        auto mouse_button_pressed( MouseButton button ) -> bool
+        {
+            return glfwGetMouseButton( window, (int)button ) == GLFW_PRESS;
+        }
 
-        // auto cursor_mode( CursorMode ) -> void;
+        auto mouse_position( ) -> std::pair<double, double>
+        {
+            double x, y;
+            glfwGetCursorPos( window, &x, &y );
+            return std::make_pair( x, y );
+        }
+
+        auto cursor_mode( CursorMode mode ) -> void
+        {
+            glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL + (int)mode );
+        }
 
         auto rename_window( const std::string &title ) -> void
         {

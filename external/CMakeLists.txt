@@ -18,6 +18,7 @@ if (${UI})
             imgui/imgui_draw.cpp
             imgui/imgui_tables.cpp
             imgui/imgui_widgets.cpp
+            imgui/backends/imgui_impl_glfw.cpp
             imgui/backends/imgui_impl_vulkan.cpp
             imgui/misc/freetype/imgui_freetype.cpp
             imgui/misc/cpp/imgui_stdlib.cpp

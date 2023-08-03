@@ -21,7 +21,10 @@ namespace vrock::ui
     export class BaseWidget
     {
     public:
-        BaseWidget( std::shared_ptr<vrock::ui::Application> app );
+        BaseWidget( std::shared_ptr<vrock::ui::Application> app ) : app( app )
+        {
+        }
+
         ~BaseWidget( );
 
         auto on_update( ) -> void;
