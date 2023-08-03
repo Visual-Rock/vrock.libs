@@ -1,5 +1,7 @@
 module;
 
+#include "openssl/err.h"
+#include "openssl/ssl.h"
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -23,7 +25,65 @@ using Socket = vrock::networking::Socket;
 
 namespace vrock::http
 {
-    export template <std::size_t MaxEvents = 10000, std::size_t BacklogSize = 1000> class TCPServer
+    class SecureSocket : public vrock::networking::Socket
+    {
+    public:
+        SecureSocket( SSL *ssl ) : vrock::networking::Socket( SSL_get_fd( ssl ) ), ssl( ssl )
+        {
+        }
+
+        auto close( ) const -> void final
+        {
+            ::close( socket_ );
+            SSL_free( ssl );
+        }
+
+        auto send( const utils::ByteArray<> &data, int flags = 0 ) const -> void final
+        {
+            ssize_t data_send = 0;
+            int ret;
+            while ( data_send < data.size( ) )
+            {
+                ret = SSL_write( ssl, data.data( ) + data_send, data.size( ) - data_send );
+                if ( ret == -1 )
+                    throw std::runtime_error( "send failed" );
+                data_send += ret;
+            }
+        }
+
+        [[nodiscard]] auto receive( int flags = 0 ) const -> utils::ByteArray<> final
+        {
+            utils::List<utils::ByteArray<>> data = { };
+            ssize_t data_recv = 0;
+            std::size_t i = 0;
+            while ( true )
+            {
+                data.emplace_back( 4096 );
+                auto r = SSL_read( ssl, data[ i ].data( ), data[ i ].size( ) );
+                if ( r == -1 && !( SSL_get_error( ssl, r ) == 5 && strcmp( strerror( errno ), "Successes" ) != 0 ) )
+                    throw std::runtime_error(
+                        std::format( "receive failed {} {}", SSL_get_error( ssl, r ), strerror( errno ) ) );
+                else if ( r == 0 )
+                    return { };
+                data_recv += r;
+                if ( r < 4096 )
+                    return utils::combine_arrays( data, data_recv ); // finished reading
+                ++i;
+            }
+        }
+
+    private:
+        SSL *ssl;
+    };
+
+    struct SocketData
+    {
+        int fd;
+        SSL *ssl;
+    };
+
+    export template <std::size_t MaxEvents = 10000, std::size_t BacklogSize = 1000>
+    class TCPServer
     {
     public:
         TCPServer( std::string host, std::uint16_t port,
@@ -54,6 +114,12 @@ namespace vrock::http
 
         auto run( ) -> void
         {
+            if ( use_ssl )
+            {
+                SSL_library_init( );
+                ssl_ctx = create_ctx( );
+                load_certs( );
+            }
             // do socket things
             int opt = 1;
             if ( setsockopt( socket_, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof( opt ) ) < 0 )
@@ -101,10 +167,34 @@ namespace vrock::http
                 close( worker_epoll[ i ] );
             }
             close( socket_ );
+            SSL_CTX_free( ssl_ctx );
+        }
+
+        auto set_certificate( std::string cert, std::string key ) -> void
+        {
+            use_ssl = true;
+            cert_file = cert;
+            key_file = key;
+        }
+
+        auto get_host( ) -> std::string
+        {
+            return host;
+        }
+
+        auto get_port( ) -> std::uint16_t
+        {
+            return port;
+        }
+
+        auto get_max_threads( ) -> std::size_t
+        {
+            return max_threads;
         }
 
     protected:
-        virtual auto handle_request( const Socket &socket, const vrock::utils::ByteArray<> &data ) -> bool = 0;
+        virtual auto handle_request( const vrock::utils::ByteArray<> &data,
+                                     std::function<void( const utils::ByteArray<> & )> send ) -> bool = 0;
 
     private:
         auto listen( ) -> void
@@ -114,6 +204,7 @@ namespace vrock::http
             int client_fd;
             int current_worker = 0;
             bool active = true;
+            SocketData *data;
 
             while ( running )
             {
@@ -128,8 +219,28 @@ namespace vrock::http
                 }
 
                 active = true;
-
-                ctl_epoll_ev( worker_epoll[ current_worker ], EPOLL_CTL_ADD, client_fd, EPOLLIN );
+                data = new SocketData( );
+                data->fd = client_fd;
+                if ( use_ssl )
+                {
+                    data->ssl = SSL_new( ssl_ctx );
+                    SSL_set_fd( data->ssl, client_fd );
+                    int i = 0;
+                    while ( SSL_accept( data->ssl ) == -1 && i != 100 )
+                    {
+                        std::this_thread::sleep_for( std::chrono::microseconds( 100 ) );
+                        i++;
+                    }
+                    // if ( SSL_accept( data->ssl ) == -1 && SSL_accept( data->ssl ) == -1 )
+                    /*{
+                        ::close( data->fd );
+                        SSL_free( data->ssl );
+                        delete data;
+                        std::cout << "SSL_accept failed" << std::endl;
+                        continue;
+                    }*/
+                }
+                ctl_epoll_ev( worker_epoll[ current_worker ], EPOLL_CTL_ADD, client_fd, data, EPOLLIN );
 
                 current_worker = ++current_worker % max_threads;
             }
@@ -139,6 +250,7 @@ namespace vrock::http
         {
             int epoll_fd = worker_epoll[ id ];
             bool active = true;
+            SocketData *data;
 
             while ( running )
             {
@@ -156,40 +268,69 @@ namespace vrock::http
                 for ( int i = 0; i < nfds; i++ )
                 {
                     const epoll_event &current_event = worker_events[ id ][ i ];
+                    data = (SocketData *)current_event.data.ptr;
                     if ( ( current_event.events & EPOLLHUP ) || ( current_event.events & EPOLLERR ) )
                     {
-                        ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, current_event.data.fd );
-                        close( current_event.data.fd );
+                        ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, data->fd );
+                        close( data->fd );
+                        if ( use_ssl && data->ssl )
+                            SSL_free( data->ssl );
+                        delete data;
                     }
                     else if ( current_event.events == EPOLLIN || current_event.events == EPOLLOUT )
                     {
-                        Socket sock( current_event.data.fd );
                         try
                         {
-                            auto d = sock.receive( );
-                            if ( handle_request( sock, d ) )
+                            if ( use_ssl )
                             {
-                                ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, current_event.data.fd );
-                                sock.close( );
+                                auto sock = SecureSocket( data->ssl );
+                                auto d = sock.receive( );
+                                if ( handle_request( d,
+                                                     [ & ]( const utils::ByteArray<> &data ) { sock.send( data ); } ) )
+                                {
+                                    ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, data->fd );
+                                    close( data->fd );
+                                    if ( use_ssl && data->ssl )
+                                        SSL_free( data->ssl );
+                                    delete data;
+                                }
+                            }
+                            else
+                            {
+                                auto sock = Socket( data->fd );
+                                auto d = sock.receive( );
+                                if ( handle_request( d,
+                                                     [ & ]( const utils::ByteArray<> &data ) { sock.send( data ); } ) )
+                                {
+                                    ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, data->fd );
+                                    close( data->fd );
+                                    delete data;
+                                }
                             }
                         }
                         catch ( std::exception &e )
                         {
                             std::cout << std::format( "exception: {}", e.what( ) ) << std::endl;
-                            ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, current_event.data.fd );
-                            close( current_event.data.fd );
+                            ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, data->fd );
+                            close( data->fd );
+                            if ( use_ssl && data->ssl )
+                                SSL_free( data->ssl );
+                            delete data;
                         }
                     }
                     else
                     { // something unexpected
-                        ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, current_event.data.fd );
-                        close( current_event.data.fd );
+                        ctl_epoll_ev( epoll_fd, EPOLL_CTL_DEL, data->fd );
+                        close( data->fd );
+                        if ( use_ssl && data->ssl )
+                            SSL_free( data->ssl );
+                        delete data;
                     }
                 }
             }
         }
 
-        auto ctl_epoll_ev( int epoll_fd, int op, int fd, std::uint32_t events = 0 ) -> void
+        auto ctl_epoll_ev( int epoll_fd, int op, int fd, void *data = nullptr, std::uint32_t events = 0 ) -> void
         {
             if ( op == EPOLL_CTL_DEL )
             {
@@ -200,10 +341,44 @@ namespace vrock::http
             {
                 epoll_event ev{ };
                 ev.events = events;
-                ev.data.fd = fd;
+                ev.data.ptr = data;
                 if ( epoll_ctl( epoll_fd, op, fd, &ev ) < 0 )
                     throw std::runtime_error( "Failed to add file descriptor" );
             }
+        }
+
+        auto create_ctx( ) -> SSL_CTX *
+        {
+            SSL_CTX *ctx;
+            OpenSSL_add_all_algorithms( );                   /* load & register all cryptos, etc. */
+            SSL_load_error_strings( );                       /* load all error messages */
+            const SSL_METHOD *method = TLS_server_method( ); /* create new server-method instance */
+            ctx = SSL_CTX_new( method );                     /* create new context from method */
+            if ( ctx == NULL )
+            {
+                ERR_print_errors_fp( stderr );
+                throw std::runtime_error( "" );
+            }
+            return ctx;
+        }
+
+        auto load_certs( ) -> void
+        {
+            /* set the local certificate from CertFile */
+            if ( SSL_CTX_use_certificate_file( ssl_ctx, cert_file.c_str( ), SSL_FILETYPE_PEM ) <= 0 )
+            {
+                ERR_print_errors_fp( stderr );
+                throw std::runtime_error( "" );
+            }
+            /* set the private key from KeyFile (may be the same as CertFile) */
+            if ( SSL_CTX_use_PrivateKey_file( ssl_ctx, key_file.c_str( ), SSL_FILETYPE_PEM ) <= 0 )
+            {
+                ERR_print_errors_fp( stderr );
+                throw std::runtime_error( "" );
+            }
+            /* verify private key */
+            if ( !SSL_CTX_check_private_key( ssl_ctx ) )
+                throw std::runtime_error( "Private key does not match the public certificate" );
         }
 
     private:
@@ -218,5 +393,10 @@ namespace vrock::http
         int socket_;
         std::vector<int> worker_epoll;
         epoll_event **worker_events;
+
+        bool use_ssl = false;
+        SSL_CTX *ssl_ctx;
+        std::string cert_file;
+        std::string key_file;
     };
 } // namespace vrock::http

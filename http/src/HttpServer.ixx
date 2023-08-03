@@ -123,7 +123,8 @@ namespace vrock::http
         }
 
     protected:
-        auto handle_request( const Socket &socket, const vrock::utils::ByteArray<> &data ) -> bool override
+        auto handle_request( const vrock::utils::ByteArray<> &data,
+                             std::function<void( const utils::ByteArray<> & )> send ) -> bool override
         {
             HttpRequest<RequestData> req;
             try
@@ -138,6 +139,7 @@ namespace vrock::http
                 req.body = std::move( r.body );
                 req.version = r.version;
                 req.headers = std::move( r.headers );
+                req.keep_alive = r.keep_alive;
                 req.data = RequestData( );
 
                 // parse path
@@ -166,14 +168,14 @@ namespace vrock::http
                     for ( auto &i : res_interceptors )
                         i->outgoing( res );
 
-                    socket.send( utils::ByteArray( to_string( res ) ) );
-                    return true;
+                    send( utils::ByteArray( to_string( res ) ) );
+                    return true; // !req.keep_alive
                 }
                 if ( files && req.method == HttpMethod::Get )
                 {
                     auto res = get_file_response( req );
-                    socket.send( utils::ByteArray( to_string( res ) ) );
-                    return true;
+                    send( utils::ByteArray( to_string( res ) ) );
+                    return true; // !req.keep_alive
                 }
                 throw HttpError( HttpStatusCode::NotFound, "" );
             }
@@ -183,13 +185,13 @@ namespace vrock::http
                 res.status_code = err.code;
                 res.version = HttpVersion::HTTP_1_1;
                 res.body = err.body;
-                socket.send( utils::ByteArray( to_string( res ) ) );
-                return true;
+                send( utils::ByteArray( to_string( res ) ) );
+                return true; // !req.keep_alive
             }
             catch ( std::exception &e )
             {
                 HttpResponse<RequestData> res = exception_handler( req, e );
-                socket.send( utils::ByteArray( to_string( res ) ) );
+                send( utils::ByteArray( to_string( res ) ) );
                 return true;
             }
         }

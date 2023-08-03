@@ -232,6 +232,7 @@ namespace vrock::http
         HttpVersion version = HttpVersion::HTTP_1_1;
         std::unordered_map<std::string, std::string> headers;
         std::string body;
+        bool keep_alive = false;
     };
 
     export template <class T>

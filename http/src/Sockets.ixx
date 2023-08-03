@@ -43,6 +43,10 @@ namespace vrock::networking
     export class Socket
     {
     public:
+        Socket( )
+        {
+        }
+
         Socket( Domain domain, Type type )
         {
             socket_ = socket( (int)domain, (int)type, 0 );
@@ -61,12 +65,12 @@ namespace vrock::networking
             return socket_;
         }
 
-        auto close( ) const -> void
+        virtual auto close( ) const -> void
         {
             ::close( socket_ );
         }
 
-        auto send( const utils::ByteArray<> &data, int flags = 0 ) const -> void
+        virtual auto send( const utils::ByteArray<> &data, int flags = 0 ) const -> void
         {
             ssize_t data_send = 0;
             int ret;
@@ -79,7 +83,7 @@ namespace vrock::networking
             }
         }
 
-        [[nodiscard]] auto receive( int flags = 0 ) const -> utils::ByteArray<>
+        [[nodiscard]] virtual auto receive( int flags = 0 ) const -> utils::ByteArray<>
         {
             utils::List<utils::ByteArray<>> data = { };
             ssize_t data_recv = 0;

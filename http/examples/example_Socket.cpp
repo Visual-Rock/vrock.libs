@@ -51,7 +51,12 @@ int main( )
     server.add_response_interceptor( cors );
     server.set_file_extensions( { ".html", ".js", ".css" } );
     server.serve_files( false );
+    server.set_certificate( "cert.pem", "cert.key" );
     server.run( );
+
+    std::cout << std::format( "running server ({}) on port {} with {} threads", server.get_host( ), server.get_port( ),
+                              server.get_max_threads( ) )
+              << std::endl;
 
     std::string command;
     while ( std::cin >> command, command != "quit" )

@@ -125,6 +125,7 @@ namespace vrock::http
             parser.data = &d;
             llhttp_reset( &parser );
             enum llhttp_errno err = llhttp_execute( &parser, req.c_str( ), req.size( ) );
+            request.keep_alive = (bool)llhttp_should_keep_alive( &parser );
             if ( err == HPE_OK )
                 return request;
             else

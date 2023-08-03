@@ -1,9 +1,4 @@
-FetchContent_Declare(llhttp
-        URL "https://github.com/nodejs/llhttp/archive/refs/tags/release/v8.1.0.tar.gz")
-
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-set(BUILD_STATIC_LIBS ON CACHE INTERNAL "")
-FetchContent_MakeAvailable(llhttp)
+find_package(OpenSSL REQUIRED)
 
 add_library(vrockhttp)
 target_sources(vrockhttp
@@ -22,5 +17,4 @@ target_sources(vrockhttp
         llhttp/http.c
         llhttp/api.c
 )
-target_link_libraries(vrockhttp PRIVATE vrockutils) # llhttp::llhttp
-#target_include_directories(vrockhttp PRIVATE ${LLHTTP_HEADERS})
+target_link_libraries(vrockhttp PRIVATE vrockutils OpenSSL::SSL OpenSSL::Crypto)
