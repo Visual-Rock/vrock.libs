@@ -1,2 +1,2 @@
 add_executable(example_ByteArray example_ByteArray.cpp)
-target_link_libraries(example_ByteArray PRIVATE vrockuils)
+target_link_libraries(example_ByteArray PRIVATE vrockutils)
