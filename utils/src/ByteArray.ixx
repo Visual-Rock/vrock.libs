@@ -22,7 +22,8 @@ namespace vrock::utils
      * It does not incorporate any concurrency control mechanisms,  * making it essential to implement
      * external synchronization when being accessed or modified by multiple threads.
      */
-    export template <typename Alloc = std::allocator<std::uint8_t>> class ByteArray
+    export template <typename Alloc = std::allocator<std::uint8_t>>
+    class ByteArray
     {
     private:
         ByteArray( std::size_t len, std::uint8_t *data ) : size_( len ), data_( data )
@@ -53,6 +54,13 @@ namespace vrock::utils
         explicit ByteArray( std::string data ) : size_( data.size( ) ), data_( allocate_ptr( data.size( ) ) )
         {
             std::memcpy( data_, data.data( ), size_ );
+        }
+
+        ByteArray( const ByteArray &arr )
+        {
+            size_ = arr.size( );
+            data_ = allocate_ptr( arr.size( ) );
+            std::memcpy( data_, arr.data( ), size_ );
         }
 
         ~ByteArray( )
@@ -212,8 +220,8 @@ namespace vrock::utils
         std::string s = str + ( ( str.length( ) % 2 == 1 ) ? "0" : "" ); // Append zero if needed
         auto data = ByteArray<>( s.length( ) / 2 );
 
-        for ( size_t i = 0; i < data.size(); ++i )
-            data[i] = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 ) ;
+        for ( size_t i = 0; i < data.size( ); ++i )
+            data[ i ] = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 );
 
         return data;
     }
