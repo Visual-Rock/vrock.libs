@@ -19,11 +19,18 @@ public:
 
     void setup( ) final
     {
+        std::cout << "Dialog Setup" << std::endl;
         number = 0;
     }
 
     void render( ) final
     {
+        static int i = 0;
+
+        // modal inside a modal
+        if ( ImGui::Button( "open" ) )
+            num = app->open_modal_dialog<int>(
+                std::make_shared<DialogSelectNumber>( app, std::format( "Select a Number {}", i++ ) ) );
         ImGui::DragInt( "Number:", &number, 1.0f, 0, 100 );
         if ( ImGui::Button( "close" ) )
             close( number );
@@ -31,9 +38,11 @@ public:
 
     void terminate( ) final
     {
+        std::cout << "Dialog Terminate" << std::endl;
     }
 
     int number = 0;
+    std::shared_future<int> num;
 };
 
 class MainWindow : public vrock::ui::BaseWidget
@@ -76,6 +85,7 @@ int main( )
     auto app_config = vrock::ui::ApplicationConfig( );
     app_config.application_name = "simple example";
     app_config.config_flags |= ImGuiConfigFlags_DockingEnable;
+    app_config.config_flags |= ImGuiConfigFlags_ViewportsEnable;
 
     auto app = std::make_shared<vrock::ui::Application>( /*vrock::log::create_logger( log_cfg )*/ );
     app->run( app_config, std::make_shared<MainWindow>( app ) );

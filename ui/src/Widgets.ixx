@@ -17,6 +17,9 @@ export module vrock.ui.Widgets;
 namespace vrock::ui
 {
     class Application;
+    export class Dialog;
+    export template <class T>
+    class ModalDialog;
 
     export class BaseWidget
     {
@@ -30,6 +33,7 @@ namespace vrock::ui
         auto on_update( ) -> void;
         auto on_render( ) -> void;
         auto on_after_render( ) -> void;
+        auto on_terminate( ) -> void;
 
         virtual void setup( )
         {
@@ -61,12 +65,13 @@ namespace vrock::ui
         std::vector<std::shared_ptr<BaseWidget>> children;
     };
 
-    export class Dialog : public BaseWidget
+    class Dialog : public BaseWidget
     {
     public:
         Dialog( std::shared_ptr<vrock::ui::Application> app, std::string title,
                 ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking )
-            : BaseWidget( std::move( app ) ), title( std::move( title ) ), closed( false ), flags( flags )
+            : BaseWidget( std::move( app ) ), title( std::move( title ) ), closed( false ),
+              flags( flags | ImGuiWindowFlags_Popup )
         {
         }
 
@@ -98,7 +103,7 @@ namespace vrock::ui
         ImGuiWindowFlags flags;
     };
 
-    export template <class T>
+    template <class T>
     class ModalDialog : public Dialog
     {
     public:

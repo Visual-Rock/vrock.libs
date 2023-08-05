@@ -10,6 +10,7 @@ target_sources(vrockui
         FileDialog.ixx
         Widgets.ixx
         Application.ixx
+        Image.ixx
         KeyCode.ixx
         PRIVATE
         tinyfiledialog/tinyfiledialogs.c
@@ -19,6 +20,7 @@ target_sources(vrockui
         FileDialog.cpp
         Widgets.cpp
         Application.cpp
+        Image.cpp
 )
 
 target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan)

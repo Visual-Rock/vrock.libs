@@ -1,5 +1,6 @@
 module;
 
+#include "imgui.h"
 #include <memory>
 #include <vector>
 
@@ -36,6 +37,13 @@ namespace vrock::ui
         for ( auto &child : children )
             child->on_after_render( );
         after_render( );
+    }
+
+    auto BaseWidget::on_terminate( ) -> void
+    {
+        for ( auto &child : children )
+            child->on_terminate( );
+        terminate( );
     }
 
     auto BaseWidget::get_visibility( ) const -> bool
