@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include <iostream>
 #include <memory>
+#include <misc/cpp/imgui_stdlib.h>
 #include <utility>
 
 import vrock.ui.Widgets; // import order is important
@@ -18,16 +19,20 @@ public:
     {
     }
 
-    void setup( ) final
-    {
-    }
     void render( ) final
     {
         ImGui::ShowDemoWindow( );
+        if ( ImGui::Begin( "App" ) )
+        {
+            ImGui::InputText( "title", &new_title );
+            if ( ImGui::Button( "Rename" ) )
+                // renaming the window is as easy as this little call to rename_window
+                app->rename_window( new_title );
+            ImGui::End( );
+        }
     }
-    void terminate( ) final
-    {
-    }
+
+    std::string new_title;
 };
 
 int main( )

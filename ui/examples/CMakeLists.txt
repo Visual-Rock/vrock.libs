@@ -10,3 +10,6 @@ target_link_libraries(example_CloseDialog PRIVATE vrockui)
 file(COPY image.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 add_executable(example_RenderImage example_RenderImage.cpp)
 target_link_libraries(example_RenderImage PRIVATE vrockui)
+
+add_executable(example_FileDialog example_FileDialog.cpp)
+target_link_libraries(example_FileDialog PRIVATE vrockui)
