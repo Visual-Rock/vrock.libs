@@ -19,7 +19,6 @@ public:
 
     void setup( ) final
     {
-        std::cout << "Dialog Setup" << std::endl;
         number = 0;
     }
 
@@ -38,7 +37,6 @@ public:
 
     void terminate( ) final
     {
-        std::cout << "Dialog Terminate" << std::endl;
     }
 
     int number = 0;

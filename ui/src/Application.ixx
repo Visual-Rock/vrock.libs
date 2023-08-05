@@ -324,6 +324,8 @@ namespace vrock::ui
             {
                 timer.reset( );
                 root->on_update( );
+                for ( auto &d : dialogs )
+                    d->on_update( );
                 // close handling
                 if ( glfwWindowShouldClose( window ) && close == nullptr )
                 {
@@ -367,7 +369,7 @@ namespace vrock::ui
 
                 ImGui::NewFrame( );
 
-                root->render( );
+                root->on_render( );
 
                 render_modal( 0 );
                 if ( !new_dialogs.empty( ) )
@@ -397,6 +399,8 @@ namespace vrock::ui
                 delta = (float)timer.elapsed<std::chrono::nanoseconds>( ) * 0.000000001f;
 
                 root->on_after_render( );
+                for ( auto &d : dialogs )
+                    d->on_after_render( );
             }
             // logger.debug( "cleanup" );
             rename = [ & ]( const std::string &title ) { /*logger.debug( "can't rename window after cleanup!" );*/ };
@@ -413,7 +417,6 @@ namespace vrock::ui
                     func( );
             }
             resource_free_queue.clear( );
-            ;
 
             ImGui_ImplVulkan_Shutdown( );
             ImGui_ImplGlfw_Shutdown( );
@@ -518,14 +521,19 @@ namespace vrock::ui
                 return;
 
             for ( auto &nd : new_dialogs )
+            {
                 if ( dialogs[ offset ] == nd )
+                {
+                    nd->setup( );
                     ImGui::OpenPopup( nd->get_title( ).c_str( ), nd->get_flags( ) );
+                }
+            }
 
             bool t = true;
             if ( ImGui::BeginPopupModal( dialogs[ offset ]->get_title( ).c_str( ), &t,
                                          dialogs[ offset ]->get_flags( ) ) )
             {
-                dialogs[ offset ]->render( );
+                dialogs[ offset ]->on_render( );
                 render_modal( ++offset );
                 ImGui::EndPopup( );
             }
