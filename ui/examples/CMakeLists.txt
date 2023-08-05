@@ -1,0 +1,15 @@
+add_executable(example_SimpleApp example_SimpleApp.cpp)
+target_link_libraries(example_SimpleApp PRIVATE vrockui)
+
+add_executable(example_ModalDialog example_ModalDialog.cpp)
+target_link_libraries(example_ModalDialog PRIVATE vrockui)
+
+add_executable(example_CloseDialog example_CloseDialog.cpp)
+target_link_libraries(example_CloseDialog PRIVATE vrockui)
+
+file(COPY image.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+add_executable(example_RenderImage example_RenderImage.cpp)
+target_link_libraries(example_RenderImage PRIVATE vrockui)
+
+add_executable(example_FileDialog example_FileDialog.cpp)
+target_link_libraries(example_FileDialog PRIVATE vrockui)
