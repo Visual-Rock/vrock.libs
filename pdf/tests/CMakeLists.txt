@@ -1,6 +1,9 @@
 enable_testing()
 
-add_executable(pdf_tests ByteArray.test.cpp)
+add_executable(pdf_tests
+        parser/BaseParser.test.cpp
+        parser/PDFObjectParser.test.cpp
+)
 
 target_link_libraries(
         pdf_tests PRIVATE

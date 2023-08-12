@@ -1,8 +1,8 @@
 module;
 
-export module vrock.security.hash;
+import vrock.utils.ByteArray;
 
-export import vrock.utils.ByteArray;
+export module vrock.security.hash;
 
 namespace vrock::security
 {

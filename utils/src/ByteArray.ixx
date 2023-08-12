@@ -3,6 +3,7 @@ module;
 #include <cinttypes>
 #include <cstring>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -223,6 +224,15 @@ namespace vrock::utils
         for ( size_t i = 0; i < data.size( ); ++i )
             data[ i ] = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 );
 
+        return data;
+    }
+
+    export auto from_hex_string_shared( const std::string &str ) -> std::shared_ptr<ByteArray<>>
+    {
+        std::string s = str + ( ( str.length( ) % 2 == 1 ) ? "0" : "" ); // Append zero if needed
+        auto data = std::make_shared<ByteArray<>>( s.length( ) / 2 );
+        for ( size_t i = 0; i < data->size( ); ++i )
+            data->at( i ) = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 );
         return data;
     }
 } // namespace vrock::utils

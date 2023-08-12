@@ -1,5 +1,7 @@
 module;
 
+import vrock.utils.ByteArray;
+
 #include <cryptopp/aes.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/gcm.h>
@@ -9,12 +11,10 @@ module;
 #include "cryptopp/arc4.h"
 
 #include <iostream>
-#include <string>
-#include <vector>
 #include <stdexcept>
+#include <string>
 #include <utility>
-
-import vrock.utils.ByteArray;
+#include <vector>
 
 module vrock.security.encryption;
 
@@ -40,7 +40,7 @@ namespace vrock::security
     }
 
     auto encrypt_aes_gcm( const utils::ByteArray<> &data, const utils::ByteArray<> &key, const utils::ByteArray<> &iv,
-                      const utils::ByteArray<> &authentication_data ) -> utils::ByteArray<>
+                          const utils::ByteArray<> &authentication_data ) -> utils::ByteArray<>
     {
         std::string cipher;
 
@@ -58,7 +58,7 @@ namespace vrock::security
     }
 
     auto decrypt_aes_gcm( const utils::ByteArray<> &data, const utils::ByteArray<> &key, const utils::ByteArray<> &iv,
-                      const utils::ByteArray<> &authentication_data ) -> utils::ByteArray<>
+                          const utils::ByteArray<> &authentication_data ) -> utils::ByteArray<>
     {
         CryptoPP::GCM<CryptoPP::AES>::Decryption d;
         d.SetKeyWithIV( key.data( ), key.size( ), iv.data( ), iv.size( ) );
@@ -114,7 +114,7 @@ namespace vrock::security
     }
 
     auto encrypt_aes_cbc( const utils::ByteArray<> &data, const utils::ByteArray<> &key, const utils::ByteArray<> &iv,
-                      Padding padding ) -> utils::ByteArray<>
+                          Padding padding ) -> utils::ByteArray<>
     {
         if ( iv.size( ) != 16 )
             throw std::invalid_argument( "initialization vector has to have a length of 16 bytes" );
@@ -129,7 +129,7 @@ namespace vrock::security
     }
 
     auto decrypt_aes_cbc( const utils::ByteArray<> &data, const utils::ByteArray<> &key, const utils::ByteArray<> &iv,
-                      Padding padding ) -> utils::ByteArray<>
+                          Padding padding ) -> utils::ByteArray<>
     {
         if ( iv.size( ) != 16 )
             throw std::invalid_argument( "initialization vector has to have a length of 16 bytes" );
@@ -146,24 +146,22 @@ namespace vrock::security
         return utils::ByteArray<>( decrypted );
     }
 
-    auto encrypt_rc4( const utils::ByteArray<> &data, const utils::ByteArray<> &key )
-        -> utils::ByteArray<>
+    auto encrypt_rc4( const utils::ByteArray<> &data, const utils::ByteArray<> &key ) -> utils::ByteArray<>
     {
         CryptoPP::Weak::ARC4 rc4;
 
-        if ( rc4.MaxKeyLength( ) < key.size() && rc4.MinKeyLength( ) > key.size() )
+        if ( rc4.MaxKeyLength( ) < key.size( ) && rc4.MinKeyLength( ) > key.size( ) )
             throw std::invalid_argument( "the key was of invalid length" );
 
-        rc4.SetKey( key.data(), key.size() );
-        auto encr = utils::ByteArray<>( data.size() );
+        rc4.SetKey( key.data( ), key.size( ) );
+        auto encr = utils::ByteArray<>( data.size( ) );
 
-        rc4.ProcessData( encr.data(), data.data(), data.size() );
+        rc4.ProcessData( encr.data( ), data.data( ), data.size( ) );
 
         return encr;
     }
 
-    auto decrypt_rc4( const utils::ByteArray<> &data, const utils::ByteArray<> &key )
-        -> utils::ByteArray<>
+    auto decrypt_rc4( const utils::ByteArray<> &data, const utils::ByteArray<> &key ) -> utils::ByteArray<>
     {
         return encrypt_rc4( data, key );
     }
