@@ -18,7 +18,7 @@ namespace vrock::pdf
         Append // needs implementation
     };
 
-    export class PDFDocument
+    export class PDFDocument : std::enable_shared_from_this<PDFDocument>
     {
     public:
         PDFDocument( );
@@ -27,7 +27,7 @@ namespace vrock::pdf
         auto save( PDFSaveMode mode = PDFSaveMode::Append ) -> void;
         auto save( const std::string &path, PDFSaveMode mode = PDFSaveMode::Append ) -> void;
 
-        const std::shared_ptr<PDFBaseSecurityHandler> decryption_handler;
+        std::shared_ptr<PDFBaseSecurityHandler> decryption_handler;
         std::shared_ptr<PDFBaseSecurityHandler> encryption_handler;
 
     private:

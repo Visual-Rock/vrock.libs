@@ -450,9 +450,19 @@ namespace vrock::pdf
             -> std::shared_ptr<utils::ByteArray<>> final;
     };
 
+    export class PDFFlateFilter : public BaseFilter
+    {
+    public:
+        auto encode( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFDictionary> )
+            -> std::shared_ptr<utils::ByteArray<>> final;
+
+        auto decode( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFDictionary> )
+            -> std::shared_ptr<utils::ByteArray<>> final;
+    };
+
     static std::unordered_map<std::string, std::shared_ptr<BaseFilter>> encodings = {
         { "ASCIIHexDecode", std::make_shared<PDFASCIIFilter>( ) },
-        //    { "FlateDecode", std::make_shared<encodings::PDFFlateEncoding>( ) },
+        { "FlateDecode", std::make_shared<PDFFlateFilter>( ) },
         //    { "DCTDecode", std::make_shared<encodings::PDFDCTEncoding>( ) },
         //    { "JPXDecode", std::make_shared<encodings::PDFJPXEncoding>( ) },
     };

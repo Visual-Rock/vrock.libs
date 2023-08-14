@@ -20,7 +20,7 @@ namespace vrock::utils
      * `ByteArray` is a class designed to handle memory operations on byte arrays.
      * It offers capabilities such as creating a byte array from size or string,
      * resizing, creating sub-arrays, appending byte arrays, and several ways to return the byte array data.
-     * It does not incorporate any concurrency control mechanisms,  * making it essential to implement
+     * It does not incorporate any concurrency control mechanisms, making it essential to implement
      * external synchronization when being accessed or modified by multiple threads.
      */
     export template <typename Alloc = std::allocator<std::uint8_t>>
@@ -144,6 +144,25 @@ namespace vrock::utils
         }
 
         /**
+         * Returns a sub array of ByteArray starting from start and up to len characters.
+         * @param start Start index of sub array.
+         * @param len Length of sub array.
+         * @return Sub array of ByteArray.
+         */
+        [[nodiscard]] auto subarr_shared( std::size_t start, std::size_t len = 18446744073709551615UL )
+            -> std::shared_ptr<ByteArray>
+        {
+            if ( len == 18446744073709551615UL )
+                len = size_ - start;
+            if ( start + len > size_ )
+                throw std::out_of_range( "failed to create sub array! byte array not long enough." );
+            auto arr = std::make_shared<ByteArray>( len );
+            // std::uint8_t *arr = allocate_ptr( len );
+            std::memcpy( arr->data( ), data_ + start, len );
+            return arr;
+        }
+
+        /**
          * Appends other ByteArray to this ByteArray.
          * @param arr ByteArray to append.
          */
@@ -155,6 +174,20 @@ namespace vrock::utils
             deallocate_ptr( size_, data_ );
             data_ = n;
             size_ = size_ + arr.size_;
+        }
+
+        /**
+         * Appends other ByteArray to this ByteArray.
+         * @param arr ByteArray to append.
+         */
+        auto append( const std::shared_ptr<ByteArray> &arr ) noexcept -> void
+        {
+            std::uint8_t *n = allocate_ptr( size_ + arr->size( ) );
+            std::memcpy( n, data_, size_ );
+            std::memcpy( n + size_, arr->data( ), arr->size( ) );
+            deallocate_ptr( size_, data_ );
+            data_ = n;
+            size_ = size_ + arr->size( );
         }
 
         /**

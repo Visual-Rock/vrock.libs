@@ -3,6 +3,7 @@ module;
 import vrock.pdf.PDFBaseObjects;
 import vrock.utils.ByteArray;
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace vrock::pdf
 {
     class PDFDocument;
 
-    export enum PDFSecurityHandlerType
+    export enum SecurityHandlerType
     {
         Null,
         Standard
@@ -55,7 +56,7 @@ namespace vrock::pdf
     export class PDFBaseSecurityHandler : public std::enable_shared_from_this<PDFBaseSecurityHandler>
     {
     public:
-        PDFBaseSecurityHandler( PDFSecurityHandlerType t ) : type( t )
+        PDFBaseSecurityHandler( SecurityHandlerType t ) : type( t )
         {
         }
 
@@ -66,7 +67,7 @@ namespace vrock::pdf
             -> std::shared_ptr<utils::ByteArray<>> = 0;
         virtual auto has_permission( Permissions ) -> bool = 0;
 
-        auto is( PDFSecurityHandlerType t ) -> bool
+        auto is( SecurityHandlerType t ) -> bool
         {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnonnull-compare"
@@ -94,13 +95,22 @@ namespace vrock::pdf
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
 
-        PDFSecurityHandlerType type;
+        template <class T, SecurityHandlerType Type>
+            requires std::is_base_of_v<PDFBaseSecurityHandler, T>
+        auto to( ) -> std::shared_ptr<T>
+        {
+            if ( is( Type ) )
+                return as<T>( );
+            return nullptr;
+        }
+
+        SecurityHandlerType type;
     };
 
     export class PDFNullSecurityHandler : public PDFBaseSecurityHandler
     {
     public:
-        PDFNullSecurityHandler( ) : PDFBaseSecurityHandler( PDFSecurityHandlerType::Null )
+        PDFNullSecurityHandler( ) : PDFBaseSecurityHandler( SecurityHandlerType::Null )
         {
         }
 
@@ -120,6 +130,7 @@ namespace vrock::pdf
         {
             return data;
         }
+
         auto has_permission( Permissions permissions ) -> bool override
         {
             return true;
@@ -129,8 +140,9 @@ namespace vrock::pdf
     export class PDFStandardSecurityHandler : public PDFBaseSecurityHandler
     {
     public:
-        PDFStandardSecurityHandler( std::shared_ptr<PDFDictionary> encryption_dict, std::function<void( )> )
-            : PDFBaseSecurityHandler( PDFSecurityHandlerType::Standard )
+        PDFStandardSecurityHandler( std::shared_ptr<PDFDictionary> encryption_dict, std::shared_ptr<PDFContext> ctx,
+                                    std::function<void( )> )
+            : PDFBaseSecurityHandler( SecurityHandlerType::Standard )
         {
         }
 
@@ -140,21 +152,38 @@ namespace vrock::pdf
         }
 
         auto decrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final
-        {
-            return data;
-        }
+            -> std::shared_ptr<utils::ByteArray<>> final;
 
         auto encrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final
+            -> std::shared_ptr<utils::ByteArray<>> final;
+
+        auto has_user_password( ) -> bool
         {
-            return data;
+            return authenticate( "" ) == AuthenticationState::Failed;
         }
 
-        auto has_user_password( ) -> bool;
-
         auto authenticate( const std::string &pw ) -> AuthenticationState;
-        auto is_authenticated( ) -> bool;
+
+        auto is_authenticated( ) -> bool
+        {
+            return state != AuthenticationState::Failed;
+        }
+
+        auto has_permission( Permissions perm ) -> bool
+        {
+            return ( permissions & (std::int32_t)perm ) || state == AuthenticationState::Owner;
+        }
+
+    private:
+        std::shared_ptr<PDFContext> context;
+
+        std::shared_ptr<PDFDictionary> dict;
+        std::shared_ptr<utils::ByteArray<>> key;
+        AuthenticationState state;
+        std::uint32_t permissions;
+        std::uint8_t revision;
+        bool encrypt_metadata = false;
+        bool use_aes = false;
     };
 
     /// PDF Algorithm declaration
@@ -172,11 +201,13 @@ namespace vrock::pdf
     auto decrypt_data_1a( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<utils::ByteArray<>> key )
         -> std::shared_ptr<utils::ByteArray<>>;
 
-    const auto fill = utils::from_hex_string( "28BF4E5E4E758A4164004E56FFFA01082E2E00B6D0683E802F0CA9FE6453697A" );
+    const auto fill =
+        utils::from_hex_string_shared( "28BF4E5E4E758A4164004E56FFFA01082E2E00B6D0683E802F0CA9FE6453697A" );
 
-    auto compute_file_encryption_key_2( const std::string &password, std::shared_ptr<utils::ByteArray<>> o, uint32_t p,
-                                        std::shared_ptr<utils::ByteArray<>> id, int32_t length, uint8_t revision,
-                                        bool encrypt_metadata ) -> std::shared_ptr<utils::ByteArray<>>;
+    auto compute_file_encryption_key_2( const std::string &password, const std::shared_ptr<utils::ByteArray<>> &o,
+                                        uint32_t p, const std::shared_ptr<utils::ByteArray<>> &id, int32_t length,
+                                        uint8_t revision, bool encrypt_metadata )
+        -> std::shared_ptr<utils::ByteArray<>>;
 
     auto retrieve_file_encryption_key_2a( const std::string &password, AuthenticationState state,
                                           std::shared_ptr<utils::ByteArray<>> o, std::shared_ptr<utils::ByteArray<>> u,

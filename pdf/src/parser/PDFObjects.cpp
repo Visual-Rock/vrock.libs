@@ -28,28 +28,6 @@ namespace vrock::pdf
         return dict[ key ];
     }
 
-    // PDF Filter
-    static std::vector<char> _ignore = std::vector<char>( { '\0', '\t', '\n', '\f', '\r', ' ', '>' } );
-
-    auto PDFASCIIFilter::encode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
-        -> std::shared_ptr<utils::ByteArray<>>
-    {
-        auto encoded = data->to_hex_string( );
-        return std::make_shared<utils::ByteArray<>>( encoded + ">" );
-    }
-
-    auto PDFASCIIFilter::decode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
-        -> std::shared_ptr<utils::ByteArray<>>
-    {
-        // Filter all characters that can appear but are not hex
-        std::stringstream ss;
-        for ( size_t i = 0; i < data->size( ); ++i )
-            if ( std::find( _ignore.begin( ), _ignore.end( ), (char)data->data( )[ i ] ) == _ignore.end( ) )
-                ss << data->data( )[ i ];
-        // convert to data
-        return utils::from_hex_string_shared( ss.str( ) );
-    }
-
     // PDFStreams
 
     auto PDFXRefStream::get_entries( ) -> std::vector<std::shared_ptr<XRefEntry>>
@@ -149,6 +127,7 @@ namespace vrock::pdf
     auto PDFContext::init( ) -> void
     {
         xref_tables = std::move( parser->parse_xref( ) );
+        trailer = xref_tables[ 0 ]->trailer;
     }
 
     auto get_entry( const std::vector<std::shared_ptr<XRefTable>> &xref_tables, std::shared_ptr<PDFRef> ref )
@@ -185,6 +164,7 @@ namespace vrock::pdf
                     obj = parser->parse_object( ref, true );
                 else
                     throw std::runtime_error( "failed to parse object reference" );
+                break;
             }
             case 2: {
                 // TODO: from Object Stream
@@ -193,6 +173,7 @@ namespace vrock::pdf
                 obj = std::make_shared<PDFNull>( );
             }
             objects[ ref ] = obj;
+            return obj;
         }
         return nullptr;
     }

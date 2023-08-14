@@ -9,14 +9,13 @@ using namespace vrock::pdf;
 
 int main( )
 {
-    auto doc = PDFDocument( "./with_update_sections.pdf" );
+    auto doc = PDFDocument( "./üser_öwner.pdf" );
     if ( doc.decryption_handler->is_encrypted( ) )
     {
-        if ( doc.decryption_handler->is( PDFSecurityHandlerType::Standard ) )
+        if ( auto handler = doc.decryption_handler->to<PDFStandardSecurityHandler, SecurityHandlerType::Standard>( ) )
         {
-            auto handler = doc.decryption_handler->as<PDFStandardSecurityHandler>( );
             while ( !handler->is_authenticated( ) )
-                handler->authenticate( "" );
+                handler->authenticate( "öwner" );
         }
     }
 

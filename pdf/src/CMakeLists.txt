@@ -1,4 +1,5 @@
 find_package(ICU COMPONENTS uc data REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_library(vrockpdf)
 target_sources(vrockpdf
@@ -17,6 +18,7 @@ target_sources(vrockpdf
         parser/BaseParser.cpp
         parser/PDFObjectParser.cpp
         parser/PDFObjects.cpp
+        parser/PDFFilter.cpp
 )
 
-target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data)
+target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data ZLIB::ZLIB)
