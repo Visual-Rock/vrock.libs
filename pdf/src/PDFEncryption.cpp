@@ -13,6 +13,7 @@ import vrock.security.random;
 
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -22,6 +23,31 @@ module vrock.pdf.PDFEncryption;
 namespace vrock::pdf
 {
     auto prep_password( std::string ) -> std::string;
+
+    PDFStandardSecurityHandler::PDFStandardSecurityHandler( std::shared_ptr<PDFDictionary> encryption_dict,
+                                                            std::shared_ptr<PDFContext> ctx, std::function<void( )> f )
+        : PDFBaseSecurityHandler( SecurityHandlerType::Standard ), context( std::move( ctx ) ),
+          dict( std::move( encryption_dict ) ), fn( std::move( f ) )
+    {
+        if ( auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" ) )
+            revision = r->value;
+        if ( auto p = dict->get<PDFInteger, PDFObjectType::Integer>( "P" ) )
+            permissions = p->value;
+
+        if ( revision == 4 )
+        {
+            auto cf = dict->get<PDFDictionary, PDFObjectType::Dictionary>( "CF" );
+            if ( cf == nullptr )
+                return;
+            auto stdcf = dict->get<PDFDictionary, PDFObjectType::Dictionary>( "StdCF" );
+            if ( stdcf == nullptr )
+                return;
+            if ( auto cfm = stdcf->get<PDFName, PDFObjectType::Name>( "CFM" ) )
+                use_aes = cfm->name == "AESV2";
+        }
+        if ( revision == 5 || revision == 6 )
+            use_aes = true;
+    }
 
     auto PDFStandardSecurityHandler::decrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> ref )
         -> std::shared_ptr<utils::ByteArray<>>
@@ -108,7 +134,7 @@ namespace vrock::pdf
             {
                 state = AuthenticationState::Owner;
                 key = k;
-                // authenticated_action( doc );
+                fn( );
                 return state;
             }
             k = authenticate_user( password, revision, dict, id, &encrypt_metadata );
@@ -116,7 +142,7 @@ namespace vrock::pdf
             {
                 state = AuthenticationState::User;
                 key = k;
-                // authenticated_action( doc );
+                fn( );
                 return state;
             }
         }

@@ -526,14 +526,16 @@ namespace vrock::pdf
     export class PDFObjectStream : public PDFStream
     {
     public:
-        explicit PDFObjectStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data )
-            : PDFStream( std::move( d ), std::move( data ), PDFStreamType::Object )
-        {
-        }
+        explicit PDFObjectStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data,
+                                  std::shared_ptr<PDFContext> ctx );
+
+        auto get_object( std::size_t idx ) -> std::shared_ptr<PDFBaseObject>;
 
     private:
         std::unordered_map<std::shared_ptr<PDFRef>, std::shared_ptr<PDFBaseObject>> objects = { };
         std::vector<std::pair<std::uint32_t, std::size_t>> offsets = { };
+        std::shared_ptr<PDFObjectParser> parser;
+        std::shared_ptr<PDFContext> context;
         std::size_t first = 0;
     };
 

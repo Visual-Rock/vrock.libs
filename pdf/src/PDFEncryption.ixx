@@ -141,14 +141,11 @@ namespace vrock::pdf
     {
     public:
         PDFStandardSecurityHandler( std::shared_ptr<PDFDictionary> encryption_dict, std::shared_ptr<PDFContext> ctx,
-                                    std::function<void( )> )
-            : PDFBaseSecurityHandler( SecurityHandlerType::Standard )
-        {
-        }
+                                    std::function<void( )> );
 
         auto is_encrypted( ) -> bool final
         {
-            return false;
+            return true;
         }
 
         auto decrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
@@ -179,11 +176,12 @@ namespace vrock::pdf
 
         std::shared_ptr<PDFDictionary> dict;
         std::shared_ptr<utils::ByteArray<>> key;
-        AuthenticationState state;
+        AuthenticationState state = AuthenticationState::Failed;
         std::uint32_t permissions;
         std::uint8_t revision;
         bool encrypt_metadata = false;
         bool use_aes = false;
+        std::function<void( )> fn;
     };
 
     /// PDF Algorithm declaration

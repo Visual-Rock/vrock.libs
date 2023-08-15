@@ -118,6 +118,35 @@ namespace vrock::pdf
             throw std::runtime_error( "Size not found in XRefStream Dictionary or it is not an Integer" );
     } // namespace vrock::pdf
 
+    PDFObjectStream::PDFObjectStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data,
+                                      std::shared_ptr<PDFContext> ctx )
+        : PDFStream( std::move( d ), std::move( data ), PDFStreamType::Object ), context( std::move( ctx ) )
+    {
+        parser = std::make_shared<PDFObjectParser>( this->data->to_string( ) );
+        parser->set_context( context );
+        auto n = dict->get<PDFInteger, PDFObjectType::Integer>( "N" );
+        auto f = dict->get<PDFInteger, PDFObjectType::Integer>( "First" );
+        if ( !( n && f ) )
+            throw std::runtime_error( "missing entries N and First in Object stream Dictionary" );
+        first = f->value;
+        for ( int32_t i = 0; i < n->value; i++ )
+        {
+            auto num = parser->parse_int( );
+            offsets.emplace_back( num, parser->parse_int( ) );
+        }
+    }
+
+    auto PDFObjectStream::get_object( std::size_t idx ) -> std::shared_ptr<PDFBaseObject>
+    {
+        auto p = offsets[ idx ];
+        auto ref = std::make_shared<PDFRef>( p.first, 0, 1 );
+        if ( objects.find( ref ) != objects.end( ) )
+            return objects[ ref ];
+        parser->_offset = p.second + first;
+        objects[ ref ] = parser->parse_object( ref, false );
+        return objects[ ref ];
+    }
+
     // PDFContext
 
     PDFContext::PDFContext( std::shared_ptr<PDFObjectParser> parser ) : parser( std::move( parser ) )
@@ -167,7 +196,12 @@ namespace vrock::pdf
                 break;
             }
             case 2: {
-                // TODO: from Object Stream
+                // get stream + convert
+                if ( auto objstm = get_object<PDFStream, PDFObjectType::Stream>(
+                                       std::make_shared<PDFRef>( entry->object_number, 0, 1 ) )
+                                       ->to_stream<PDFObjectStream, PDFStreamType::Object>( ) )
+                    obj = objstm->get_object( entry->offset );
+                break;
             }
             default:
                 obj = std::make_shared<PDFNull>( );

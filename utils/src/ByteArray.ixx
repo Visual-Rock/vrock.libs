@@ -1,11 +1,13 @@
 module;
 
+#include <algorithm>
 #include <cinttypes>
 #include <cstring>
 #include <iomanip>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 /**
  * @brief module that holds the ByteArray class
@@ -248,6 +250,50 @@ namespace vrock::utils
             return true;
         }
     };
+
+    export auto combine_arrays( std::vector<ByteArray<>> &arrs, std::size_t size ) -> ByteArray<>
+    {
+        ByteArray<> ret( size );
+        std::size_t offset = 0;
+        int i = 0;
+        while ( offset < size )
+        {
+            std::memcpy( ret.data( ) + offset, arrs[ i ].data( ), std::min( arrs[ i ].size( ), size - offset ) );
+            offset += arrs[ i ].size( );
+            ++i;
+        }
+        return ret;
+    }
+
+    export auto combine_arrays( std::vector<std::shared_ptr<ByteArray<>>> &arrs, std::size_t size )
+        -> std::shared_ptr<ByteArray<>>
+    {
+        auto ret = std::make_shared<ByteArray<>>( size );
+        std::size_t offset = 0;
+        int i = 0;
+        while ( offset < size )
+        {
+            std::memcpy( ret->data( ) + offset, arrs[ i ]->data( ), std::min( arrs[ i ]->size( ), size - offset ) );
+            offset += arrs[ i ]->size( );
+            ++i;
+        }
+        return ret;
+    }
+
+    export auto combine_arrays( std::vector<ByteArray<>> &arrays ) -> ByteArray<>
+    {
+        std::size_t size = 0;
+        std::for_each( arrays.begin( ), arrays.end( ), [ & ]( const ByteArray<> &ba ) { size += ba.size( ); } );
+        return combine_arrays( arrays, size );
+    }
+
+    export auto combine_arrays( std::vector<std::shared_ptr<ByteArray<>>> &arrays ) -> std::shared_ptr<ByteArray<>>
+    {
+        std::size_t size = 0;
+        std::for_each( arrays.begin( ), arrays.end( ),
+                       [ & ]( const std::shared_ptr<ByteArray<>> &ba ) { size += ba->size( ); } );
+        return combine_arrays( arrays, size );
+    }
 
     export auto from_hex_string( const std::string &str ) -> ByteArray<>
     {

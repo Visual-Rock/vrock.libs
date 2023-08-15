@@ -44,9 +44,79 @@ namespace vrock::pdf
         return data;
     }
 
-    auto PDFFlateFilter::decode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
+    auto predict_png( const std::shared_ptr<utils::ByteArray<>> &data, int col, int bpc, int bpp )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    auto PDFFlateFilter::decode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> params )
         -> std::shared_ptr<utils::ByteArray<>>
     {
-        return data;
+        int predictor = 1;
+        int colors = 1;
+        int bit_per_component = 8;
+        int columns = 1;
+        if ( auto pred = params->get<PDFInteger, PDFObjectType::Integer>( "Predictor" ) )
+            predictor = pred->value;
+        if ( auto color = params->get<PDFInteger, PDFObjectType::Integer>( "Colors" ) )
+            colors = color->value;
+        if ( auto bpc = params->get<PDFInteger, PDFObjectType::Integer>( "BitsPerComponent" ) )
+            bit_per_component = bpc->value;
+        if ( auto col = params->get<PDFInteger, PDFObjectType::Integer>( "Columns" ) )
+            columns = col->value;
+        auto pixel_length = ( colors * bit_per_component + 7 ) / 8;
+        auto inflated = inflate( data );
+        // apply predictor
+        switch ( predictor )
+        {
+        case 1:
+            return inflated;
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            return predict_png( inflated, columns, bit_per_component, pixel_length );
+            break;
+        default:
+            // log::get_logger( "pdf" )->log->info( "unknown predictor {}", predictor );
+            return inflated;
+        }
+    }
+
+    auto predict_png( const std::shared_ptr<utils::ByteArray<>> &data, int col, int bpc, int bpp )
+        -> std::shared_ptr<utils::ByteArray<>>
+    {
+        auto row_len = ( col * bpp ) + 1;
+        size_t len = col * bpp;
+        auto rows = ( data->size( ) / row_len );
+        auto decoded = std::make_shared<utils::ByteArray<>>( rows * col );
+
+        for ( size_t i = 0; i < rows; i++ )
+        {
+            auto pred = data->data( )[ i * row_len ];
+            auto row_start_o = row_len * i + 1;
+            auto row_start_d = len * i;
+
+            switch ( pred )
+            {
+            case 0:
+                memcpy( decoded->data( ) + row_start_d, data->data( ) + row_start_o, len );
+            case 1:
+                memcpy( decoded->data( ) + row_start_d, data->data( ) + row_start_o, bpp );
+                for ( size_t j = bpp; j < len; j++ )
+                    decoded->at( row_start_d + j ) = data->at( row_start_o + j ) + decoded->at( row_start_d + j - bpp );
+                break;
+            case 2:
+                if ( i != 0 )
+                    for ( int j = 0; j < col; j++ )
+                        decoded->at( row_start_d + j ) =
+                            data->at( row_start_o + j ) + decoded->at( row_start_d - len + j );
+                else
+                    memcpy( decoded->data( ), data->data( ) + 1, col );
+                break;
+            default:
+                // vrock::log::get_logger( "pdf" )->log->error( "PNG predictor {} not supported!", pred );
+                break;
+            }
+        }
+        return decoded;
     }
 } // namespace vrock::pdf

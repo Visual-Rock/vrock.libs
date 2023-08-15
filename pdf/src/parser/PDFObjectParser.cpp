@@ -228,7 +228,8 @@ namespace vrock::pdf
         if ( type && type->name == "XRef" )
             return std::make_shared<PDFXRefStream>( dict, data );
         if ( type && type->name == "ObjStm" )
-            return std::make_shared<PDFObjectStream>( dict, decrypt ? decryption_handler->decrypt( data, ref ) : data );
+            return std::make_shared<PDFObjectStream>( dict, decrypt ? decryption_handler->decrypt( data, ref ) : data,
+                                                      context );
         return std::make_shared<PDFStream>( dict, decrypt ? decryption_handler->decrypt( data, ref ) : data );
     }
 

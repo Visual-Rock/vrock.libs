@@ -10,14 +10,11 @@ using namespace vrock::pdf;
 int main( )
 {
     auto doc = PDFDocument( "./üser_öwner.pdf" );
+    
     if ( doc.decryption_handler->is_encrypted( ) )
-    {
         if ( auto handler = doc.decryption_handler->to<PDFStandardSecurityHandler, SecurityHandlerType::Standard>( ) )
-        {
             while ( !handler->is_authenticated( ) )
                 handler->authenticate( "öwner" );
-        }
-    }
 
     return 0;
 }
