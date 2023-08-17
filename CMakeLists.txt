@@ -7,8 +7,8 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 # with extensions right now and it is not required for any other compiler
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(TESTS "Build all vrock.lib Tests" ON)
-option(EXAMPLES "Build all vrock.lib Examples" ON)
+option(TESTS "Build all vrock.lib Tests" OFF)
+option(EXAMPLES "Build all vrock.lib Examples" OFF)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
 option(LOG "Build the log module of vrock.lib" ON)

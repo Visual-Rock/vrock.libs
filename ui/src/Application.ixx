@@ -141,6 +141,135 @@ void FramePresent( ImGui_ImplVulkanH_Window *wd );
 
 namespace vrock::ui
 {
+    export class Application;
+
+    export class BaseWidget
+    {
+    public:
+        BaseWidget( std::shared_ptr<vrock::ui::Application> app ) : app( app )
+        {
+        }
+
+        ~BaseWidget( );
+
+        auto on_update( ) -> void;
+        auto on_render( ) -> void;
+        auto on_after_render( ) -> void;
+        auto on_terminate( ) -> void;
+
+        virtual void setup( )
+        {
+        }
+        virtual void update( )
+        {
+        }
+        virtual void render( )
+        {
+        }
+        virtual void after_render( )
+        {
+        }
+        virtual void terminate( )
+        {
+        }
+
+        auto get_visibility( ) const -> bool;
+        auto set_visibility( bool new_visibility ) -> void;
+
+        template <class T, class... Args>
+            requires std::is_base_of_v<BaseWidget, T>
+        auto create_child( Args &&...args ) -> std::shared_ptr<T>
+        {
+            auto child = std::make_shared<T>( args... );
+            children.push_back( child );
+            child->setup( );
+            return child;
+        }
+
+    protected:
+        bool visibility = true;
+
+        std::shared_ptr<vrock::ui::Application> app;
+        std::vector<std::shared_ptr<BaseWidget>> children;
+    };
+
+    export class Dialog : public BaseWidget
+    {
+    public:
+        Dialog( std::shared_ptr<vrock::ui::Application> app, std::string title,
+                ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking )
+            : BaseWidget( std::move( app ) ), title( std::move( title ) ), closed( false ),
+              flags( flags | ImGuiWindowFlags_Popup )
+        {
+        }
+
+        ~Dialog( ) = default;
+
+        auto close( ) noexcept -> void
+        {
+            closed = true;
+        }
+
+        [[nodiscard]] auto is_closed( ) const noexcept -> bool
+        {
+            return closed;
+        }
+
+        [[nodiscard]] auto get_title( ) const noexcept -> std::string
+        {
+            return title;
+        }
+
+        [[nodiscard]] auto get_flags( ) const noexcept -> ImGuiWindowFlags
+        {
+            return flags;
+        }
+
+    private:
+        std::string title;
+        bool closed = false;
+        ImGuiWindowFlags flags;
+    };
+
+    export template <class T>
+        requires std::is_default_constructible_v<T>
+    class ModalDialog : public Dialog
+    {
+    public:
+        ModalDialog( std::shared_ptr<vrock::ui::Application> app, std::string title,
+                     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking )
+            : Dialog( app, title, flags )
+        {
+        }
+        ~ModalDialog( )
+        {
+            if ( !utils::future_ready( future ) )
+                result.set_value( T( ) );
+        }
+
+        auto close( T res = T( ) ) -> void
+        {
+            result.set_value( res );
+            on_terminate( );
+            Dialog::close( );
+        }
+
+        auto set_promise( std::promise<T> promise ) -> void
+        {
+            result = std::move( promise );
+            future = result.get_future( ).share( );
+        }
+
+        auto get_future( ) -> std::shared_future<T>
+        {
+            return future;
+        }
+
+    private:
+        std::promise<T> result;
+        std::shared_future<T> future;
+    };
+
     /**
      * @class ApplicationConfig
      * @brief Represents the configuration of an application.
@@ -515,31 +644,7 @@ namespace vrock::ui
         }
 
     protected:
-        auto render_modal( std::size_t offset ) -> void
-        {
-            if ( offset == dialogs.size( ) )
-                return;
-
-            for ( auto &nd : new_dialogs )
-            {
-                if ( dialogs[ offset ] == nd )
-                {
-                    nd->setup( );
-                    ImGui::OpenPopup( nd->get_title( ).c_str( ), nd->get_flags( ) );
-                }
-            }
-
-            bool t = true;
-            if ( ImGui::BeginPopupModal( dialogs[ offset ]->get_title( ).c_str( ), &t,
-                                         dialogs[ offset ]->get_flags( ) ) )
-            {
-                dialogs[ offset ]->on_render( );
-                render_modal( ++offset );
-                ImGui::EndPopup( );
-            }
-            else
-                dialogs[ offset ]->close( );
-        }
+        auto render_modal( std::size_t offset ) -> void;
 
         float delta = 0;
 
