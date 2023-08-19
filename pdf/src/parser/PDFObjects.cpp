@@ -12,6 +12,7 @@ import vrock.utils.ByteArray;
 module vrock.pdf.PDFBaseObjects;
 
 import vrock.pdf.PDFObjectParser;
+import vrock.pdf.PDFDataStructures;
 
 namespace vrock::pdf
 {
@@ -32,26 +33,26 @@ namespace vrock::pdf
 
     auto PDFXRefStream::get_entries( ) -> std::vector<std::shared_ptr<XRefEntry>>
     {
-        if ( auto size = dict->get<PDFInteger, PDFObjectType::Integer>( "Size" ) )
+        if ( auto size = dict->get<PDFInteger>( "Size" ) )
         {
-            if ( auto w = dict->get<PDFArray, PDFObjectType::Array>( "W" ) )
+            if ( auto w = dict->get<PDFArray>( "W" ) )
             {
                 // Get field size
                 std::size_t field_size[ 3 ];
                 for ( int i = 0; i < 3; ++i )
-                    if ( auto num = w->get<PDFInteger, PDFObjectType::Integer>( i ) )
+                    if ( auto num = w->get<PDFInteger>( i ) )
                         field_size[ i ] = num->value;
                     else
                         throw std::runtime_error( "W entry of XRefStream incorrect" );
 
                 // Get Indexes of subsections
                 std::vector<std::int32_t> index = { 0, size->value };
-                if ( auto indexes = dict->get<PDFArray, PDFObjectType::Array>( "Index" ) )
+                if ( auto indexes = dict->get<PDFArray>( "Index" ) )
                 {
                     index.clear( );
                     index.reserve( indexes->value.size( ) );
                     for ( const auto &o : indexes->value )
-                        if ( auto num = o->to<PDFInteger, PDFObjectType::Integer>( ) )
+                        if ( auto num = o->to<PDFInteger>( ) )
                             index.emplace_back( num->value );
                 }
 
@@ -124,8 +125,8 @@ namespace vrock::pdf
     {
         parser = std::make_shared<PDFObjectParser>( this->data->to_string( ) );
         parser->set_context( context );
-        auto n = dict->get<PDFInteger, PDFObjectType::Integer>( "N" );
-        auto f = dict->get<PDFInteger, PDFObjectType::Integer>( "First" );
+        auto n = dict->get<PDFInteger>( "N" );
+        auto f = dict->get<PDFInteger>( "First" );
         if ( !( n && f ) )
             throw std::runtime_error( "missing entries N and First in Object stream Dictionary" );
         first = f->value;
@@ -189,7 +190,7 @@ namespace vrock::pdf
                 break;
             case 1: {
                 parser->_offset = entry->offset;
-                if ( auto ref = parser->parse_object( nullptr, false )->to<PDFRef, PDFObjectType::IndirectObject>( ) )
+                if ( auto ref = parser->parse_object( nullptr, false )->to<PDFRef>( ) )
                     obj = parser->parse_object( ref, true );
                 else
                     throw std::runtime_error( "failed to parse object reference" );
@@ -197,8 +198,7 @@ namespace vrock::pdf
             }
             case 2: {
                 // get stream + convert
-                if ( auto objstm = get_object<PDFStream, PDFObjectType::Stream>(
-                                       std::make_shared<PDFRef>( entry->object_number, 0, 1 ) )
+                if ( auto objstm = get_object<PDFStream>( std::make_shared<PDFRef>( entry->object_number, 0, 1 ) )
                                        ->to_stream<PDFObjectStream, PDFStreamType::Object>( ) )
                     obj = objstm->get_object( entry->offset );
                 break;
@@ -212,10 +212,22 @@ namespace vrock::pdf
         return nullptr;
     }
 
-    template <typename T, PDFObjectType ObjType>
-        requires std::is_base_of_v<PDFBaseObject, T>
-    auto PDFContext::get_object( const std::shared_ptr<PDFRef> &ref ) -> std::shared_ptr<T>
+    Rectangle::Rectangle( std::shared_ptr<PDFArray> arr ) : PDFBaseObject( PDFObjectType::Rectangle )
     {
-        return get_object( ref )->to<T, ObjType>( );
+        if ( arr->value.size( ) != 4 )
+            throw std::runtime_error( "invalid Rectangle" );
+        lower_left = { Unit( get_number( arr->get( 0 ) ) ), Unit( get_number( arr->get( 1 ) ) ) };
+        upper_right = { Unit( get_number( arr->get( 2 ) ) ), Unit( get_number( arr->get( 3 ) ) ) };
+        upper_left = { lower_left.x, upper_right.y };
+        lower_right = { upper_right.x, lower_left.y };
+    }
+
+    auto Rectangle::get_width( ) const -> Unit
+    {
+        return Unit( upper_right.x.units - lower_left.x.units );
+    }
+    auto Rectangle::get_height( ) const -> Unit
+    {
+        return Unit( upper_right.y.units - lower_left.y.units );
     }
 } // namespace vrock::pdf

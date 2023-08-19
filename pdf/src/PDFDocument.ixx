@@ -6,6 +6,7 @@ export import vrock.pdf.PDFEncryption;
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 
 export module vrock.pdf.PDFDocument;
 
@@ -25,6 +26,7 @@ namespace vrock::pdf
         PDFDocument( );
         PDFDocument( std::string path );
 
+        // TODO: implement
         auto save( PDFSaveMode mode = PDFSaveMode::Append ) -> void;
         auto save( const std::string &path, PDFSaveMode mode = PDFSaveMode::Append ) -> void;
 
@@ -38,14 +40,20 @@ namespace vrock::pdf
             std::filesystem::path p( file_path );
             return p.filename( );
         }
+
+        auto get_pages( ) -> std::vector<std::shared_ptr<Page>> &
+        {
+            return pages;
+        }
+
         // TODO: abstract away?
         std::shared_ptr<PDFBaseSecurityHandler> decryption_handler;
         std::shared_ptr<PDFBaseSecurityHandler> encryption_handler;
 
     private:
         std::string file_path;
+        std::vector<std::shared_ptr<Page>> pages;
 
         std::shared_ptr<PDFContext> context;
     };
-
 } // namespace vrock::pdf

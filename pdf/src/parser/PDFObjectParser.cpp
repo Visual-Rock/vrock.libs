@@ -208,7 +208,7 @@ namespace vrock::pdf
             return dict;
         auto start = _offset;
         size_t end = 0;
-        if ( auto len = dict->get<PDFInteger, PDFObjectType::Integer>( "Length" ) )
+        if ( auto len = dict->get<PDFInteger>( "Length" ) )
         {
             end = start + len->value;
             _offset = end;
@@ -224,7 +224,7 @@ namespace vrock::pdf
         auto data = std::make_shared<utils::ByteArray<>>( end - start );
         std::memcpy( data->data( ), _string.data( ) + start, data->size( ) );
 
-        auto type = dict->get<PDFName, PDFObjectType::Name>( "Type" );
+        auto type = dict->get<PDFName>( "Type" );
         if ( type && type->name == "XRef" )
             return std::make_shared<PDFXRefStream>( dict, data );
         if ( type && type->name == "ObjStm" )
@@ -307,15 +307,14 @@ namespace vrock::pdf
         }
         else
         {
-            auto ref = parse_object( nullptr, false )->to<PDFRef, PDFObjectType::IndirectObject>( );
+            auto ref = parse_object( nullptr, false )->to<PDFRef>( );
             auto obj = parse_object( nullptr, false );
-            if ( auto stream =
-                     obj->to<PDFStream, PDFObjectType::Stream>( )->to_stream<PDFXRefStream, PDFStreamType::XRef>( ) )
+            if ( auto stream = obj->to<PDFStream>( )->to_stream<PDFXRefStream, PDFStreamType::XRef>( ) )
             {
                 table->entries = std::move( stream->get_entries( ) );
                 table->trailer = stream->dict;
             }
-            else if ( auto dict = obj->to<PDFDictionary, PDFObjectType::Dictionary>( ) )
+            else if ( auto dict = obj->to<PDFDictionary>( ) )
                 throw PDFParserException( "Linearized PDF's are not supported" );
             else
                 throw PDFParserException( "Not a Dictionary or XRefStream" );
@@ -325,7 +324,7 @@ namespace vrock::pdf
 
         if ( table->trailer && table->trailer->has( "Prev" ) ) // there are more XRefTables to parse
         {
-            if ( auto prev = table->trailer->get<PDFInteger, PDFObjectType::Integer>( "Prev", false ) )
+            if ( auto prev = table->trailer->get<PDFInteger>( "Prev", false ) )
             {
                 if ( prev->value == new_offset )
                     return tables;

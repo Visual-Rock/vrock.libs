@@ -29,20 +29,20 @@ namespace vrock::pdf
         : PDFBaseSecurityHandler( SecurityHandlerType::Standard ), context( std::move( ctx ) ),
           dict( std::move( encryption_dict ) ), fn( std::move( f ) )
     {
-        if ( auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" ) )
+        if ( auto r = dict->get<PDFInteger>( "R" ) )
             revision = r->value;
-        if ( auto p = dict->get<PDFInteger, PDFObjectType::Integer>( "P" ) )
+        if ( auto p = dict->get<PDFInteger>( "P" ) )
             permissions = p->value;
 
         if ( revision == 4 )
         {
-            auto cf = dict->get<PDFDictionary, PDFObjectType::Dictionary>( "CF" );
+            auto cf = dict->get<PDFDictionary>( "CF" );
             if ( cf == nullptr )
                 return;
-            auto stdcf = dict->get<PDFDictionary, PDFObjectType::Dictionary>( "StdCF" );
+            auto stdcf = dict->get<PDFDictionary>( "StdCF" );
             if ( stdcf == nullptr )
                 return;
-            if ( auto cfm = stdcf->get<PDFName, PDFObjectType::Name>( "CFM" ) )
+            if ( auto cfm = stdcf->get<PDFName>( "CFM" ) )
                 use_aes = cfm->name == "AESV2";
         }
         if ( revision == 5 || revision == 6 )
@@ -125,10 +125,10 @@ namespace vrock::pdf
 
     auto PDFStandardSecurityHandler::authenticate( const std::string &password ) -> AuthenticationState
     {
-        auto i = context->trailer->get<PDFArray, PDFObjectType::Array>( "ID" );
+        auto i = context->trailer->get<PDFArray>( "ID" );
         if ( i || revision > 4 )
         {
-            auto id = i->get<PDFString, PDFObjectType::String>( 0 )->get_byte_array( );
+            auto id = i->get<PDFString>( 0 )->get_byte_array( );
             auto k = authenticate_owner( password, revision, dict, id, &encrypt_metadata );
             if ( k != nullptr )
             {
@@ -455,12 +455,12 @@ namespace vrock::pdf
     auto authenticate_user_password_6( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
                                        std::shared_ptr<utils::ByteArray<>> id ) -> std::shared_ptr<utils::ByteArray<>>
     {
-        auto len = dict->get<PDFInteger, PDFObjectType::Integer>( "Length" );
-        auto u = dict->get<PDFString, PDFObjectType::String>( "U" ); // 32 byte
-        auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" );
-        auto o = dict->get<PDFString, PDFObjectType::String>( "O" );   // 32 byte
-        auto p = dict->get<PDFInteger, PDFObjectType::Integer>( "P" ); // 4 byte
-        auto enc_meta = dict->get<PDFBool, PDFObjectType::Bool>( "EncryptMetadata" );
+        auto len = dict->get<PDFInteger>( "Length" );
+        auto u = dict->get<PDFString>( "U" ); // 32 byte
+        auto r = dict->get<PDFInteger>( "R" );
+        auto o = dict->get<PDFString>( "O" );  // 32 byte
+        auto p = dict->get<PDFInteger>( "P" ); // 4 byte
+        auto enc_meta = dict->get<PDFBool>( "EncryptMetadata" );
 
         if ( !( o && p && len && r ) )
             return nullptr;
@@ -489,9 +489,9 @@ namespace vrock::pdf
     auto authenticate_owner_password_7( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
                                         std::shared_ptr<utils::ByteArray<>> id ) -> std::shared_ptr<utils::ByteArray<>>
     {
-        auto len = dict->get<PDFInteger, PDFObjectType::Integer>( "Length" );
-        auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" );
-        auto o = dict->get<PDFString, PDFObjectType::String>( "O" ); // 32 byte
+        auto len = dict->get<PDFInteger>( "Length" );
+        auto r = dict->get<PDFInteger>( "R" );
+        auto o = dict->get<PDFString>( "O" ); // 32 byte
 
         if ( !( len && r && o ) )
             return nullptr;
@@ -591,13 +591,13 @@ namespace vrock::pdf
     auto authenticate_user_password_11( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
                                         bool *out_encrypt_meta ) -> std::shared_ptr<utils::ByteArray<>>
     {
-        auto u = dict->get<PDFString, PDFObjectType::String>( "U" );
-        auto o = dict->get<PDFString, PDFObjectType::String>( "O" );
-        auto ue = dict->get<PDFString, PDFObjectType::String>( "UE" );
-        auto oe = dict->get<PDFString, PDFObjectType::String>( "OE" );
-        auto p = dict->get<PDFInteger, PDFObjectType::Integer>( "P" );
-        auto perm = dict->get<PDFString, PDFObjectType::String>( "Perms" );
-        auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" );
+        auto u = dict->get<PDFString>( "U" );
+        auto o = dict->get<PDFString>( "O" );
+        auto ue = dict->get<PDFString>( "UE" );
+        auto oe = dict->get<PDFString>( "OE" );
+        auto p = dict->get<PDFInteger>( "P" );
+        auto perm = dict->get<PDFString>( "Perms" );
+        auto r = dict->get<PDFInteger>( "R" );
         if ( !( u && ue && o && oe && p && perm && r ) )
             return nullptr;
         // a)
@@ -614,13 +614,13 @@ namespace vrock::pdf
     auto authenticate_owner_password_12( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
                                          bool *out_encrypt_meta ) -> std::shared_ptr<utils::ByteArray<>>
     {
-        auto u = dict->get<PDFString, PDFObjectType::String>( "U" );
-        auto o = dict->get<PDFString, PDFObjectType::String>( "O" );
-        auto ue = dict->get<PDFString, PDFObjectType::String>( "UE" );
-        auto oe = dict->get<PDFString, PDFObjectType::String>( "OE" );
-        auto p = dict->get<PDFInteger, PDFObjectType::Integer>( "P" );
-        auto perm = dict->get<PDFString, PDFObjectType::String>( "Perms" );
-        auto r = dict->get<PDFInteger, PDFObjectType::Integer>( "R" );
+        auto u = dict->get<PDFString>( "U" );
+        auto o = dict->get<PDFString>( "O" );
+        auto ue = dict->get<PDFString>( "UE" );
+        auto oe = dict->get<PDFString>( "OE" );
+        auto p = dict->get<PDFInteger>( "P" );
+        auto perm = dict->get<PDFString>( "Perms" );
+        auto r = dict->get<PDFInteger>( "R" );
         if ( !( u && ue && o && oe && p && perm && r ) )
             return nullptr;
         auto o_str = o->get_byte_array( )->subarr_shared( 0, 32 )->to_string( );

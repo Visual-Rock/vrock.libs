@@ -54,13 +54,13 @@ namespace vrock::pdf
         int colors = 1;
         int bit_per_component = 8;
         int columns = 1;
-        if ( auto pred = params->get<PDFInteger, PDFObjectType::Integer>( "Predictor" ) )
+        if ( auto pred = params->get<PDFInteger>( "Predictor" ) )
             predictor = pred->value;
-        if ( auto color = params->get<PDFInteger, PDFObjectType::Integer>( "Colors" ) )
+        if ( auto color = params->get<PDFInteger>( "Colors" ) )
             colors = color->value;
-        if ( auto bpc = params->get<PDFInteger, PDFObjectType::Integer>( "BitsPerComponent" ) )
+        if ( auto bpc = params->get<PDFInteger>( "BitsPerComponent" ) )
             bit_per_component = bpc->value;
-        if ( auto col = params->get<PDFInteger, PDFObjectType::Integer>( "Columns" ) )
+        if ( auto col = params->get<PDFInteger>( "Columns" ) )
             columns = col->value;
         auto pixel_length = ( colors * bit_per_component + 7 ) / 8;
         auto inflated = inflate( data );

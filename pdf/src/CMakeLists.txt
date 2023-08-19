@@ -6,7 +6,9 @@ target_sources(vrockpdf
         PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES FILES
         PDFDocument.ixx
+        PDFPageObjects.ixx
         PDFEncryption.ixx
+        PDFDataStructures.ixx
 
         parser/BaseParser.ixx
         parser/PDFObjectParser.ixx
@@ -14,6 +16,7 @@ target_sources(vrockpdf
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp
+        parser/PDFPageObjects.cpp
 
         parser/BaseParser.cpp
         parser/PDFObjectParser.cpp

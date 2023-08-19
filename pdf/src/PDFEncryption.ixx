@@ -19,6 +19,12 @@ namespace vrock::pdf
         Standard
     };
 
+    template <typename T>
+    auto to_handler_type( ) -> SecurityHandlerType
+    {
+        static_assert( true, "unknown handler type" );
+    }
+
     export enum class Permissions : uint32_t
     {
         PrintDocument = 4 | 4294963904,
@@ -95,11 +101,11 @@ namespace vrock::pdf
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
 
-        template <class T, SecurityHandlerType Type>
+        template <class T>
             requires std::is_base_of_v<PDFBaseSecurityHandler, T>
         auto to( ) -> std::shared_ptr<T>
         {
-            if ( is( Type ) )
+            if ( is( to_handler_type<T>( ) ) )
                 return as<T>( );
             return nullptr;
         }
@@ -248,4 +254,15 @@ namespace vrock::pdf
     auto authenticate_owner_password_12( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
                                          bool *out_encrypt_meta ) -> std::shared_ptr<utils::ByteArray<>>;
 
+    template <>
+    auto to_handler_type<PDFNullSecurityHandler>( ) -> SecurityHandlerType
+    {
+        return SecurityHandlerType::Null;
+    }
+
+    template <>
+    auto to_handler_type<PDFStandardSecurityHandler>( ) -> SecurityHandlerType
+    {
+        return SecurityHandlerType::Standard;
+    }
 } // namespace vrock::pdf

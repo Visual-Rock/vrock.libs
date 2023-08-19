@@ -22,7 +22,7 @@ namespace vrock::pdf
         zs.next_out = buffer->data( );
         zs.avail_out = buffer_size;
         int ret = inflate( &zs, 0 );
-        if ( ret == Z_OK )
+        if ( ret != Z_OK )
         {
             inflateEnd( &zs );
             if ( ret != Z_STREAM_END )

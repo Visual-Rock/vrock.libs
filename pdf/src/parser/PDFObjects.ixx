@@ -1,6 +1,7 @@
 module;
 
 import vrock.utils.ByteArray;
+import vrock.pdf.PDFDataStructures;
 
 #include <algorithm>
 #include <cmath>
@@ -42,6 +43,12 @@ namespace vrock::pdf
         Rectangle
     };
 
+    template <typename T>
+    auto to_object_type( ) -> PDFObjectType
+    {
+        static_assert( "unknown conversion from type" );
+    }
+
     export class PDFBaseObject : public std::enable_shared_from_this<PDFBaseObject>
     {
     public:
@@ -49,7 +56,7 @@ namespace vrock::pdf
         {
         }
 
-        auto is( PDFObjectType t ) -> bool
+        bool is( PDFObjectType t ) __attribute__( ( optnone ) )
         {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnonnull-compare"
@@ -64,7 +71,7 @@ namespace vrock::pdf
 
         template <class T>
             requires std::is_base_of_v<PDFBaseObject, T>
-        std::shared_ptr<T> as( )
+        std::shared_ptr<T> as( ) __attribute__( ( optnone ) )
         {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnonnull-compare"
@@ -77,13 +84,11 @@ namespace vrock::pdf
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
 
-        template <typename T, PDFObjectType ObjType = PDFObjectType::None>
+        template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
         auto to( ) -> std::shared_ptr<T>
         {
-            if ( ObjType == PDFObjectType::None )
-                return as<T>( );
-            if ( is( ObjType ) )
+            if ( is( to_object_type<T>( ) ) )
                 return as<T>( );
             return nullptr;
         }
@@ -222,11 +227,11 @@ namespace vrock::pdf
             return value[ idx ];
         }
 
-        template <typename T, PDFObjectType ObjType = PDFObjectType::None>
+        template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
         auto get( std::size_t idx ) -> std::shared_ptr<T>
         {
-            return get( idx )->to<T, ObjType>( );
+            return get( idx )->to<T>( );
         }
 
         std::vector<std::shared_ptr<PDFBaseObject>> value;
@@ -371,11 +376,13 @@ namespace vrock::pdf
 
         auto get( const std::string &k, bool resolve = true ) -> std::shared_ptr<PDFBaseObject>;
 
-        template <typename T, PDFObjectType ObjType = PDFObjectType::None>
+        template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
         auto get( const std::string &k, bool resolve = true ) -> std::shared_ptr<T>
         {
-            return get( k, resolve )->to<T, ObjType>( );
+            if ( auto obj = get( k, resolve ) )
+                return obj->to<T>( );
+            return nullptr;
         }
 
         auto set( const std::string &k, std::shared_ptr<PDFBaseObject> obj ) -> void
@@ -560,6 +567,75 @@ namespace vrock::pdf
             return nan( "" );
     }
 
+    // Pages
+
+    export class Rectangle : public PDFBaseObject
+    {
+    public:
+        explicit Rectangle( std::shared_ptr<PDFArray> arr );
+
+        Point lower_left;
+        Point upper_left;
+        Point upper_right;
+        Point lower_right;
+
+        auto get_width( ) const -> Unit;
+        auto get_height( ) const -> Unit;
+    };
+
+    export class PageTreeNode;
+
+    export class PageBaseObject : public PDFBaseObject
+    {
+    public:
+        PageBaseObject( std::shared_ptr<PDFDictionary> dict, PageTreeNode *parent, std::shared_ptr<PDFContext> ctx,
+                        bool leaf = true )
+            : PDFBaseObject( leaf ? PDFObjectType::Page : PDFObjectType::PageTreeNode ), parent( parent ),
+              context( std::move( ctx ) ), dictionary( std::move( dict ) )
+        {
+        }
+
+    protected:
+        std::shared_ptr<PDFContext> context;
+        std::shared_ptr<PDFDictionary> dictionary;
+        PageTreeNode *parent;
+
+        auto get_property( const std::string &name ) -> std::shared_ptr<PDFBaseObject>;
+
+        template <typename T>
+            requires std::is_base_of_v<PDFBaseObject, T>
+        auto get_property( const std::string &name ) -> std::shared_ptr<T>
+        {
+            return get_property( name )->to<T>( );
+        }
+    };
+
+    export class Page : public PageBaseObject
+    {
+    public:
+        Page( std::shared_ptr<PDFDictionary>, std::shared_ptr<PDFContext>, PageTreeNode * );
+
+        std::shared_ptr<Rectangle> media_box;
+        std::shared_ptr<Rectangle> crop_box;
+        std::shared_ptr<Rectangle> bleed_box;
+        std::shared_ptr<Rectangle> trim_box;
+        std::shared_ptr<Rectangle> art_box;
+
+        std::int32_t rotation = 0;
+
+    protected:
+        std::vector<std::shared_ptr<PDFStream>> content = { };
+    };
+
+    export class PageTreeNode : public PageBaseObject
+    {
+    public:
+        PageTreeNode( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> context, PageTreeNode *parent );
+
+        std::vector<std::shared_ptr<PageBaseObject>> kids = { };
+        std::int32_t count = 0;
+    };
+
     class PDFContext
     {
     public:
@@ -569,9 +645,12 @@ namespace vrock::pdf
 
         auto init( ) -> void;
 
-        template <typename T, PDFObjectType ObjType = PDFObjectType::None>
+        template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
-        auto get_object( const std::shared_ptr<PDFRef> & ) -> std::shared_ptr<T>;
+        auto get_object( const std::shared_ptr<PDFRef> &ref ) -> std::shared_ptr<T>
+        {
+            return get_object( ref )->to<T>( );
+        }
 
         std::shared_ptr<PDFObjectParser> parser;
         std::unordered_map<std::shared_ptr<PDFRef>, std::shared_ptr<PDFBaseObject>, PDFRefPtrHash, PDFRefPtrEqual>
@@ -579,5 +658,78 @@ namespace vrock::pdf
 
         std::shared_ptr<PDFDictionary> trailer;
         std::vector<std::shared_ptr<XRefTable>> xref_tables;
+        std::shared_ptr<PageTreeNode> page_tree;
     };
+
+    template <>
+    auto to_object_type<PDFBool>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Bool;
+    }
+
+    template <>
+    auto to_object_type<PDFInteger>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Integer;
+    }
+
+    template <>
+    auto to_object_type<PDFReal>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Real;
+    }
+
+    template <>
+    auto to_object_type<PDFString>( ) -> PDFObjectType
+    {
+        return PDFObjectType::String;
+    }
+
+    template <>
+    auto to_object_type<PDFName>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Name;
+    }
+
+    template <>
+    auto to_object_type<PDFArray>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Array;
+    }
+
+    template <>
+    auto to_object_type<PDFDictionary>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Dictionary;
+    }
+
+    template <>
+    auto to_object_type<PDFStream>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Stream;
+    }
+
+    template <>
+    auto to_object_type<PDFNull>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Null;
+    }
+
+    template <>
+    auto to_object_type<PDFRef>( ) -> PDFObjectType
+    {
+        return PDFObjectType::IndirectObject;
+    }
+
+    template <>
+    auto to_object_type<PageTreeNode>( ) -> PDFObjectType
+    {
+        return PDFObjectType::PageTreeNode;
+    }
+
+    template <>
+    auto to_object_type<Page>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Page;
+    }
 } // namespace vrock::pdf
