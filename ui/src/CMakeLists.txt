@@ -14,7 +14,7 @@ target_sources(vrockui
         KeyCode.ixx
         PRIVATE
         tinyfiledialog/tinyfiledialogs.c
-        stb/stb.cpp
+        ../../external/stb/stb.cpp
         imgui_theme/spectrum.cpp
 
         FileDialog.cpp
@@ -23,4 +23,4 @@ target_sources(vrockui
         Image.cpp
 )
 
-target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan)
+target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan stb_image)

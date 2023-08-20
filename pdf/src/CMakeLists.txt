@@ -13,6 +13,7 @@ target_sources(vrockpdf
         parser/BaseParser.ixx
         parser/PDFObjectParser.ixx
         parser/PDFObjects.ixx
+        parser/ContentStreamParser.ixx
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp
@@ -22,6 +23,7 @@ target_sources(vrockpdf
         parser/PDFObjectParser.cpp
         parser/PDFObjects.cpp
         parser/PDFFilter.cpp
+        parser/ContentStreamParser.cpp
 )
 
-target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data ZLIB::ZLIB)
+target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data ZLIB::ZLIB stb_image)

@@ -5,7 +5,7 @@ module;
 
 #include "vulkan/vulkan.h"
 
-#include "stb/stb_image.h"
+#include "stb_image.h"
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
 

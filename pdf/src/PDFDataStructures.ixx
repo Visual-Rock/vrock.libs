@@ -21,7 +21,7 @@ namespace vrock::pdf
             return to_inch( ) * 2.54;
         }
 
-        double units = 0.0;
+        float units = 0.0;
     };
 
     export struct Point

@@ -494,7 +494,6 @@ namespace vrock::pdf
             auto param = std::make_shared<PDFDictionary>( );
             if ( p->is( PDFObjectType::Dictionary ) )
                 param = p->as<PDFDictionary>( );
-            std::vector<std::shared_ptr<PDFName>> filters{ };
             if ( filter->is( PDFObjectType::Name ) )
                 filters.emplace_back( filter->as<PDFName>( ) );
             else if ( filter->is( PDFObjectType::Array ) )
@@ -525,9 +524,20 @@ namespace vrock::pdf
             return nullptr;
         }
 
+        auto has_filter( const std::string &name ) -> bool
+        {
+            for ( auto &f : filters )
+                if ( f->name == name )
+                    return true;
+            return false;
+        }
+
         PDFStreamType stream_type;
         std::shared_ptr<PDFDictionary> dict;
         std::shared_ptr<utils::ByteArray<>> data;
+
+    protected:
+        std::vector<std::shared_ptr<PDFName>> filters = { };
     };
 
     export class PDFObjectStream : public PDFStream
@@ -583,6 +593,73 @@ namespace vrock::pdf
         auto get_height( ) const -> Unit;
     };
 
+    export enum class FontType
+    {
+        None,
+        Type1,
+        TrueType
+    };
+
+    export class Font
+    {
+    public:
+        Font( std::shared_ptr<PDFDictionary> dict );
+        ~Font( ) = default;
+
+        /// Subtype
+        FontType font_type;
+
+        std::string base_font;
+        std::string font_name;
+
+        std::int32_t first_char = 0;
+        std::int32_t last_char = 0;
+
+        std::vector<int32_t> widths = { };
+
+        // std::shared_ptr<FontDescriptor> descriptor = nullptr;
+
+        // TODO: Encoding
+
+        // std::shared_ptr<structure::ToUnicode> to_unicode;
+    };
+
+    export enum class ImageSaveFormat
+    {
+        png
+    };
+
+    export class Image
+    {
+    public:
+        Image( std::shared_ptr<PDFStream> stm );
+
+        std::int32_t width = 0, height = 0, channel = 3;
+        std::uint8_t bpp = 8;
+        std::shared_ptr<utils::ByteArray<>> data;
+
+        auto save( const std::string &path, ImageSaveFormat format = ImageSaveFormat::png ) -> void;
+
+    private:
+        std::shared_ptr<PDFStream> stream;
+    };
+
+    export class ResourceDictionary
+    {
+    public:
+        ResourceDictionary( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx );
+        ~ResourceDictionary( );
+
+        std::unordered_map<std::string, std::shared_ptr<PDFDictionary>> ext_g_state = { };
+        // XObjects
+        std::unordered_map<std::string, std::shared_ptr<Image>> images = { };
+        std::unordered_map<std::string, std::shared_ptr<Font>> fonts = { };
+        // std::unordered_map<std::string, int> forms;
+    private:
+        std::shared_ptr<PDFDictionary> dict;
+        std::shared_ptr<PDFContext> context;
+    };
+
     export class PageTreeNode;
 
     export class PageBaseObject : public PDFBaseObject
@@ -620,6 +697,8 @@ namespace vrock::pdf
         std::shared_ptr<Rectangle> bleed_box;
         std::shared_ptr<Rectangle> trim_box;
         std::shared_ptr<Rectangle> art_box;
+
+        std::shared_ptr<ResourceDictionary> resources;
 
         std::int32_t rotation = 0;
 
