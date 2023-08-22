@@ -81,6 +81,20 @@ namespace vrock::pdf
         }
     }
 
+    auto PDFDCTFilter::encode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
+        -> std::shared_ptr<utils::ByteArray<>>
+    {
+        return data;
+    }
+
+    auto PDFDCTFilter::decode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> dict )
+        -> std::shared_ptr<utils::ByteArray<>>
+    {
+        if ( auto color_transform = dict->get<PDFInteger>( "ColorTransform" ) )
+            std::cout << color_transform->value << std::endl;
+        return data;
+    }
+
     auto predict_png( const std::shared_ptr<utils::ByteArray<>> &data, int col, int bpc, int bpp )
         -> std::shared_ptr<utils::ByteArray<>>
     {
@@ -119,4 +133,5 @@ namespace vrock::pdf
         }
         return decoded;
     }
+
 } // namespace vrock::pdf
