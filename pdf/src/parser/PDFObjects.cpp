@@ -29,6 +29,18 @@ namespace vrock::pdf
         return dict[ key ];
     }
 
+    auto PDFArray::get( std::size_t idx, bool resolve ) -> std::shared_ptr<PDFBaseObject>
+    {
+        if ( value.size( ) < idx )
+            return nullptr;
+        if ( resolve && value[ idx ]->type == PDFObjectType::IndirectObject )
+        {
+            auto ref = value[ idx ]->as<PDFRef>( );
+            return context->get_object( ref );
+        }
+        return value[ idx ];
+    }
+
     // PDFStreams
 
     auto PDFXRefStream::get_entries( ) -> std::vector<std::shared_ptr<XRefEntry>>

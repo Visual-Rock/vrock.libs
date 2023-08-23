@@ -215,26 +215,24 @@ namespace vrock::pdf
     export class PDFArray : public PDFBaseObject
     {
     public:
-        explicit PDFArray( std::vector<std::shared_ptr<PDFBaseObject>> v = { } )
-            : PDFBaseObject( PDFObjectType::Array ), value( std::move( v ) )
+        explicit PDFArray( std::shared_ptr<PDFContext> ctx, std::vector<std::shared_ptr<PDFBaseObject>> v = { } )
+            : PDFBaseObject( PDFObjectType::Array ), value( std::move( v ) ), context( std::move( ctx ) )
         {
         }
 
-        auto get( std::size_t idx ) -> std::shared_ptr<PDFBaseObject>
-        {
-            if ( value.size( ) < idx )
-                return nullptr;
-            return value[ idx ];
-        }
+        auto get( std::size_t idx, bool resolve = true ) -> std::shared_ptr<PDFBaseObject>;
 
         template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
-        auto get( std::size_t idx ) -> std::shared_ptr<T>
+        auto get( std::size_t idx, bool resolve = true ) -> std::shared_ptr<T>
         {
-            return get( idx )->to<T>( );
+            return get( idx, resolve )->to<T>( );
         }
 
         std::vector<std::shared_ptr<PDFBaseObject>> value;
+
+    private:
+        std::shared_ptr<PDFContext> context;
     };
 
     export class PDFNull : public PDFBaseObject

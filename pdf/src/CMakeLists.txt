@@ -9,6 +9,7 @@ target_sources(vrockpdf
         PDFPageObjects.ixx
         PDFEncryption.ixx
         PDFDataStructures.ixx
+        ColorSpace.ixx
 
         parser/BaseParser.ixx
         parser/PDFObjectParser.ixx
@@ -17,8 +18,9 @@ target_sources(vrockpdf
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp
-        parser/PDFPageObjects.cpp
+        ColorSpace.cpp
 
+        parser/PDFPageObjects.cpp
         parser/BaseParser.cpp
         parser/PDFObjectParser.cpp
         parser/PDFObjects.cpp

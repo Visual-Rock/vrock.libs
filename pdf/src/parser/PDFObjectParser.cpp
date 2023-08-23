@@ -168,7 +168,7 @@ namespace vrock::pdf
     {
         if ( _string[ _offset++ ] != '[' )
             throw PDFParserException( "Array does not start with '['" );
-        auto arr = std::make_shared<PDFArray>( );
+        auto arr = std::make_shared<PDFArray>( context );
         while ( _offset < _string.length( ) && _string[ _offset ] != ']' )
         {
             arr->value.push_back( parse_object( ref, decrypt ) );
