@@ -1,6 +1,8 @@
 module;
 
 #include <cstdint>
+#include <cstring>
+#include <memory>
 #include <string>
 
 #include "vulkan/vulkan.h"
@@ -12,11 +14,23 @@ module;
 module vrock.ui.Image;
 
 import vrock.ui.Application;
+import vrock.utils.ByteArray;
 
 using namespace vrock::ui::internal;
 
 namespace vrock::ui
 {
+    auto convert_to_rgba( std::shared_ptr<utils::ByteArray<>> data ) -> std::shared_ptr<utils::ByteArray<>>
+    {
+        auto converted = std::make_shared<utils::ByteArray<>>( ( data->size( ) / 3 ) * 4 );
+        for ( auto i = 0; i < data->size( ) / 3; i++ )
+        {
+            std::memcpy( converted->data( ) + ( 4 * i ), data->data( ) + ( 3 * i ), 3 );
+            converted->at( ( 4 * i ) + 3 ) = 0xff;
+        }
+        return converted;
+    }
+
     auto bytes_per_pixel( const ImageFormat &format ) -> std::uint32_t
     {
         switch ( format )

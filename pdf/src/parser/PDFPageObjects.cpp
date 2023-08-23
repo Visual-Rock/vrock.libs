@@ -1,7 +1,6 @@
 module;
 
 import vrock.utils.ByteArray;
-import vrock.pdf.ColorSpace;
 
 #include <cstdint>
 #include <cstring>
@@ -118,46 +117,16 @@ namespace vrock::pdf
             bpp = b->value;
 
         // Colorspace
-        std::shared_ptr<ColorSpace> color_space = to_colorspace( stm->dict->get( "ColorSpace" ) );
-        if ( color_space )
-            data = color_space->convert_to_rgb( stm->data, stm->dict );
-        else
-            data = stm->data;
-
-        if ( stream->has_filter( "JPXDecode" ) || stream->has_filter( "DCTDecode" ) )
-        {
-            int w = 0, h = 0, c = 0;
-            if ( stbi_is_hdr_from_memory( data->data( ), data->size( ) ) )
-            {
-                auto out = stbi_loadf_from_memory( (const stbi_uc *)data->data( ), data->size( ), &w, &h, &c, 0 );
-
-                data = std::make_shared<utils::ByteArray<>>( w * h * c * sizeof( float ) );
-                std::memcpy( data->data( ), out, data->size( ) );
-                stbi_image_free( out );
-            }
-            else if ( stbi_is_16_bit_from_memory( data->data( ), data->size( ) ) )
-            {
-                auto out = stbi_loadf_from_memory( (const stbi_uc *)data->data( ), data->size( ), &w, &h, &c, 0 );
-                data = std::make_shared<utils::ByteArray<>>( w * h * c * 2 );
-                std::memcpy( data->data( ), out, data->size( ) );
-                stbi_image_free( out );
-            }
-            else
-            {
-                auto i = stbi_load_from_memory( data->data( ), data->size( ), &w, &h, &c, 3 );
-                data = std::make_shared<utils::ByteArray<>>( w * c * h );
-                std::memcpy( data->data( ), i, data->size( ) );
-                stbi_image_free( i );
-            }
-        }
+        color_space = to_colorspace( stm->dict->get( "ColorSpace" ) );
     }
 
     auto Image::save( const std::string &path, ImageSaveFormat format ) -> void
     {
+        auto rgb = color_space->convert_to_rgb( stream->data, stream->dict );
         switch ( format )
         {
         case ImageSaveFormat::png:
-            stbi_write_png( path.c_str( ), width, height, channel, data->data( ), width * channel * ( bpp / 8 ) );
+            stbi_write_png( path.c_str( ), width, height, channel, rgb->data( ), rgb->size( ) / height );
             break;
         }
     }

@@ -6,7 +6,9 @@ import vrock.pdf.PDFDataStructures;
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -632,6 +634,103 @@ namespace vrock::pdf
         // std::shared_ptr<structure::ToUnicode> to_unicode;
     };
 
+    export enum class ColorSpaceType
+    {
+        RGB,
+        Gray,
+        CMYK,
+        Indexed
+    };
+
+    export class ColorSpace
+    {
+    public:
+        explicit ColorSpace( ColorSpaceType t ) : type( t )
+        {
+        }
+
+        virtual auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>> = 0;
+
+        ColorSpaceType type;
+    };
+
+    export class RGBColorSpace : public ColorSpace
+    {
+    public:
+        RGBColorSpace( ) : ColorSpace( ColorSpaceType::RGB )
+        {
+        }
+
+        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>> final
+        {
+            return data;
+        }
+    };
+
+    export class GrayColorSpace : public ColorSpace
+    {
+    public:
+        explicit GrayColorSpace( ) : ColorSpace( ColorSpaceType::Gray )
+        {
+        }
+
+        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> params )
+            -> std::shared_ptr<utils::ByteArray<>> final
+        {
+            std::int32_t width = 0, height = 0, bpp = 8;
+            if ( auto dict = params->to<PDFDictionary>( ) )
+            {
+                if ( auto w = dict->get<PDFInteger>( "Width" ) )
+                    width = w->value;
+                if ( auto h = dict->get<PDFInteger>( "Height" ) )
+                    height = h->value;
+                if ( auto b = dict->get<PDFInteger>( "BitsPerComponent" ) )
+                    bpp = b->value;
+            }
+            auto converted = std::make_shared<utils::ByteArray<>>( width * height * 3 );
+            for ( auto i = 0; i < data->size( ); ++i )
+            {
+                // std::memset( converted->data( ) + ( i * 3 ), data->at( i ), 3 );
+                converted->at( i * 3 ) = data->at( i );
+                converted->at( i * 3 + 1 ) = data->at( i );
+                converted->at( i * 3 + 1 ) = data->at( i );
+                // std::cout << (int)data->at( i ) << std::endl;
+            }
+            return converted;
+        }
+    };
+
+    export class CMYKColorSpace : public ColorSpace
+    {
+    public:
+        explicit CMYKColorSpace( ) : ColorSpace( ColorSpaceType::CMYK )
+        {
+        }
+
+        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>> final
+        {
+            return data;
+        }
+    };
+
+    export class IndexedColorSpace : public ColorSpace
+    {
+    public:
+        explicit IndexedColorSpace( std::shared_ptr<PDFArray> );
+
+        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>>;
+
+    protected:
+        std::int32_t highest_value = 0;
+        std::shared_ptr<utils::ByteArray<>> map = nullptr;
+    };
+
+    export auto to_colorspace( std::shared_ptr<PDFBaseObject> ) -> std::shared_ptr<ColorSpace>;
+
     export enum class ImageSaveFormat
     {
         png
@@ -644,12 +743,17 @@ namespace vrock::pdf
 
         std::int32_t width = 0, height = 0, channel = 3;
         std::uint8_t bpp = 8;
-        std::shared_ptr<utils::ByteArray<>> data;
 
         auto save( const std::string &path, ImageSaveFormat format = ImageSaveFormat::png ) -> void;
 
+        auto as_rgb( ) -> std::shared_ptr<utils::ByteArray<>>
+        {
+            return color_space->convert_to_rgb( stream->data, stream->dict );
+        }
+
     private:
         std::shared_ptr<PDFStream> stream;
+        std::shared_ptr<ColorSpace> color_space;
     };
 
     export class ResourceDictionary

@@ -4,11 +4,12 @@ import vrock.utils.ByteArray;
 import vrock.pdf.PDFBaseObjects;
 
 #include <cstdint>
+#include <cstring>
 #include <format>
 #include <iostream>
 #include <memory>
 
-module vrock.pdf.ColorSpace;
+module vrock.pdf.PDFBaseObjects;
 
 namespace vrock::pdf
 {
@@ -37,36 +38,19 @@ namespace vrock::pdf
                 bpp = b->value;
         }
 
-        for ( int i = 0; i < map->size( ) / 3; ++i )
-        {
-            std::cout << std::format( "{}: {} {} {}", i, map->at( i * 3 ), map->at( i * 3 + 1 ), map->at( i * 3 + 2 ) )
-                      << std::endl;
-        }
-
         auto converted = std::make_shared<utils::ByteArray<>>( width * height * ( bpp / 8 ) * 3 );
-        try
-        {
-            for ( auto i = 0; i < ( width * height ) - 1; ++i )
-            {
-                if ( data->at( i ) > highest_value )
-                    continue;
-                converted->at( i * 3 ) = map->at( data->at( i ) );
-                converted->at( i * 3 + 1 ) = map->at( data->at( i ) + 1 );
-                converted->at( i * 3 + 2 ) = map->at( data->at( i ) + 2 );
-            }
-        }
-        catch ( std::exception &e )
-        {
-            std::cout << "tmp" << std::endl;
-        }
-
+        for ( auto i = 0; i < ( width * height ); ++i )
+            if ( data->at( i ) > highest_value ) [[unlikely]]
+                continue;
+            else [[likely]]
+                std::memcpy( converted->data( ) + i * 3, map->data( ) + data->at( i ) * 3, 3 );
         return converted;
     }
 
     auto to_colorspace( std::shared_ptr<PDFBaseObject> obj ) -> std::shared_ptr<ColorSpace>
     {
         if ( obj == nullptr )
-            return nullptr;
+            return std::make_shared<RGBColorSpace>( );
 
         if ( auto color_space = obj->to<PDFArray>( ) )
         {
@@ -76,6 +60,16 @@ namespace vrock::pdf
                     return std::make_shared<IndexedColorSpace>( color_space );
             }
         }
-        return nullptr;
+        else if ( auto color_space = obj->to<PDFName>( ) )
+        {
+            std::cout << color_space->name << std::endl;
+            if ( color_space->name == "DeviceRGB" )
+                return std::make_shared<RGBColorSpace>( );
+            else if ( color_space->name == "DeviceGray" )
+                return std::make_shared<GrayColorSpace>( );
+            else if ( color_space->name == "DeviceCMYK" )
+                return std::make_shared<CMYKColorSpace>( );
+        }
+        return std::make_shared<RGBColorSpace>( );
     }
 } // namespace vrock::pdf
