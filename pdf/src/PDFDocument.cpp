@@ -65,6 +65,7 @@ namespace vrock::pdf
         {
             auto std_sec = std::make_shared<PDFStandardSecurityHandler>( encrypt, context, fn );
             decryption_handler = std_sec;
+            context->parser->set_decryption_handler( decryption_handler );
             std_sec->has_user_password( );
         }
         else
@@ -73,7 +74,7 @@ namespace vrock::pdf
             context->parser->set_decryption_handler( decryption_handler );
             fn( );
         }
-        context->parser->set_decryption_handler( decryption_handler );
+
         encryption_handler = decryption_handler;
     }
 

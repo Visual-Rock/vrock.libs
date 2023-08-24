@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -152,6 +153,9 @@ namespace vrock::ui
                 check_vk_result( err );
             }
         }
+
+        static std::size_t i = 0;
+        std::cout << i++ << std::endl;
 
         // Upload to Buffer
         {

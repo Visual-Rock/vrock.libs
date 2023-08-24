@@ -27,4 +27,4 @@ target_sources(vrockpdf
         parser/ContentStreamParser.cpp
 )
 
-target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data ZLIB::ZLIB stb_image)
+target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data zlibstatic stb_image)
