@@ -9,6 +9,7 @@ import vrock.pdf.PDFDataStructures;
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -674,13 +675,13 @@ namespace vrock::pdf
     /**
      * @param stride in bit
      * */
-    auto get_num( std::shared_ptr<utils::ByteArray<>> data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
+    auto get_num( std::uint8_t *data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
     {
         auto bit_offset = idx * stride;
         auto byte_offset = bit_offset / 8;
-        auto offset = bit_offset % 8;
+        auto offset = 7 - ( bit_offset % 8 );
         auto mask = ( ( (uint8_t)std::pow( 2, stride ) ) - 1 ) << offset;
-        return ( data->data( )[ byte_offset ] & mask ) >> offset;
+        return ( data[ byte_offset ] & mask ) >> offset;
     }
 
     export class GrayColorSpace : public ColorSpace
@@ -709,14 +710,20 @@ namespace vrock::pdf
             case 1:
             case 2:
             case 4: {
-                for ( auto i = 0; i < converted->size( ); i += 3 )
+                auto max = std::pow( 2, bpp ) - 1;
+                auto row_len = ( width + 7 ) >> 3;
+                // TODO: std::exec::par
+                for ( auto i = 0; i < height; i++ )
                 {
-                    auto z = get_num( data, i / 3, bpp );
-                    auto num = (uint8_t)( ( ( std::pow( 2, bpp ) - 1 ) / z ) * 255 );
-                    std::cout << (int)z << " " << (int)num << std::endl;
-                    converted->data( )[ i ] = num;
-                    converted->data( )[ i + 1 ] = num;
-                    converted->data( )[ i + 2 ] = num;
+                    for ( auto j = 0; j < width; j++ )
+                    {
+                        auto curr_idx = i * width + j;
+                        // TODO: Comment
+                        auto num = (uint8_t)( ( get_num( data->data( ) + ( row_len * i ), j, bpp ) / max ) * 255 );
+                        converted->data( )[ curr_idx * 3 ] = num;
+                        converted->data( )[ curr_idx * 3 + 1 ] = num;
+                        converted->data( )[ curr_idx * 3 + 2 ] = num;
+                    }
                 }
                 break;
             }
