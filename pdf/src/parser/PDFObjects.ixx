@@ -4,6 +4,7 @@ import vrock.utils.ByteArray;
 import vrock.pdf.PDFDataStructures;
 
 #include <algorithm>
+#include <bitset>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -226,6 +227,7 @@ namespace vrock::pdf
 
         template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
+
         auto get( std::size_t idx, bool resolve = true ) -> std::shared_ptr<T>
         {
             return get( idx, resolve )->to<T>( );
@@ -669,6 +671,18 @@ namespace vrock::pdf
         }
     };
 
+    /**
+     * @param stride in bit
+     * */
+    auto get_num( std::shared_ptr<utils::ByteArray<>> data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
+    {
+        auto bit_offset = idx * stride;
+        auto byte_offset = bit_offset / 8;
+        auto offset = bit_offset % 8;
+        auto mask = ( ( (uint8_t)std::pow( 2, stride ) ) - 1 ) << offset;
+        return ( data->data( )[ byte_offset ] & mask ) >> offset;
+    }
+
     export class GrayColorSpace : public ColorSpace
     {
     public:
@@ -689,14 +703,33 @@ namespace vrock::pdf
                 if ( auto b = dict->get<PDFInteger>( "BitsPerComponent" ) )
                     bpp = b->value;
             }
-            auto converted = std::make_shared<utils::ByteArray<>>( width * height * 3 );
-            for ( auto i = 0; i < data->size( ); ++i )
+            std::shared_ptr<utils::ByteArray<>> converted = std::make_shared<utils::ByteArray<>>( width * height * 3 );
+            switch ( bpp )
             {
-                // std::memset( converted->data( ) + ( i * 3 ), data->at( i ), 3 );
-                converted->at( i * 3 ) = data->at( i );
-                converted->at( i * 3 + 1 ) = data->at( i );
-                converted->at( i * 3 + 1 ) = data->at( i );
-                // std::cout << (int)data->at( i ) << std::endl;
+            case 1:
+            case 2:
+            case 4: {
+                for ( auto i = 0; i < converted->size( ); i += 3 )
+                {
+                    auto z = get_num( data, i / 3, bpp );
+                    auto num = (uint8_t)( ( ( std::pow( 2, bpp ) - 1 ) / z ) * 255 );
+                    std::cout << (int)z << " " << (int)num << std::endl;
+                    converted->data( )[ i ] = num;
+                    converted->data( )[ i + 1 ] = num;
+                    converted->data( )[ i + 2 ] = num;
+                }
+                break;
+            }
+            case 8: {
+                for ( auto i = 0; i < converted->size( ); i += 3 )
+                {
+                    converted->at( i * 3 ) = data->at( i );
+                    converted->at( i * 3 + 1 ) = data->at( i );
+                    converted->at( i * 3 + 2 ) = data->at( i );
+                }
+                break;
+            }
+            case 16:
             }
             return converted;
         }

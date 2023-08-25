@@ -74,7 +74,6 @@ namespace vrock::pdf
         case 12:
         case 13:
             return predict_png( inflated, columns, bit_per_component, pixel_length );
-            break;
         default:
             // log::get_logger( "pdf" )->log->info( "unknown predictor {}", predictor );
             return inflated;
