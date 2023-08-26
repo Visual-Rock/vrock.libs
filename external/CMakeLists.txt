@@ -8,8 +8,6 @@ if (${LOG})
 endif ()
 
 if (${UI})
-    add_subdirectory(fmt)
-
     add_library(imgui STATIC)
 
     pkg_check_modules(FREETYPE IMPORTED_TARGET freetype2)

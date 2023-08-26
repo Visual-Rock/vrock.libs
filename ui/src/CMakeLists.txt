@@ -23,4 +23,4 @@ target_sources(vrockui
         Image.cpp
 )
 
-target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan stb_image)
+target_link_libraries(vrockui PUBLIC vrockutils vrocklog imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan stb_image)

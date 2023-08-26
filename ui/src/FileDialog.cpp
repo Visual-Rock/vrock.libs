@@ -2,8 +2,7 @@ module;
 
 #include "tinyfiledialog/tinyfiledialogs.h"
 
-#include <fmt/format.h>
-
+#include <format>
 #include <future>
 #include <string>
 #include <vector>
@@ -35,7 +34,7 @@ namespace vrock::ui
         const char **filter = (const char **)std::malloc( sizeof( const char * ) * filter_patterns.size( ) );
         for ( size_t i = 0; i < filter_patterns.size( ); i++ )
             filter[ i ] =
-                fmt::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
+                std::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
 
         auto ret =
             tinyfd_openFileDialog( title.c_str( ), default_path.c_str( ), (int)filter_patterns.size( ), filter, "", 0 );
@@ -52,7 +51,7 @@ namespace vrock::ui
         const char **filter = (const char **)std::malloc( sizeof( const char * ) * filter_patterns.size( ) );
         for ( size_t i = 0; i < filter_patterns.size( ); i++ )
             filter[ i ] =
-                fmt::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
+                std::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
 
         auto ret =
             tinyfd_openFileDialog( title.c_str( ), default_path.c_str( ), (int)filter_patterns.size( ), filter, "", 1 );
@@ -77,7 +76,7 @@ namespace vrock::ui
         const char **filter = (const char **)std::malloc( sizeof( const char * ) * filter_patterns.size( ) );
         for ( size_t i = 0; i < filter_patterns.size( ); i++ )
             filter[ i ] =
-                fmt::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
+                std::format( "{0}|{1}", filter_patterns[ i ].description, filter_patterns[ i ].filter ).c_str( );
 
         auto ret =
             tinyfd_saveFileDialog( title.c_str( ), default_path.c_str( ), (int)filter_patterns.size( ), filter, "" );
