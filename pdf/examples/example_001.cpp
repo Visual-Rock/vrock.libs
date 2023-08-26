@@ -12,7 +12,7 @@ using namespace vrock::pdf;
 int main( )
 {
     vrock::utils::ScopedTimer timer( []( auto t ) { std::cout << t << "ms" << std::endl; } );
-    auto doc = PDFDocument( "/home/visualrock/Documents/Normen/ISO/ISO 29500-1.pdf" );
+    auto doc = PDFDocument( "./üser_öwner.pdf" );
 
     if ( doc.decryption_handler->is_encrypted( ) )
         if ( auto handler = doc.decryption_handler->to<PDFStandardSecurityHandler>( ) )

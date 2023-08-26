@@ -1,6 +1,3 @@
-find_package(ICU COMPONENTS uc data REQUIRED)
-find_package(ZLIB REQUIRED)
-
 add_library(vrockpdf)
 target_sources(vrockpdf
         PUBLIC
@@ -26,5 +23,5 @@ target_sources(vrockpdf
         parser/PDFFilter.cpp
         parser/ContentStreamParser.cpp
 )
-
-target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog ICU::uc ICU::data zlibstatic stb_image)
+target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
+target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog icu zlibstatic stb_image)
