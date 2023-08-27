@@ -8,7 +8,7 @@ namespace vrock::pdf
     constexpr std::size_t buffer_size = 16384;
     thread_local inline auto buffer = std::make_shared<utils::ByteArray<>>( buffer_size );
 
-    auto inflate( const std::shared_ptr<utils::ByteArray<>> &data, std::size_t new_buffer_size = 4096 )
+    auto inflate( const std::shared_ptr<utils::ByteArray<>> &data, std::size_t new_buffer_size = 16384 )
         -> std::shared_ptr<utils::ByteArray<>>
     {
         std::vector<std::shared_ptr<utils::ByteArray<>>> chunks = { };

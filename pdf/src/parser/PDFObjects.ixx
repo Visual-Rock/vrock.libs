@@ -1,13 +1,16 @@
 module;
 
 import vrock.utils.ByteArray;
+import vrock.utils.List;
 import vrock.pdf.PDFDataStructures;
 
 #include <algorithm>
+#include <bitset>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -226,6 +229,7 @@ namespace vrock::pdf
 
         template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>
+
         auto get( std::size_t idx, bool resolve = true ) -> std::shared_ptr<T>
         {
             return get( idx, resolve )->to<T>( );
@@ -504,22 +508,21 @@ namespace vrock::pdf
             auto param = std::make_shared<PDFDictionary>( );
             if ( p->is( PDFObjectType::Dictionary ) )
                 param = p->as<PDFDictionary>( );
-            if ( filter->is( PDFObjectType::Name ) )
-                filters.emplace_back( filter->as<PDFName>( ) );
-            else if ( filter->is( PDFObjectType::Array ) )
+            if ( auto name = filter->to<PDFName>( ) )
+                filters.emplace_back( name->name );
+            else if ( auto arr = filter->to<PDFArray>( ) )
             {
-                auto arr = filter->as<PDFArray>( );
                 for ( auto &item : arr->value )
-                    if ( item->is( PDFObjectType::Name ) )
-                        filters.emplace_back( item->as<PDFName>( ) );
+                    if ( auto name = item->to<PDFName>( ) )
+                        filters.emplace_back( name->name );
             }
 
             // apply filters on data and save data
             auto d = std::move( _data );
 
             for ( auto &f : filters )
-                if ( encodings.find( f->name ) != encodings.end( ) )
-                    d = encodings[ f->name ]->decode( d, param );
+                if ( encodings.contains( f ) )
+                    d = encodings[ f ]->decode( d, param );
             data = std::move( d );
         }
 
@@ -534,20 +537,11 @@ namespace vrock::pdf
             return nullptr;
         }
 
-        auto has_filter( const std::string &name ) -> bool
-        {
-            for ( auto &f : filters )
-                if ( f->name == name )
-                    return true;
-            return false;
-        }
-
         PDFStreamType stream_type;
         std::shared_ptr<PDFDictionary> dict;
         std::shared_ptr<utils::ByteArray<>> data;
 
-    protected:
-        std::vector<std::shared_ptr<PDFName>> filters = { };
+        utils::List<std::string> filters = { };
     };
 
     export class PDFObjectStream : public PDFStream
@@ -669,6 +663,18 @@ namespace vrock::pdf
         }
     };
 
+    /**
+     * @param stride in bit
+     * */
+    auto get_num( std::uint8_t *data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
+    {
+        auto bit_offset = idx * stride;
+        auto byte_offset = bit_offset / 8;
+        auto offset = 7 - ( bit_offset % 8 );
+        auto mask = ( ( (uint8_t)std::pow( 2, stride ) ) - 1 ) << offset;
+        return ( data[ byte_offset ] & mask ) >> offset;
+    }
+
     export class GrayColorSpace : public ColorSpace
     {
     public:
@@ -677,29 +683,7 @@ namespace vrock::pdf
         }
 
         auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> params )
-            -> std::shared_ptr<utils::ByteArray<>> final
-        {
-            std::int32_t width = 0, height = 0, bpp = 8;
-            if ( auto dict = params->to<PDFDictionary>( ) )
-            {
-                if ( auto w = dict->get<PDFInteger>( "Width" ) )
-                    width = w->value;
-                if ( auto h = dict->get<PDFInteger>( "Height" ) )
-                    height = h->value;
-                if ( auto b = dict->get<PDFInteger>( "BitsPerComponent" ) )
-                    bpp = b->value;
-            }
-            auto converted = std::make_shared<utils::ByteArray<>>( width * height * 3 );
-            for ( auto i = 0; i < data->size( ); ++i )
-            {
-                // std::memset( converted->data( ) + ( i * 3 ), data->at( i ), 3 );
-                converted->at( i * 3 ) = data->at( i );
-                converted->at( i * 3 + 1 ) = data->at( i );
-                converted->at( i * 3 + 1 ) = data->at( i );
-                // std::cout << (int)data->at( i ) << std::endl;
-            }
-            return converted;
-        }
+            -> std::shared_ptr<utils::ByteArray<>> final;
     };
 
     export class CMYKColorSpace : public ColorSpace

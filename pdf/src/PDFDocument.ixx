@@ -20,7 +20,7 @@ namespace vrock::pdf
         Append // needs implementation
     };
 
-    export class PDFDocument : std::enable_shared_from_this<PDFDocument>
+    export class PDFDocument //:  std::enable_shared_from_this<PDFDocument>
     {
     public:
         PDFDocument( );

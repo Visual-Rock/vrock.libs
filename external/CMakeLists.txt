@@ -7,12 +7,22 @@ if (${LOG})
     add_subdirectory(spdlog)
 endif ()
 
-if (${UI})
-    add_subdirectory(fmt)
+if (${SECURITY})
+    add_subdirectory(cryptopp)
+endif ()
 
+if (${UI})
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "GLFW lib only")
+    set(GLFW_INSTALL OFF CACHE BOOL "GLFW lib only")
+    add_subdirectory(glfw)
+    if (MSVC)
+        SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
+    endif ()
+
+    add_subdirectory(glew)
     add_library(imgui STATIC)
 
-    pkg_check_modules(FREETYPE IMPORTED_TARGET freetype2)
+    add_subdirectory(freetype)
 
     target_sources(imgui
             PRIVATE
@@ -27,12 +37,10 @@ if (${UI})
             imgui/misc/cpp/imgui_stdlib.cpp
     )
     target_include_directories(imgui PUBLIC imgui imgui/backends)
-    target_link_libraries(imgui PRIVATE PkgConfig::FREETYPE)
+    target_link_libraries(imgui PRIVATE freetype)
 endif ()
 
 if (${PDF})
-    set(SNAPPY_BUILD_TESTS OFF)
-    set(SNAPPY_BUILD_BENCHMARKS OFF)
-    set(SNAPPY_INSTALL OFF)
     add_subdirectory(zlib)
+    add_subdirectory(icu)
 endif ()

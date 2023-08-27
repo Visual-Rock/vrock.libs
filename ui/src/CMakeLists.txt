@@ -1,6 +1,3 @@
-pkg_check_modules(GLFW IMPORTED_TARGET glfw3)
-pkg_check_modules(GLEW IMPORTED_TARGET glew)
-
 find_package(Vulkan REQUIRED)
 
 add_library(vrockui)
@@ -23,4 +20,4 @@ target_sources(vrockui
         Image.cpp
 )
 
-target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan stb_image)
+target_link_libraries(vrockui PUBLIC vrockutils vrocklog imgui glfw libglew_static Vulkan::Vulkan stb_image)
