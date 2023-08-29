@@ -11,6 +11,8 @@ target_sources(vrockpdf
         parser/PDFObjectParser.ixx
         parser/PDFObjects.ixx
         parser/ContentStreamParser.ixx
+
+        structure/PDFPageTree.ixx
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp
@@ -22,6 +24,8 @@ target_sources(vrockpdf
         parser/PDFObjects.cpp
         parser/PDFFilter.cpp
         parser/ContentStreamParser.cpp
+
+        structure/PDFPageTree.cpp
 )
 target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
-target_link_libraries(vrockpdf PUBLIC vrockutils vrocksecurity vrocklog icu zlibstatic stb_image)
+target_link_libraries(vrockpdf PRIVATE vrockutils vrocksecurity vrocklog icu zlibstatic stb_image)

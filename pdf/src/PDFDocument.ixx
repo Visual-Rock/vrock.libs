@@ -1,6 +1,8 @@
 module;
 
 import vrock.pdf.PDFBaseObjects;
+import vrock.pdf.PDFPageTree;
+
 export import vrock.pdf.PDFEncryption;
 
 #include <filesystem>
@@ -41,9 +43,9 @@ namespace vrock::pdf
             return p.filename( );
         }
 
-        auto get_pages( ) -> std::vector<std::shared_ptr<Page>> &
+        auto get_pages( ) -> std::vector<std::shared_ptr<Page>>
         {
-            return pages;
+            return page_tree.get_pages( );
         }
 
         // TODO: abstract away?
@@ -52,7 +54,8 @@ namespace vrock::pdf
 
     private:
         std::string file_path;
-        std::vector<std::shared_ptr<Page>> pages;
+        PDFPageTree page_tree;
+        // std::vector<std::shared_ptr<Page>> pages;
 
         std::shared_ptr<PDFContext> context;
     };

@@ -8,6 +8,8 @@ if (${LOG})
 endif ()
 
 if (${SECURITY})
+    option(CRYPTOPP_BUILD_TESTING "" OFF)
+    option(CRYPTOPP_INSTALL "" OFF)
     add_subdirectory(cryptopp)
 endif ()
 
@@ -19,9 +21,12 @@ if (${UI})
         SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
     endif ()
 
+    set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "")
+    set(ONLY_LIBS ON CACHE BOOL "")
     add_subdirectory(glew)
     add_library(imgui STATIC)
 
+    set(SKIP_INSTALL_ALL ON CACHE BOOL "")
     add_subdirectory(freetype)
 
     target_sources(imgui

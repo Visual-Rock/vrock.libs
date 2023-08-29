@@ -48,7 +48,7 @@ namespace vrock::pdf
         Rectangle
     };
 
-    template <typename T>
+    export template <typename T>
     auto to_object_type( ) -> PDFObjectType
     {
         static_assert( "unknown conversion from type" );
@@ -484,8 +484,9 @@ namespace vrock::pdf
     static std::unordered_map<std::string, std::shared_ptr<BaseFilter>> encodings = {
         { "ASCIIHexDecode", std::make_shared<PDFASCIIFilter>( ) },
         { "FlateDecode", std::make_shared<PDFFlateFilter>( ) },
+        // TODO: implement JPXDecode and DCTDecode correctly
         { "DCTDecode", std::make_shared<PDFDCTFilter>( ) },
-        //    { "JPXDecode", std::make_shared<encodings::PDFJPXEncoding>( ) },
+        { "JPXDecode", std::make_shared<PDFDCTFilter>( ) },
     };
 
     export enum class PDFStreamType
@@ -722,13 +723,6 @@ namespace vrock::pdf
 
     export class Image
     {
-        // TODO: extract to class
-        struct SMaskData
-        {
-            std::int32_t bpp = 0;
-            std::vector<int32_t> decode = { 0, 1 };
-        };
-
     public:
         Image( std::shared_ptr<PDFStream> stm );
 
@@ -763,23 +757,7 @@ namespace vrock::pdf
                 std::memcpy( converted->data( ) + ( 4 * i ), rgb->data( ) + ( 3 * i ), 3 );
                 converted->at( ( 4 * i ) + 3 ) = 0xff;
             }
-            if ( smask )
-            {
-                auto row_len = ( ( width * smask_data.bpp ) + 7 ) >> 3;
-                // TODO: std::exec::par
-                for ( auto i = 0; i < height; i++ )
-                {
-                    for ( auto j = 0; j < width; j++ )
-                    {
-                        auto curr_idx = i * width + j;
-                        // data->data( ) + ( row_len * i ) -> Pointer to the beginning of the row
-                        auto num = smask->data->data( )[ curr_idx ];
-                        //     (uint8_t)( ( get_num( smask->data->data( ) + ( row_len * i ), j, smask_data.bpp ) ) );
-                        converted->data( )[ curr_idx * 4 + 3 ] =
-                            smask_data.decode[ num ] * converted->data( )[ curr_idx * 4 + 3 ];
-                    }
-                }
-            }
+            // TODO: Image mask Soft Masks...
             return converted;
         }
 
@@ -787,8 +765,6 @@ namespace vrock::pdf
         std::int32_t width = 0, height = 0, channel = 3;
         std::uint8_t bpp = 8;
         std::shared_ptr<PDFStream> stream;
-        std::shared_ptr<PDFStream> smask;
-        SMaskData smask_data{ };
         std::shared_ptr<ColorSpace> color_space;
     };
 
@@ -806,61 +782,6 @@ namespace vrock::pdf
     private:
         std::shared_ptr<PDFDictionary> dict;
         std::shared_ptr<PDFContext> context;
-    };
-
-    export class PageTreeNode;
-
-    export class PageBaseObject : public PDFBaseObject
-    {
-    public:
-        PageBaseObject( std::shared_ptr<PDFDictionary> dict, PageTreeNode *parent, std::shared_ptr<PDFContext> ctx,
-                        bool leaf = true )
-            : PDFBaseObject( leaf ? PDFObjectType::Page : PDFObjectType::PageTreeNode ), parent( parent ),
-              context( std::move( ctx ) ), dictionary( std::move( dict ) )
-        {
-        }
-
-    protected:
-        std::shared_ptr<PDFContext> context;
-        std::shared_ptr<PDFDictionary> dictionary;
-        PageTreeNode *parent;
-
-        auto get_property( const std::string &name ) -> std::shared_ptr<PDFBaseObject>;
-
-        template <typename T>
-            requires std::is_base_of_v<PDFBaseObject, T>
-        auto get_property( const std::string &name ) -> std::shared_ptr<T>
-        {
-            return get_property( name )->to<T>( );
-        }
-    };
-
-    export class Page : public PageBaseObject
-    {
-    public:
-        Page( std::shared_ptr<PDFDictionary>, std::shared_ptr<PDFContext>, PageTreeNode * );
-
-        std::shared_ptr<Rectangle> media_box;
-        std::shared_ptr<Rectangle> crop_box;
-        std::shared_ptr<Rectangle> bleed_box;
-        std::shared_ptr<Rectangle> trim_box;
-        std::shared_ptr<Rectangle> art_box;
-
-        std::shared_ptr<ResourceDictionary> resources;
-
-        std::int32_t rotation = 0;
-
-    protected:
-        std::vector<std::shared_ptr<PDFStream>> content = { };
-    };
-
-    export class PageTreeNode : public PageBaseObject
-    {
-    public:
-        PageTreeNode( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> context, PageTreeNode *parent );
-
-        std::vector<std::shared_ptr<PageBaseObject>> kids = { };
-        std::int32_t count = 0;
     };
 
     class PDFContext
@@ -885,7 +806,6 @@ namespace vrock::pdf
 
         std::shared_ptr<PDFDictionary> trailer;
         std::vector<std::shared_ptr<XRefTable>> xref_tables;
-        std::shared_ptr<PageTreeNode> page_tree;
     };
 
     template <>
@@ -946,17 +866,5 @@ namespace vrock::pdf
     auto to_object_type<PDFRef>( ) -> PDFObjectType
     {
         return PDFObjectType::IndirectObject;
-    }
-
-    template <>
-    auto to_object_type<PageTreeNode>( ) -> PDFObjectType
-    {
-        return PDFObjectType::PageTreeNode;
-    }
-
-    template <>
-    auto to_object_type<Page>( ) -> PDFObjectType
-    {
-        return PDFObjectType::Page;
     }
 } // namespace vrock::pdf
