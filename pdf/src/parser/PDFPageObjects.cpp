@@ -129,15 +129,29 @@ namespace vrock::pdf
             stream->data = data;
             stbi_image_free( i );
         }
+
+        if ( smask = stream->dict->get<PDFStream>( "SMask" ) )
+        {
+            if ( auto b = smask->dict->get<PDFInteger>( "BitsPerComponent" ) )
+                smask_data.bpp = b->value;
+            if ( auto dec = smask->dict->get<PDFArray>( "Decode" ) )
+            {
+                smask_data.decode.clear( );
+                smask_data.decode.reserve( dec->value.size( ) );
+                for ( const auto &e : dec->value )
+                    if ( auto num = e->to<PDFInteger>( ) )
+                        smask_data.decode.emplace_back( num->value );
+            }
+        }
     }
 
     auto Image::save( const std::string &path, ImageSaveFormat format ) -> void
     {
-        auto rgb = color_space->convert_to_rgb( stream->data, stream->dict );
+        auto rgba = as_rgba( );
         switch ( format )
         {
         case ImageSaveFormat::png:
-            stbi_write_png( path.c_str( ), width, height, channel, rgb->data( ), rgb->size( ) / height );
+            stbi_write_png( path.c_str( ), width, height, 4, rgba->data( ), rgba->size( ) / height );
             break;
         }
     }

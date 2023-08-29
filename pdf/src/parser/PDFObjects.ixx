@@ -722,21 +722,73 @@ namespace vrock::pdf
 
     export class Image
     {
+        // TODO: extract to class
+        struct SMaskData
+        {
+            std::int32_t bpp = 0;
+            std::vector<int32_t> decode = { 0, 1 };
+        };
+
     public:
         Image( std::shared_ptr<PDFStream> stm );
 
-        std::int32_t width = 0, height = 0, channel = 3;
-        std::uint8_t bpp = 8;
-
         auto save( const std::string &path, ImageSaveFormat format = ImageSaveFormat::png ) -> void;
 
-        auto as_rgb( ) -> std::shared_ptr<utils::ByteArray<>>
+        inline auto get_width( ) const -> std::int32_t
+        {
+            return width;
+        }
+
+        inline auto get_height( ) const -> std::int32_t
+        {
+            return height;
+        }
+
+        inline auto get_bits_per_pixel( ) const -> std::int32_t
+        {
+            return bpp;
+        }
+
+        inline auto as_rgb( ) -> std::shared_ptr<utils::ByteArray<>>
         {
             return color_space->convert_to_rgb( stream->data, stream->dict );
         }
 
+        auto as_rgba( ) -> std::shared_ptr<utils::ByteArray<>>
+        {
+            auto rgb = as_rgb( );
+            auto converted = std::make_shared<utils::ByteArray<>>( ( rgb->size( ) / 3 ) * 4 );
+            for ( auto i = 0; i < rgb->size( ) / 3; i++ )
+            {
+                std::memcpy( converted->data( ) + ( 4 * i ), rgb->data( ) + ( 3 * i ), 3 );
+                converted->at( ( 4 * i ) + 3 ) = 0xff;
+            }
+            if ( smask )
+            {
+                auto row_len = ( ( width * smask_data.bpp ) + 7 ) >> 3;
+                // TODO: std::exec::par
+                for ( auto i = 0; i < height; i++ )
+                {
+                    for ( auto j = 0; j < width; j++ )
+                    {
+                        auto curr_idx = i * width + j;
+                        // data->data( ) + ( row_len * i ) -> Pointer to the beginning of the row
+                        auto num = smask->data->data( )[ curr_idx ];
+                        //     (uint8_t)( ( get_num( smask->data->data( ) + ( row_len * i ), j, smask_data.bpp ) ) );
+                        converted->data( )[ curr_idx * 4 + 3 ] =
+                            smask_data.decode[ num ] * converted->data( )[ curr_idx * 4 + 3 ];
+                    }
+                }
+            }
+            return converted;
+        }
+
     private:
+        std::int32_t width = 0, height = 0, channel = 3;
+        std::uint8_t bpp = 8;
         std::shared_ptr<PDFStream> stream;
+        std::shared_ptr<PDFStream> smask;
+        SMaskData smask_data{ };
         std::shared_ptr<ColorSpace> color_space;
     };
 
