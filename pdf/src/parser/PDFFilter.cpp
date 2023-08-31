@@ -2,6 +2,7 @@ module;
 
 import vrock.utils.ByteArray;
 
+#include "stb_image.h"
 #include <algorithm>
 #include <cstdint>
 #include <iomanip>
@@ -91,7 +92,12 @@ namespace vrock::pdf
     {
         if ( auto color_transform = dict->get<PDFInteger>( "ColorTransform" ) )
             std::cout << color_transform->value << std::endl;
-        return data;
+        int w = 0, h = 0, c = 0;
+        auto i = stbi_load_from_memory( data->data( ), data->size( ), &w, &h, &c, 3 );
+        auto d = std::make_shared<utils::ByteArray<>>( w * c * h );
+        std::memcpy( data->data( ), i, data->size( ) );
+        stbi_image_free( i );
+        return d;
     }
 
     auto predict_png( const std::shared_ptr<utils::ByteArray<>> &data, int col, int bpc, int bpp )

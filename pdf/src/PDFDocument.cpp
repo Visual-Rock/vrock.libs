@@ -3,6 +3,7 @@ module;
 import vrock.pdf.PDFEncryption;
 import vrock.pdf.PDFBaseObjects;
 import vrock.pdf.PDFObjectParser;
+import vrock.pdf.PDFPageTree;
 
 #include <fstream>
 #include <functional>
@@ -20,15 +21,15 @@ namespace vrock::pdf
     {
     }
 
-    auto get_pages_( std::shared_ptr<PageTreeNode> tree_node, std::vector<std::shared_ptr<Page>> &pages )
+    auto get_pages_( std::shared_ptr<PDFBaseObject> tree_node, std::vector<std::shared_ptr<Page>> &pages )
         -> std::vector<std::shared_ptr<Page>>
     {
-        for ( auto &kid : tree_node->kids )
-            if ( auto page = kid->to<Page>( ) )
-                pages.emplace_back( page );
-            else if ( auto node = kid->to<PageTreeNode>( ) )
-                get_pages_( node, pages );
-        return pages;
+        // for ( auto &kid : tree_node->kids )
+        //     if ( auto page = kid->to<Page>( ) )
+        //         pages.emplace_back( page );
+        // else if ( auto node = kid->to<PageTreeNode>( ) )
+        //     get_pages_( node, pages );
+        // return pages;
     }
 
     PDFDocument::PDFDocument( std::string path ) : file_path( std::move( path ) )
@@ -48,12 +49,7 @@ namespace vrock::pdf
             {
                 // load pages from Root dictionary
                 if ( auto pages_root = root->get<PDFDictionary>( "Pages" ) )
-                {
-                    context->page_tree = std::make_shared<PageTreeNode>( pages_root, context, nullptr );
-                    pages = { };
-                    pages.reserve( context->page_tree->count );
-                    get_pages_( context->page_tree, pages );
-                }
+                    page_tree = PDFPageTree( pages_root, context );
                 else
                     throw std::runtime_error( "Pages is not a Dictionary" );
             }
