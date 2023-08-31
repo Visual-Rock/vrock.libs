@@ -4,6 +4,7 @@ import vrock.pdf.PDFBaseObjects;
 import vrock.utils.List;
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -50,7 +51,7 @@ namespace vrock::pdf
         std::shared_ptr<Rectangle> trim_box;
         std::shared_ptr<Rectangle> art_box;
 
-        std::shared_ptr<ResourceDictionary> resources;
+        std::shared_ptr<ResourceDictionary> resources = std::make_shared<ResourceDictionary>( );
 
         std::int32_t rotation = 0;
 
@@ -63,6 +64,8 @@ namespace vrock::pdf
     public:
         PageTreeNode( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> context, PageTreeNode *parent );
 
+        auto get_page( std::size_t idx ) -> std::shared_ptr<Page>;
+
         std::vector<std::shared_ptr<PageBaseObject>> kids = { };
         std::int32_t count = 0;
     };
@@ -71,26 +74,17 @@ namespace vrock::pdf
     {
     public:
         PDFPageTree( ) = default;
-
-        PDFPageTree( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx )
-            : pages_dict( std::move( dict ) ), context( std::move( ctx ) )
-        {
-            if ( auto c = pages_dict->get<PDFInteger>( "Count" ) )
-                pages_count = c->value;
-        }
+        PDFPageTree( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx );
 
         auto get_page( std::size_t idx ) -> std::shared_ptr<Page>;
-
-        auto get_pages( ) -> utils::List<std::shared_ptr<Page>>
-        {
-            return pages;
-        }
+        auto get_pages( ) -> utils::List<std::shared_ptr<Page>>;
+        auto get_page_count( ) -> std::int32_t;
 
     private:
         utils::List<std::shared_ptr<Page>> pages;
         std::shared_ptr<PageTreeNode> page_tree;
-        std::shared_ptr<PDFDictionary> pages_dict;
         std::shared_ptr<PDFContext> context;
+        bool all_pages_parsed = false;
 
         std::int32_t pages_count = 0;
     };

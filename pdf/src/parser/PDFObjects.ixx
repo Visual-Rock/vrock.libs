@@ -771,6 +771,7 @@ namespace vrock::pdf
     export class ResourceDictionary
     {
     public:
+        ResourceDictionary( ) = default;
         ResourceDictionary( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx );
         ~ResourceDictionary( );
 
