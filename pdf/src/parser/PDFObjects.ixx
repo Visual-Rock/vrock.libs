@@ -721,10 +721,10 @@ namespace vrock::pdf
         png
     };
 
-    export class Image
+    export class PDFImage
     {
     public:
-        Image( std::shared_ptr<PDFStream> stm );
+        PDFImage( std::shared_ptr<PDFStream> stm );
 
         auto save( const std::string &path, ImageSaveFormat format = ImageSaveFormat::png ) -> void;
 
@@ -777,7 +777,7 @@ namespace vrock::pdf
 
         std::unordered_map<std::string, std::shared_ptr<PDFDictionary>> ext_g_state = { };
         // XObjects
-        std::unordered_map<std::string, std::shared_ptr<Image>> images = { };
+        std::unordered_map<std::string, std::shared_ptr<PDFImage>> images = { };
         std::unordered_map<std::string, std::shared_ptr<Font>> fonts = { };
         // std::unordered_map<std::string, int> forms;
     private:

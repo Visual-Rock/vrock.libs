@@ -41,7 +41,7 @@ namespace vrock::pdf
             context = std::move( ctx );
         }
 
-    private:
+    protected:
         const std::unordered_map<char, std::string> string_literal_lookup = {
             { 'n', "\n" }, { 'r', "\r" }, { 't', "\t" },  { 'b', "\b" }, { 'f', "\f" },
             { '(', "(" },  { ')', ")" },  { '\\', "\\" }, { '\n', "" }
@@ -50,11 +50,10 @@ namespace vrock::pdf
         std::shared_ptr<PDFContext> context;
         std::shared_ptr<PDFBaseSecurityHandler> decryption_handler = std::make_shared<PDFNullSecurityHandler>( );
 
-    protected:
         auto find_end_of_stream( ) -> std::size_t;
     };
 
-    class PDFParserException : public std::exception
+    export class PDFParserException : public std::exception
     {
     public:
         explicit PDFParserException( std::string m ) : message( std::move( m ) )
