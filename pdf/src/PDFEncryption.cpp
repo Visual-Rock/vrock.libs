@@ -39,7 +39,7 @@ namespace vrock::pdf
             auto cf = dict->get<PDFDictionary>( "CF" );
             if ( cf == nullptr )
                 return;
-            auto stdcf = dict->get<PDFDictionary>( "StdCF" );
+            auto stdcf = cf->get<PDFDictionary>( "StdCF" );
             if ( stdcf == nullptr )
                 return;
             if ( auto cfm = stdcf->get<PDFName>( "CFM" ) )
@@ -164,10 +164,10 @@ namespace vrock::pdf
         k->at( key->size( ) + 4 ) = (uint8_t)( ref->generation_number >> 8 );
         if ( use_aes )
         {
-            key->at( key->size( ) + 5 ) = 0x73; // s
-            key->at( key->size( ) + 5 ) = 0x41; // A
-            key->at( key->size( ) + 5 ) = 0x6c; // I
-            key->at( key->size( ) + 5 ) = 0x54; // T
+            k->at( key->size( ) + 5 ) = 0x73; // s
+            k->at( key->size( ) + 6 ) = 0x41; // A
+            k->at( key->size( ) + 7 ) = 0x6c; // I
+            k->at( key->size( ) + 8 ) = 0x54; // T
         }
         return security::md5( k );
     }

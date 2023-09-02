@@ -36,7 +36,7 @@ namespace vrock::pdf
         PrintFull = 2048 | 4294963904,
     };
 
-    enum class AuthenticationState
+    export enum class AuthenticationState
     {
         Failed = -1,
         User = 0,
