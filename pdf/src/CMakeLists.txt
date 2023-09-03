@@ -7,12 +7,15 @@ target_sources(vrockpdf
         PDFEncryption.ixx
         PDFDataStructures.ixx
 
+        Math.ixx
+
         parser/BaseParser.ixx
         parser/PDFObjectParser.ixx
         parser/PDFObjects.ixx
         parser/ContentStreamParser.ixx
 
         structure/PDFPageTree.ixx
+        structure/Image.ixx
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp

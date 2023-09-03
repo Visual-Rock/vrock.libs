@@ -868,4 +868,12 @@ namespace vrock::pdf
     {
         return PDFObjectType::IndirectObject;
     }
+
+    class PDFOperator;
+    template <>
+    auto to_object_type<PDFOperator>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Operator;
+    }
+
 } // namespace vrock::pdf

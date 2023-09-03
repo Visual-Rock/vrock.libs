@@ -9,8 +9,9 @@ using namespace vrock::pdf;
 
 TEST( DecryptOwnerOnly, BasicAssertions )
 {
-    std::vector<std::string> files = { "Encrypted/R2_O.pdf",     "Encrypted/R3_O.pdf", "Encrypted/R4_O.pdf",
-                                       "Encrypted/R4_O_AES.pdf", "Encrypted/R5_O.pdf", "Encrypted/R6_O.pdf" };
+    std::vector<std::string> files = { "pdfs/Encrypted/R2_O.pdf", "pdfs/Encrypted/R3_O.pdf",
+                                       "pdfs/Encrypted/R4_O.pdf", "pdfs/Encrypted/R4_O_AES.pdf",
+                                       "pdfs/Encrypted/R5_O.pdf", "pdfs/Encrypted/R6_O.pdf" };
     for ( const auto &file : files )
     {
         std::cout << "Testing: " << file << std::endl;
@@ -36,8 +37,9 @@ TEST( DecryptOwnerOnly, BasicAssertions )
 
 TEST( DecryptUserOnly, BasicAssertions )
 {
-    std::vector<std::string> files = { "Encrypted/R2_U.pdf",     "Encrypted/R3_U.pdf", "Encrypted/R4_U.pdf",
-                                       "Encrypted/R4_U_AES.pdf", "Encrypted/R5_U.pdf", "Encrypted/R6_U.pdf" };
+    std::vector<std::string> files = { "pdfs/Encrypted/R2_U.pdf", "pdfs/Encrypted/R3_U.pdf",
+                                       "pdfs/Encrypted/R4_U.pdf", "pdfs/Encrypted/R4_U_AES.pdf",
+                                       "pdfs/Encrypted/R5_U.pdf", "pdfs/Encrypted/R6_U.pdf" };
     for ( const auto &file : files )
     {
         std::cout << "Testing: " << file << std::endl;
@@ -63,8 +65,9 @@ TEST( DecryptUserOnly, BasicAssertions )
 
 TEST( DecryptUserOwner, BasicAssertions )
 {
-    std::vector<std::string> files = { "Encrypted/R2_U_O.pdf",     "Encrypted/R3_U_O.pdf", "Encrypted/R4_U_O.pdf",
-                                       "Encrypted/R4_U_O_AES.pdf", "Encrypted/R5_U_O.pdf", "Encrypted/R6_U_O.pdf" };
+    std::vector<std::string> files = { "pdfs/Encrypted/R2_U_O.pdf", "pdfs/Encrypted/R3_U_O.pdf",
+                                       "pdfs/Encrypted/R4_U_O.pdf", "pdfs/Encrypted/R4_U_O_AES.pdf",
+                                       "pdfs/Encrypted/R5_U_O.pdf", "pdfs/Encrypted/R6_U_O.pdf" };
     for ( const auto &file : files )
     {
         std::cout << "Testing: " << file << std::endl;
@@ -90,7 +93,7 @@ TEST( DecryptUserOwner, BasicAssertions )
 
 TEST( DecryptÜserÖwner, BasicAssertions )
 {
-    auto doc = PDFDocument( "Encrypted/üser_öwner.pdf" );
+    auto doc = PDFDocument( "pdfs/Encrypted/üser_öwner.pdf" );
     auto sec = doc.decryption_handler->to<PDFStandardSecurityHandler>( );
     EXPECT_NE( sec, nullptr );
     if ( sec )

@@ -41,12 +41,12 @@ namespace vrock::pdf
             rotation = rot->value;
 
         if ( auto con = dictionary->get<PDFStream>( "Contents" ) )
-            content.emplace_back( con );
+            content_streams.emplace_back( con );
         else if ( auto arr = dictionary->get<PDFArray>( "Contents" ) )
             for ( int i = 0; i < arr->value.size( ); ++i )
                 if ( auto ref = arr->get<PDFRef>( i ) )
                     if ( auto con = context->get_object<PDFStream>( ref ) )
-                        content.emplace_back( con );
+                        content_streams.emplace_back( con );
 
         if ( auto res = get_property<PDFDictionary>( "Resources" ) )
             resources = std::make_shared<ResourceDictionary>( res, context );

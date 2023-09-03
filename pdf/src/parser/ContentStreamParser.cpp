@@ -2,11 +2,17 @@ module;
 
 import vrock.pdf.PDFObjectParser;
 import vrock.pdf.PDFBaseObjects;
+import vrock.pdf.PDFDataStructures;
+import vrock.pdf.Math;
+import vrock.pdf.Image;
 
+#include <cmath>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <stack>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 module vrock.pdf.ContentStreamParser;
@@ -15,13 +21,17 @@ namespace vrock::pdf
 {
     ContentStreamParser::ContentStreamParser( std::string data, std::shared_ptr<ResourceDictionary> res_dict,
                                               std::shared_ptr<PDFContext> ctx )
+        : PDFObjectParser( std::move( data ) ), res( std::move( res_dict ) )
     {
+        std::cout << _string << std::endl;
+        set_context( std::move( ctx ) );
+
         graphic_state_stack.emplace( );
         auto operator_seq = to_operator_array( );
 
         try
         {
-            for ( auto op : operator_seq )
+            for ( const auto &op : operator_seq )
                 if ( operator_fn.find( op->o ) != operator_fn.end( ) )
                     operator_fn[ op->o ]( this, op );
             // else // if ( op->o == objects::ContentStreamOperator::Tr )
@@ -61,6 +71,7 @@ namespace vrock::pdf
             return parse_operator( );
         throw PDFParserException( std::format( "Unknown object: {}", _string.substr( _offset - 20, 50 ) ) );
     }
+
     auto ContentStreamParser::parse_operator( ) -> std::shared_ptr<PDFOperator>
     {
         if ( _string[ _offset ] == '\'' || _string[ _offset ] == '"' )
@@ -107,13 +118,9 @@ namespace vrock::pdf
             for ( size_t i = 0; i < 6; i++ )
                 data[ i ] = get_number( op->paramteres[ i ] );
         }
-        auto ctm = &parser->graphic_state_stack.top( ).current_transformation_matrix[ 0 ][ 0 ];
-        ctm[ 0 ] = data[ 0 ];
-        ctm[ 1 ] = data[ 1 ];
-        ctm[ 3 ] = data[ 2 ];
-        ctm[ 4 ] = data[ 3 ];
-        ctm[ 6 ] = data[ 4 ];
-        ctm[ 7 ] = data[ 5 ];
+        mat3 mat{ { { data[ 0 ], data[ 1 ], 0 }, { data[ 2 ], data[ 3 ], 0 }, { data[ 4 ], data[ 5 ], 1 } } };
+        parser->graphic_state_stack.top( ).current_transformation_matrix =
+            mul( parser->graphic_state_stack.top( ).current_transformation_matrix, mat );
     }
 
     void operator_Do( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -122,14 +129,31 @@ namespace vrock::pdf
         if ( op->paramteres.size( ) != 1 )
             goto _throw;
         name = op->paramteres[ 0 ]->to<PDFName>( );
-        if ( name )
+        if ( !name )
             goto _throw;
         // check if image and if so add it to images
         if ( parser->res->images.contains( name->name ) )
         {
+            // TODO: check if it's really working (with shear and rotation)
+            // TODO: move to function
+            auto &ctm = parser->graphic_state_stack.top( ).current_transformation_matrix;
+            auto a = ctm[ 0 ][ 0 ];
+            auto b = ctm[ 1 ][ 0 ];
+            auto c = ctm[ 2 ][ 0 ];
+            auto d = ctm[ 0 ][ 1 ];
+            auto e = ctm[ 1 ][ 1 ];
+            auto f = ctm[ 2 ][ 1 ];
+
+            auto p = std::sqrt( a * a + b * b );
+            auto r = ( a * e - b * d ) / ( p );
+            auto q = ( a * d + b * e ) / ( a * e - b * d );
             // add image
-            auto img = std::make_shared<Image>( parser->res->images[ name->name ] );
-            // TODO: add position
+            auto img = std::make_shared<Image>( );
+            img->position = Point{ Unit( c ), Unit( f ) };
+            img->scale = Point{ Unit( p ), Unit( r ) };
+            img->shear = q;
+            img->rotation = std::atan2( b, a );
+
             parser->images.push_back( img );
         }
     _throw:

@@ -14,7 +14,8 @@ namespace vrock::pdf
     public:
         Image( ) = default;
 
-        Point position, size;
+        Point position, scale;
+        double shear, rotation;
         std::shared_ptr<PDFImage> image_data;
     };
 } // namespace vrock::pdf

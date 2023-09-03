@@ -1,6 +1,8 @@
 module;
 
 import vrock.pdf.PDFBaseObjects;
+import vrock.pdf.ContentStreamParser;
+import vrock.pdf.Image;
 import vrock.utils.List;
 
 #include <cstdint>
@@ -51,12 +53,41 @@ namespace vrock::pdf
         std::shared_ptr<Rectangle> trim_box;
         std::shared_ptr<Rectangle> art_box;
 
+        auto get_images( ) -> utils::List<std::shared_ptr<Image>>
+        {
+            parse_content( );
+            return images;
+        }
+
         std::shared_ptr<ResourceDictionary> resources = std::make_shared<ResourceDictionary>( );
 
         std::int32_t rotation = 0;
 
     protected:
-        std::vector<std::shared_ptr<PDFStream>> content = { };
+        bool parsed = false;
+        utils::List<std::shared_ptr<Image>> images = { };
+
+        std::vector<std::shared_ptr<PDFStream>> content_streams = { };
+
+    private:
+        auto parse_content( ) -> void
+        {
+            if ( parsed )
+                return;
+            if ( content_streams.empty( ) )
+            {
+                parsed = true;
+                return;
+            }
+            std::string content;
+            for ( auto &content_stream : content_streams )
+                content += content_stream->data->to_string( );
+
+            auto parser = ContentStreamParser( content, resources, context );
+            // text = std::move( parser.text_elements );
+            images = std::move( parser.images );
+            parsed = true;
+        }
     };
 
     class PageTreeNode : public PageBaseObject

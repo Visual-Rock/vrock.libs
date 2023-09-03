@@ -2,6 +2,10 @@ module;
 
 import vrock.pdf.PDFObjectParser;
 import vrock.pdf.PDFBaseObjects;
+import vrock.pdf.Image;
+import vrock.pdf.Math;
+
+import vrock.utils.List;
 
 #include <functional>
 #include <memory>
@@ -295,16 +299,6 @@ namespace vrock::pdf
         bool text_knockout = true;
     };
 
-    export class Image
-    {
-    public:
-        Image( std::shared_ptr<PDFImage> img ) : image( std::move( img ) )
-        {
-        }
-
-        std::shared_ptr<PDFImage> image;
-    };
-
     export class Text
     {
     public:
@@ -332,7 +326,7 @@ namespace vrock::pdf
             // TODO: Apply
         }
 
-        double current_transformation_matrix[ 3 ][ 3 ] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+        mat3 current_transformation_matrix{ { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } } };
         std::shared_ptr<Rectangle> clipping_path = nullptr;
         std::shared_ptr<ColorSpace> color_space = std::make_shared<GrayColorSpace>( );
         // color
@@ -372,7 +366,7 @@ namespace vrock::pdf
 
         auto parse_operator( ) -> std::shared_ptr<PDFOperator>;
 
-        std::vector<std::shared_ptr<Image>> images = { };
+        utils::List<std::shared_ptr<Image>> images = { };
         std::vector<std::shared_ptr<Text>> text = { };
 
     private:
