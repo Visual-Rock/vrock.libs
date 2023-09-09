@@ -4,6 +4,7 @@ import vrock.utils.ByteArray;
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -89,12 +90,14 @@ namespace vrock::pdf
         {
             for ( auto [ k, v ] : xobjects->dict )
             {
+                std::cout << k->name << ' ';
                 if ( auto val = xobjects->get( k->name ) )
                 {
                     std::string type;
                     if ( auto stm = val->to<PDFStream>( ) )
                         if ( auto t = stm->dict->get<PDFName>( "Subtype" ) )
                             type = t->name;
+                    std::cout << type << std::endl;
                     switch ( type.size( ) )
                     {
                     case 4: {

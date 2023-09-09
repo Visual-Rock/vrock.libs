@@ -1,4 +1,5 @@
 import vrock.security.encryption;
+import vrock.utils.ByteArray;
 
 #include <gtest/gtest.h>
 

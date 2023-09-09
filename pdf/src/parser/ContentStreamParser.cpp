@@ -31,15 +31,22 @@ namespace vrock::pdf
 
         try
         {
-            for ( const auto &op : operator_seq )
+            std::size_t i = 0;
+            for ( auto op : operator_seq )
+            {
+                std::cout << i++ << ' ' << op->_operator << std::endl;
                 if ( operator_fn.find( op->o ) != operator_fn.end( ) )
+                {
                     operator_fn[ op->o ]( this, op );
+                }
+            }
             // else // if ( op->o == objects::ContentStreamOperator::Tr )
             //     for ( auto o : op->paramteres )
             //         log::get_logger( "pdf" )->log->debug( "{}: {}", op->_operator, o->to_string( ) );
         }
         catch ( const std::exception &e )
         {
+            std::cout << e.what( ) << std::endl;
             // log::get_logger( "pdf" )->log->debug( "ContentStreamParser Exception: {}", e.what( ) );
         }
     }
@@ -118,13 +125,26 @@ namespace vrock::pdf
             for ( size_t i = 0; i < 6; i++ )
                 data[ i ] = get_number( op->paramteres[ i ] );
         }
+        // TODO: check if this is correct behavior
         mat3 mat{ { { data[ 0 ], data[ 1 ], 0 }, { data[ 2 ], data[ 3 ], 0 }, { data[ 4 ], data[ 5 ], 1 } } };
         parser->graphic_state_stack.top( ).current_transformation_matrix =
-            mul( parser->graphic_state_stack.top( ).current_transformation_matrix, mat );
+            mul( mat, parser->graphic_state_stack.top( ).current_transformation_matrix );
     }
 
     void operator_Do( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
+        auto &ctm = parser->graphic_state_stack.top( ).current_transformation_matrix;
+        auto a = ctm[ 0 ][ 0 ];
+        auto b = ctm[ 1 ][ 0 ];
+        auto c = ctm[ 2 ][ 0 ];
+        auto d = ctm[ 0 ][ 1 ];
+        auto e = ctm[ 1 ][ 1 ];
+        auto f = ctm[ 2 ][ 1 ];
+
+        auto p = std::sqrt( a * a + b * b );
+        auto r = ( a * e - b * d ) / ( p );
+        auto q = ( a * d + b * e ) / ( a * e - b * d );
+
         std::shared_ptr<PDFName> name = nullptr;
         if ( op->paramteres.size( ) != 1 )
             goto _throw;
@@ -136,26 +156,16 @@ namespace vrock::pdf
         {
             // TODO: check if it's really working (with shear and rotation)
             // TODO: move to function
-            auto &ctm = parser->graphic_state_stack.top( ).current_transformation_matrix;
-            auto a = ctm[ 0 ][ 0 ];
-            auto b = ctm[ 1 ][ 0 ];
-            auto c = ctm[ 2 ][ 0 ];
-            auto d = ctm[ 0 ][ 1 ];
-            auto e = ctm[ 1 ][ 1 ];
-            auto f = ctm[ 2 ][ 1 ];
-
-            auto p = std::sqrt( a * a + b * b );
-            auto r = ( a * e - b * d ) / ( p );
-            auto q = ( a * d + b * e ) / ( a * e - b * d );
             // add image
             auto img = std::make_shared<Image>( );
             img->position = Point{ Unit( c ), Unit( f ) };
             img->scale = Point{ Unit( p ), Unit( r ) };
             img->shear = q;
             img->rotation = std::atan2( b, a );
-
+            img->image_data = parser->res->images[ name->name ];
             parser->images.push_back( img );
         }
+        return;
     _throw:
         throw std::runtime_error( "Do operator parameter wrong" );
     }
@@ -166,13 +176,13 @@ namespace vrock::pdf
         if ( op->paramteres.size( ) != 1 )
             goto _throw;
         name = op->paramteres[ 0 ]->to<PDFName>( );
-        if ( !name )
+        if ( name == nullptr )
             goto _throw;
 
         if ( !parser->res->ext_g_state.contains( name->name ) )
             throw std::runtime_error( std::format( "gs {} not found!", name->name ) );
         parser->graphic_state_stack.top( ).apply_dict( parser->res->ext_g_state[ name->name ] );
-
+        return;
     _throw:
         throw std::runtime_error( "gs operator parameter wrong" );
     }
@@ -195,7 +205,7 @@ namespace vrock::pdf
         if ( auto n = op->paramteres[ 0 ]->to<PDFName>( ) )
             name = n->name;
 
-        if ( parser->res->fonts.contains( name ) )
+        if ( !parser->res->fonts.contains( name ) )
             throw std::runtime_error( std::format( "font {} not found!", name ) );
         parser->graphic_state_stack.top( ).text_state.font = parser->res->fonts[ name ];
         parser->graphic_state_stack.top( ).text_state.font_size = get_number( op->paramteres[ 1 ] );
@@ -224,7 +234,7 @@ namespace vrock::pdf
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "TJ operator parameter wrong" );
-        else if ( op->paramteres[ 0 ]->is( PDFObjectType::Array ) )
+        else if ( !op->paramteres[ 0 ]->is( PDFObjectType::Array ) )
             throw std::runtime_error( "TJ operator parameter wrong" );
 
         auto arr = op->paramteres[ 0 ]->to<PDFArray>( );
