@@ -2,7 +2,7 @@ module;
 
 import vrock.pdf.PDFObjectParser;
 import vrock.pdf.PDFBaseObjects;
-import vrock.pdf.Image;
+import vrock.pdf.RenderableObject;
 import vrock.pdf.Math;
 
 import vrock.utils.List;
@@ -299,22 +299,6 @@ namespace vrock::pdf
         bool text_knockout = true;
     };
 
-    export class Text
-    {
-    public:
-        Text( )
-        {
-        }
-
-        std::string text;
-        /// @brief List of offsets. the pairs are structured in the following way:
-        ///         substring length, offset
-        std::vector<std::pair<int32_t, int32_t>> offsets;
-
-        /// @brief font size in pt
-        int32_t font_size = 0;
-    };
-
     class GraphicState
     {
     public:
@@ -367,7 +351,7 @@ namespace vrock::pdf
         auto parse_operator( ) -> std::shared_ptr<PDFOperator>;
 
         utils::List<std::shared_ptr<Image>> images = { };
-        std::vector<std::shared_ptr<Text>> text = { };
+        utils::List<std::shared_ptr<Text>> text = { };
 
     private:
         auto to_operator_array( ) -> std::vector<std::shared_ptr<PDFOperator>>;

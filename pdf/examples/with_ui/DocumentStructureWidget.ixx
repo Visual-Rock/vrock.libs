@@ -6,7 +6,8 @@ import vrock.ui.Application;
 import vrock.utils.FutureHelper;
 import vrock.pdf.PDFDocument;
 import vrock.pdf.PDFBaseObjects;
-import vrock.pdf.Image;
+import vrock.pdf.RenderableObject;
+import vrock.pdf.RenderableObject;
 import vrock.ui.FileDialog;
 import vrock.ui.Image;
 
@@ -93,38 +94,54 @@ protected:
         }
     }
 
-    auto render_page( const std::shared_ptr<vrock::pdf::Page> &page ) -> void
+    auto render_renderable( const std::shared_ptr<vrock::pdf::Renderable> &renderable ) -> void
     {
-        render_rectangle( page->media_box, "Media Box" );
-        render_rectangle( page->crop_box, "Crop Box" );
-        render_rectangle( page->bleed_box, "Bleed Box" );
-        render_rectangle( page->trim_box, "Trim Box" );
-        render_rectangle( page->art_box, "Art Box" );
-        ImGui::SliderInt( "Rotation", &page->rotation, 0, 270 );
         if ( ImGui::TreeNode( "Content Images" ) )
         {
             std::size_t i = 0;
-            for ( const auto &image : page->get_images( ) )
+            for ( const auto &image : renderable->get_images( ) )
             {
                 if ( ImGui::TreeNode( std::format( "Image: {}", ++i ).c_str( ) ) )
                 {
                     if ( ImGui::Button( "Save" ) )
                     {
                         auto save_as_location = vrock::ui::save_file( "Save Image", "", globals::image_file_filter );
-                        image->image_data->save( save_as_location );
+                        image->image->save( save_as_location );
                     }
                     ImGui::SeparatorText( "render values" );
                     ImGui::Text( "position" );
                     render_point( image->position );
                     ImGui::Text( "size" );
                     render_point( image->scale );
+                    double min = 0.0, max = 360.0;
+                    ImGui::Text( "rotation" );
+                    ImGui::SliderScalar( "", ImGuiDataType_Double, &image->rotation, &min, &max );
+                    ImGui::Text( "shear" );
+                    ImGui::SliderScalar( "", ImGuiDataType_Double, &image->shear, &min, &max );
 
                     ImGui::SeparatorText( "source values" );
-                    ImGui::Text( "%s", std::format( "Width: {}", image->image_data->get_width( ) ).c_str( ) );
-                    ImGui::Text( "%s", std::format( "Height: {}", image->image_data->get_height( ) ).c_str( ) );
-                    ImGui::Text( "%s", std::format( "BPP: {}", image->image_data->get_bits_per_pixel( ) ).c_str( ) );
+                    ImGui::Text( "%s", std::format( "Width: {}", image->image->get_width( ) ).c_str( ) );
+                    ImGui::Text( "%s", std::format( "Height: {}", image->image->get_height( ) ).c_str( ) );
+                    ImGui::Text( "%s", std::format( "BPP: {}", image->image->get_bits_per_pixel( ) ).c_str( ) );
                     ImGui::TreePop( );
                 }
+            }
+            ImGui::TreePop( );
+        }
+        if ( ImGui::TreeNode( "Content Text" ) )
+        {
+            for ( auto text : renderable->get_text( ) )
+            {
+                std::size_t i = 0;
+                ImGui::PushID( i );
+                if ( ImGui::TreeNode( text->text.c_str( ) ) )
+                {
+                    render_font( text->font, "font" );
+
+                    ImGui::TreePop( );
+                }
+                ImGui::PopID( );
+                ++i;
             }
             ImGui::TreePop( );
         }
@@ -132,13 +149,13 @@ protected:
         {
             if ( ImGui::TreeNode( "Fonts" ) )
             {
-                for ( auto [ name, font ] : page->resources->fonts )
+                for ( auto [ name, font ] : renderable->resources->fonts )
                     render_font( font, name );
                 ImGui::TreePop( );
             }
             if ( ImGui::TreeNode( "Images" ) )
             {
-                for ( auto [ name, image ] : page->resources->images )
+                for ( auto [ name, image ] : renderable->resources->images )
                 {
                     if ( ImGui::TreeNode( name.c_str( ) ) )
                     {
@@ -156,7 +173,37 @@ protected:
                 }
                 ImGui::TreePop( );
             }
+
+            if ( ImGui::TreeNode( "Forms" ) )
+            {
+                for ( auto [ name, form ] : renderable->resources->forms )
+                {
+                    if ( ImGui::TreeNode( name.c_str( ) ) )
+                    {
+                        ImGui::SeparatorText( "Form" );
+                        render_rectangle( form->bbox, "BBox" );
+                        ImGui::SeparatorText( "Renderable" );
+                        render_renderable( form );
+                        ImGui::TreePop( );
+                    }
+                }
+                ImGui::TreePop( );
+            }
+
             ImGui::TreePop( );
         }
+    }
+
+    auto render_page( const std::shared_ptr<vrock::pdf::Page> &page ) -> void
+    {
+        ImGui::SeparatorText( "Page" );
+        render_rectangle( page->media_box, "Media Box" );
+        render_rectangle( page->crop_box, "Crop Box" );
+        render_rectangle( page->bleed_box, "Bleed Box" );
+        render_rectangle( page->trim_box, "Trim Box" );
+        render_rectangle( page->art_box, "Art Box" );
+        ImGui::SliderInt( "Rotation", &page->rotation, 0, 270 );
+        ImGui::SeparatorText( "Renderable" );
+        render_renderable( page );
     }
 };

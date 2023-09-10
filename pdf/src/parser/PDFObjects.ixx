@@ -63,13 +63,7 @@ namespace vrock::pdf
 
         bool is( PDFObjectType t ) __attribute__( ( optnone ) )
         {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-undefined-compare"
             if ( this == nullptr )
-#pragma GCC diagnostic pop
-#pragma clang diagnostic pop
                 return false;
             return t == type;
         }
@@ -78,13 +72,7 @@ namespace vrock::pdf
             requires std::is_base_of_v<PDFBaseObject, T>
         std::shared_ptr<T> as( ) __attribute__( ( optnone ) )
         {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-undefined-compare"
             if ( this == nullptr )
-#pragma GCC diagnostic pop
-#pragma clang diagnostic pop
                 return nullptr;
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
@@ -98,7 +86,7 @@ namespace vrock::pdf
             return nullptr;
         }
 
-        PDFObjectType type = PDFObjectType::None;
+        const PDFObjectType type = PDFObjectType::None;
     };
 
     export class PDFRef : public PDFBaseObject
@@ -481,8 +469,19 @@ namespace vrock::pdf
             -> std::shared_ptr<utils::ByteArray<>> final;
     };
 
+    export class PDFBase85Filter : public BaseFilter
+    {
+    public:
+        auto encode( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFDictionary> )
+            -> std::shared_ptr<utils::ByteArray<>> final;
+
+        auto decode( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFDictionary> )
+            -> std::shared_ptr<utils::ByteArray<>> final;
+    };
+
     static std::unordered_map<std::string, std::shared_ptr<BaseFilter>> encodings = {
         { "ASCIIHexDecode", std::make_shared<PDFASCIIFilter>( ) },
+        { "ASCII85Decode", std::make_shared<PDFBase85Filter>( ) },
         { "FlateDecode", std::make_shared<PDFFlateFilter>( ) },
         // TODO: implement JPXDecode and DCTDecode correctly
         { "DCTDecode", std::make_shared<PDFDCTFilter>( ) },
@@ -768,23 +767,6 @@ namespace vrock::pdf
         std::shared_ptr<ColorSpace> color_space;
     };
 
-    export class ResourceDictionary
-    {
-    public:
-        ResourceDictionary( ) = default;
-        ResourceDictionary( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx );
-        ~ResourceDictionary( );
-
-        std::unordered_map<std::string, std::shared_ptr<PDFDictionary>> ext_g_state = { };
-        // XObjects
-        std::unordered_map<std::string, std::shared_ptr<PDFImage>> images = { };
-        std::unordered_map<std::string, std::shared_ptr<Font>> fonts = { };
-        // std::unordered_map<std::string, int> forms;
-    private:
-        std::shared_ptr<PDFDictionary> dict;
-        std::shared_ptr<PDFContext> context;
-    };
-
     class PDFContext
     {
     public:
@@ -875,5 +857,4 @@ namespace vrock::pdf
     {
         return PDFObjectType::Operator;
     }
-
 } // namespace vrock::pdf

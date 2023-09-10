@@ -1,6 +1,7 @@
 module;
 
 import vrock.pdf.PDFBaseObjects;
+import vrock.pdf.RenderableObject;
 import vrock.utils.List;
 
 #include <cstdint>
@@ -24,7 +25,7 @@ namespace vrock::pdf
     }
 
     Page::Page( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> ctx, PageTreeNode *parent )
-        : PageBaseObject( std::move( dict ), parent, std::move( ctx ) )
+        : PageBaseObject( std::move( dict ), parent, ctx ), Renderable( ctx )
     {
         auto get_box = [ this ]( const std::string &name, std::shared_ptr<Rectangle> _default ) {
             if ( auto array = get_property<PDFArray>( name ) )
@@ -45,11 +46,11 @@ namespace vrock::pdf
         else if ( auto arr = dictionary->get<PDFArray>( "Contents" ) )
             for ( int i = 0; i < arr->value.size( ); ++i )
                 if ( auto ref = arr->get<PDFRef>( i ) )
-                    if ( auto con = context->get_object<PDFStream>( ref ) )
+                    if ( auto con = PageBaseObject::context->get_object<PDFStream>( ref ) )
                         content_streams.emplace_back( con );
 
         if ( auto res = get_property<PDFDictionary>( "Resources" ) )
-            resources = std::make_shared<ResourceDictionary>( res, context );
+            resources = std::make_shared<ResourceDictionary>( res, PageBaseObject::context );
     }
 
     PageTreeNode::PageTreeNode( std::shared_ptr<PDFDictionary> dict, std::shared_ptr<PDFContext> context,

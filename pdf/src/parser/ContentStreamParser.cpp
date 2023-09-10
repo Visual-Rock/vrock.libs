@@ -4,7 +4,7 @@ import vrock.pdf.PDFObjectParser;
 import vrock.pdf.PDFBaseObjects;
 import vrock.pdf.PDFDataStructures;
 import vrock.pdf.Math;
-import vrock.pdf.Image;
+import vrock.pdf.RenderableObject;
 
 #include <cmath>
 #include <format>
@@ -156,13 +156,12 @@ namespace vrock::pdf
         {
             // TODO: check if it's really working (with shear and rotation)
             // TODO: move to function
-            // add image
             auto img = std::make_shared<Image>( );
             img->position = Point{ Unit( c ), Unit( f ) };
             img->scale = Point{ Unit( p ), Unit( r ) };
             img->shear = q;
             img->rotation = std::atan2( b, a );
-            img->image_data = parser->res->images[ name->name ];
+            img->image = parser->res->images[ name->name ];
             parser->images.push_back( img );
         }
         return;
@@ -228,6 +227,7 @@ namespace vrock::pdf
         text->text = op->paramteres[ 0 ]->to<PDFString>( )->get_string( );
         text->offsets = { { text->text.length( ), 0 } };
         text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
+        text->font = parser->graphic_state_stack.top( ).text_state.font;
     }
 
     void operator_TJ( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -253,6 +253,7 @@ namespace vrock::pdf
                 offset = (int32_t)get_number( i );
         }
         text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
+        text->font = parser->graphic_state_stack.top( ).text_state.font;
     }
 
     void operator_TL( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )

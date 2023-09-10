@@ -39,6 +39,103 @@ namespace vrock::pdf
         return utils::from_hex_string_shared( ss.str( ) );
     }
 
+    auto PDFBase85Filter::encode( std::shared_ptr<utils::ByteArray<>> input, std::shared_ptr<PDFDictionary> )
+        -> std::shared_ptr<utils::ByteArray<>>
+    {
+        const std::string chars =
+            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
+
+        std::size_t str_len = input->size( );
+        std::size_t ot_len = ( ( str_len + 3 ) / 4 ) * 5;
+        auto output = std::make_shared<utils::ByteArray<>>( ot_len );
+        std::size_t i = 0, j = 0;
+
+        while ( i < str_len )
+        {
+            std::uint32_t value = 0;
+
+            for ( std::size_t k = 0; k < 4; ++k )
+            {
+                if ( i < str_len )
+                {
+                    value |= ( ( *input )[ i++ ] << ( ( 3 - k ) * 8 ) );
+                }
+            }
+
+            for ( std::size_t k = 0; k < 5; ++k )
+            {
+                ( *output )[ j++ ] = chars[ value % 85 ];
+                value /= 85;
+            }
+        }
+
+        return output;
+    }
+
+    auto PDFBase85Filter::decode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
+        -> std::shared_ptr<utils::ByteArray<>>
+    {
+        auto output = std::make_shared<utils::ByteArray<>>( data->size( ) * 4 / 5 );
+        unsigned value = 0;
+        int divider = 0;
+        size_t i = 0;
+        std::string inputStr = data->to_string( );
+
+        for ( auto c : inputStr )
+        {
+            if ( c >= '!' && c <= 'u' )
+            {
+                if ( divider )
+                {
+                    value = value * 85 + ( c - '!' );
+                    divider++;
+                }
+                else
+                {
+                    value = c - '!';
+                    divider = 1;
+                }
+
+                if ( divider == 5 )
+                {
+                    for ( int j = 3; j >= 0; --j, ++i )
+                    {
+                        ( *output )[ i ] = ( value >> ( j * 8 ) ) & 0xFF;
+                    }
+                    value = 0;
+                    divider = 0;
+                }
+            }
+            else if ( c == 'z' )
+            {
+                if ( divider != 0 )
+                {
+                    throw std::runtime_error( "Unexpected 'z'" );
+                }
+
+                for ( int j = 0; j < 4; ++j, ++i )
+                {
+                    ( *output )[ i ] = 0;
+                }
+            }
+        }
+
+        if ( divider )
+        {
+            divider--;
+            value = value * 85 + 84;
+            for ( int j = 2; j >= 0; --j, ++i )
+            {
+                if ( j < divider )
+                {
+                    ( *output )[ i ] = ( value >> ( j * 8 ) ) & 0xFF;
+                }
+            }
+        }
+
+        return output;
+    }
+
     auto PDFFlateFilter::encode( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFDictionary> )
         -> std::shared_ptr<utils::ByteArray<>>
     {

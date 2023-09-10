@@ -7,7 +7,7 @@ import vrock.utils.ByteArray;
 import vrock.utils.Timer;
 import vrock.ui.Image;
 import vrock.pdf.PDFPageTree;
-import vrock.pdf.Image;
+import vrock.pdf.RenderableObject;
 
 import Globals;
 
@@ -109,12 +109,12 @@ auto render_image_to_bytearray( std::shared_ptr<vrock::utils::ByteArray<>> array
                                 std::shared_ptr<vrock::pdf::Image> image, std::int32_t page_width,
                                 std::int32_t page_height ) -> void
 {
-    auto initial_width = (std::int32_t)image->image_data->get_width( );
-    auto initial_height = (std::int32_t)image->image_data->get_height( );
+    auto initial_width = (std::int32_t)image->image->get_width( );
+    auto initial_height = (std::int32_t)image->image->get_height( );
     auto render_width = (std::int32_t)image->scale.x.units;
     auto render_height = (std::int32_t)image->scale.y.units;
     auto resized_image = std::make_shared<vrock::utils::ByteArray<>>( render_width * render_height * 4 );
-    auto image_data = image->image_data->as_rgba( );
+    auto image_data = image->image->as_rgba( );
 
     // rescale image
     stbir_resize_uint8( image_data->data( ), initial_width, initial_height, 0, resized_image->data( ), render_width,

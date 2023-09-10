@@ -15,7 +15,7 @@ target_sources(vrockpdf
         parser/ContentStreamParser.ixx
 
         structure/PDFPageTree.ixx
-        structure/Image.ixx
+        structure/RenderableObject.ixx
         PRIVATE
         PDFDocument.cpp
         PDFEncryption.cpp
@@ -29,6 +29,12 @@ target_sources(vrockpdf
         parser/ContentStreamParser.cpp
 
         structure/PDFPageTree.cpp
+        structure/RenderableObject.cpp
 )
 target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(vrockpdf PRIVATE "-Wno-tautological-undefined-compare")
+endif ()
+
 target_link_libraries(vrockpdf PRIVATE vrockutils vrocksecurity vrocklog icu zlibstatic stb_image)

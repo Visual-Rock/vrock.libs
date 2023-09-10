@@ -75,13 +75,7 @@ namespace vrock::pdf
 
         auto is( SecurityHandlerType t ) -> bool
         {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-undefined-compare"
             if ( this == nullptr )
-#pragma GCC diagnostic pop
-#pragma clang diagnostic pop
                 return false;
             return t == type;
         }
@@ -90,13 +84,7 @@ namespace vrock::pdf
             requires std::is_base_of_v<PDFBaseSecurityHandler, T>
         std::shared_ptr<T> as( )
         {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-undefined-compare"
             if ( this == nullptr )
-#pragma GCC diagnostic pop
-#pragma clang diagnostic pop
                 return nullptr;
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
@@ -110,7 +98,7 @@ namespace vrock::pdf
             return nullptr;
         }
 
-        SecurityHandlerType type;
+        const SecurityHandlerType type;
     };
 
     export class PDFNullSecurityHandler : public PDFBaseSecurityHandler
