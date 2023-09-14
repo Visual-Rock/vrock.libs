@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(vrocklibs)
 
-
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 if (${CMAKE_MINOR_VERSION} EQUAL 26)
     set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
 endif ()
