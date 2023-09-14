@@ -1,17 +1,26 @@
 cmake_minimum_required(VERSION 3.26)
-project(vrocklibs CXX)
+project(vrocklibs)
 
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+if (${CMAKE_MINOR_VERSION} EQUAL 26)
+    set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+endif ()
+if (${CMAKE_MINOR_VERSION} EQUAL 27)
+    set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
+endif ()
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 # Default to C++ extensions being off. Clang's modules support have trouble
 # with extensions right now and it is not required for any other compiler
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(TESTS "Build all vrock.lib Tests" ON)
-option(EXAMPLES "Build all vrock.lib Examples" ON)
+option(TESTS "Build all vrock.lib Tests" OFF)
+option(EXAMPLES "Build all vrock.lib Examples" OFF)
+option(DOCS "Build vrock.lib Docs" ON)
 
 option(SECURITY "Build the security module of vrock.lib" ON)
 option(LOG "Build the log module of vrock.lib" ON)
+option(UI "Build the ui module of vrock.lib" ON)
+option(PDF "Build the pdf module of vrock.lib" ON)
 
 include(FindPkgConfig)
 find_package(PkgConfig)
@@ -50,4 +59,16 @@ endif ()
 
 if (${LOG})
     add_subdirectory(log)
+endif ()
+
+if (${UI})
+    add_subdirectory(ui)
+endif ()
+
+if (${PDF})
+    add_subdirectory(pdf)
+endif ()
+
+if (${DOCS})
+    add_subdirectory(docs)
 endif ()

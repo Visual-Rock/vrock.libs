@@ -1,8 +1,10 @@
 module;
 
-export module vrock.security.encryption;
+import vrock.utils.ByteArray;
 
-export import vrock.utils.ByteArray;
+#include <memory>
+
+export module vrock.security.encryption;
 
 namespace vrock::security
 {
@@ -82,4 +84,82 @@ namespace vrock::security
     /// @param key key for decryption
     /// @return decrypted data
     export auto decrypt_rc4( const utils::ByteArray<> &data, const utils::ByteArray<> &key ) -> utils::ByteArray<>;
+
+    /// @brief Encrypts the data with AES in GCM mode
+    /// @param data data to encrypt
+    /// @param key key for the encryption
+    /// @param iv initialization vector
+    /// @param authentication_data additional authentication data
+    /// @return the encrypted result
+    export auto decrypt_aes_gcm( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key,
+                                 const std::shared_ptr<utils::ByteArray<>> &iv,
+                                 const std::shared_ptr<utils::ByteArray<>> &authentication_data )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief Decrypts the data with AES in GCM mode
+    /// @param data data to decrypt
+    /// @param key key for the decryption
+    /// @param iv initialization vector
+    /// @param authentication_data additional authentication data
+    /// @return decrypted result
+    export auto encrypt_aes_gcm( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key,
+                                 const std::shared_ptr<utils::ByteArray<>> &iv,
+                                 const std::shared_ptr<utils::ByteArray<>> &authentication_data )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief encrypts data in AES ECB mode
+    /// @param data data to encrypt
+    /// @param key key for the encryption
+    /// @param padding padding option for encryption
+    /// @return the encrypted data
+    export auto encrypt_aes_ecb( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key, Padding padding = Padding::NO_PADDING )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief decrypts data in AES ECB mode
+    /// @param data data to decrypt
+    /// @param key key for the decryption
+    /// @param padding padding option for decryption
+    /// @return the decrypted data
+    export auto decrypt_aes_ecb( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key, Padding padding = Padding::NO_PADDING )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief Encrypts the data with AES in CBC mode
+    /// @param data data to encrypt
+    /// @param key key for the encryption
+    /// @param iv initialization vector
+    /// @param padding padding option for encryption
+    /// @return the encrypted result
+    export auto encrypt_aes_cbc( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key,
+                                 const std::shared_ptr<utils::ByteArray<>> &iv, Padding padding = Padding::NO_PADDING )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief Decrypts the data with AES in CBC mode
+    /// @param data data to decrypt
+    /// @param key key for the decryption
+    /// @param iv initialization vector
+    /// @param padding padding option for decryption
+    /// @return the decrypted result
+    export auto decrypt_aes_cbc( const std::shared_ptr<utils::ByteArray<>> &data,
+                                 const std::shared_ptr<utils::ByteArray<>> &key,
+                                 const std::shared_ptr<utils::ByteArray<>> &iv, Padding padding = Padding::NO_PADDING )
+        -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief encrypts data using the RC4 algorithm
+    /// @param data data to encrypt
+    /// @param key key for encryption
+    /// @return encrypted data
+    export auto encrypt_rc4( const std::shared_ptr<utils::ByteArray<>> &data,
+                             const std::shared_ptr<utils::ByteArray<>> &key ) -> std::shared_ptr<utils::ByteArray<>>;
+
+    /// @brief decrypts data using the RC4 algorithm
+    /// @param data data to decrypt
+    /// @param key key for decryption
+    /// @return decrypted data
+    export auto decrypt_rc4( const std::shared_ptr<utils::ByteArray<>> &data,
+                             const std::shared_ptr<utils::ByteArray<>> &key ) -> std::shared_ptr<utils::ByteArray<>>;
 } // namespace vrock::security

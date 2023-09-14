@@ -5,6 +5,8 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+from sphinx.builders.html import StandaloneHTMLBuilder
+import subprocess, os
 
 project = 'vrock.libs'
 copyright = '2023, visual-rock'
@@ -14,10 +16,23 @@ release = '0.0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [ "breathe" ]
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx_sitemap',
+    'sphinx.ext.inheritance_diagram',
+    'breathe'
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+highlight_language = 'c++'
 
 breathe_projects = {
     "vrock.libs": "./xml/"
@@ -29,11 +44,14 @@ breathe_default_project = "vrock.libs"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme_options = {
-    'logo_only': False,
+    'canonical_url': '',
+    'analytics_id': '',
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
-    'vcs_pageview_mode': '',
+
+    'logo_only': False,
+
     # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,
@@ -44,3 +62,9 @@ html_theme_options = {
 html_logo = "icon.svg"
 html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
+
+breathe_projects = {
+    "C++ Sphinx Doxygen Breathe": "_build/"
+}
+breathe_default_project = "C++ Sphinx Doxygen Breathe"
+breathe_default_members = ('members', 'undoc-members')

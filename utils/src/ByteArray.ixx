@@ -1,10 +1,13 @@
 module;
 
+#include <algorithm>
 #include <cinttypes>
 #include <cstring>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 /**
  * @brief module that holds the ByteArray class
@@ -19,10 +22,11 @@ namespace vrock::utils
      * `ByteArray` is a class designed to handle memory operations on byte arrays.
      * It offers capabilities such as creating a byte array from size or string,
      * resizing, creating sub-arrays, appending byte arrays, and several ways to return the byte array data.
-     * It does not incorporate any concurrency control mechanisms,  * making it essential to implement
+     * It does not incorporate any concurrency control mechanisms, making it essential to implement
      * external synchronization when being accessed or modified by multiple threads.
      */
-    export template <typename Alloc = std::allocator<std::uint8_t>> class ByteArray
+    export template <typename Alloc = std::allocator<std::uint8_t>>
+    class ByteArray
     {
     private:
         ByteArray( std::size_t len, std::uint8_t *data ) : size_( len ), data_( data )
@@ -53,6 +57,13 @@ namespace vrock::utils
         explicit ByteArray( std::string data ) : size_( data.size( ) ), data_( allocate_ptr( data.size( ) ) )
         {
             std::memcpy( data_, data.data( ), size_ );
+        }
+
+        ByteArray( const ByteArray &arr )
+        {
+            size_ = arr.size( );
+            data_ = allocate_ptr( arr.size( ) );
+            std::memcpy( data_, arr.data( ), size_ );
         }
 
         ~ByteArray( )
@@ -135,6 +146,25 @@ namespace vrock::utils
         }
 
         /**
+         * Returns a sub array of ByteArray starting from start and up to len characters.
+         * @param start Start index of sub array.
+         * @param len Length of sub array.
+         * @return Sub array of ByteArray.
+         */
+        [[nodiscard]] auto subarr_shared( std::size_t start, std::size_t len = 18446744073709551615UL )
+            -> std::shared_ptr<ByteArray>
+        {
+            if ( len == 18446744073709551615UL )
+                len = size_ - start;
+            if ( start + len > size_ )
+                throw std::out_of_range( "failed to create sub array! byte array not long enough." );
+            auto arr = std::make_shared<ByteArray>( len );
+            // std::uint8_t *arr = allocate_ptr( len );
+            std::memcpy( arr->data( ), data_ + start, len );
+            return arr;
+        }
+
+        /**
          * Appends other ByteArray to this ByteArray.
          * @param arr ByteArray to append.
          */
@@ -146,6 +176,20 @@ namespace vrock::utils
             deallocate_ptr( size_, data_ );
             data_ = n;
             size_ = size_ + arr.size_;
+        }
+
+        /**
+         * Appends other ByteArray to this ByteArray.
+         * @param arr ByteArray to append.
+         */
+        auto append( const std::shared_ptr<ByteArray> &arr ) noexcept -> void
+        {
+            std::uint8_t *n = allocate_ptr( size_ + arr->size( ) );
+            std::memcpy( n, data_, size_ );
+            std::memcpy( n + size_, arr->data( ), arr->size( ) );
+            deallocate_ptr( size_, data_ );
+            data_ = n;
+            size_ = size_ + arr->size( );
         }
 
         /**
@@ -207,14 +251,67 @@ namespace vrock::utils
         }
     };
 
+    export auto combine_arrays( std::vector<ByteArray<>> &arrs, std::size_t size ) -> ByteArray<>
+    {
+        ByteArray<> ret( size );
+        std::size_t offset = 0;
+        int i = 0;
+        while ( offset < size )
+        {
+            std::memcpy( ret.data( ) + offset, arrs[ i ].data( ), std::min( arrs[ i ].size( ), size - offset ) );
+            offset += arrs[ i ].size( );
+            ++i;
+        }
+        return ret;
+    }
+
+    export auto combine_arrays( std::vector<std::shared_ptr<ByteArray<>>> &arrs, std::size_t size )
+        -> std::shared_ptr<ByteArray<>>
+    {
+        auto ret = std::make_shared<ByteArray<>>( size );
+        std::size_t offset = 0;
+        int i = 0;
+        while ( offset < size )
+        {
+            std::memcpy( ret->data( ) + offset, arrs[ i ]->data( ), std::min( arrs[ i ]->size( ), size - offset ) );
+            offset += arrs[ i ]->size( );
+            ++i;
+        }
+        return ret;
+    }
+
+    export auto combine_arrays( std::vector<ByteArray<>> &arrays ) -> ByteArray<>
+    {
+        std::size_t size = 0;
+        std::for_each( arrays.begin( ), arrays.end( ), [ & ]( const ByteArray<> &ba ) { size += ba.size( ); } );
+        return combine_arrays( arrays, size );
+    }
+
+    export auto combine_arrays( std::vector<std::shared_ptr<ByteArray<>>> &arrays ) -> std::shared_ptr<ByteArray<>>
+    {
+        std::size_t size = 0;
+        std::for_each( arrays.begin( ), arrays.end( ),
+                       [ & ]( const std::shared_ptr<ByteArray<>> &ba ) { size += ba->size( ); } );
+        return combine_arrays( arrays, size );
+    }
+
     export auto from_hex_string( const std::string &str ) -> ByteArray<>
     {
         std::string s = str + ( ( str.length( ) % 2 == 1 ) ? "0" : "" ); // Append zero if needed
         auto data = ByteArray<>( s.length( ) / 2 );
 
-        for ( size_t i = 0; i < data.size(); ++i )
-            data[i] = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 ) ;
+        for ( size_t i = 0; i < data.size( ); ++i )
+            data[ i ] = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 );
 
+        return data;
+    }
+
+    export auto from_hex_string_shared( const std::string &str ) -> std::shared_ptr<ByteArray<>>
+    {
+        std::string s = str + ( ( str.length( ) % 2 == 1 ) ? "0" : "" ); // Append zero if needed
+        auto data = std::make_shared<ByteArray<>>( s.length( ) / 2 );
+        for ( size_t i = 0; i < data->size( ); ++i )
+            data->at( i ) = std::stoul( s.substr( i * 2, 2 ), nullptr, 16 );
         return data;
     }
 } // namespace vrock::utils
