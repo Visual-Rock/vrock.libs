@@ -1,6 +1,3 @@
-pkg_check_modules(GLFW IMPORTED_TARGET glfw3)
-pkg_check_modules(GLEW IMPORTED_TARGET glew)
-
 find_package(Vulkan REQUIRED)
 
 add_library(vrockui)
@@ -14,7 +11,7 @@ target_sources(vrockui
         KeyCode.ixx
         PRIVATE
         tinyfiledialog/tinyfiledialogs.c
-        stb/stb.cpp
+        ../../external/stb/stb.cpp
         imgui_theme/spectrum.cpp
 
         FileDialog.cpp
@@ -23,4 +20,5 @@ target_sources(vrockui
         Image.cpp
 )
 
-target_link_libraries(vrockui PUBLIC vrockutils vrocklog fmt imgui PkgConfig::GLFW PkgConfig::GLEW Vulkan::Vulkan)
+target_link_libraries(vrockui PUBLIC vrockutils vrocklog imgui Vulkan::Vulkan stb_image)
+target_link_libraries(vrockui PRIVATE glfw libglew_static)

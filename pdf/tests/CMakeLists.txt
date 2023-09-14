@@ -1,6 +1,15 @@
 enable_testing()
 
-add_executable(pdf_tests ByteArray.test.cpp)
+file(COPY ../pdfs DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+add_executable(pdf_tests
+        PDFDecryption.test.cpp
+
+        parser/BaseParser.test.cpp
+        parser/PDFObjectParser.test.cpp
+        parser/PDFFilter.test.cpp
+
+        structure/Image.test.cpp
+)
 
 target_link_libraries(
         pdf_tests PRIVATE

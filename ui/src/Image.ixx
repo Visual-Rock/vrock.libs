@@ -1,6 +1,9 @@
 module;
 
+import vrock.utils.ByteArray;
+
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #include "vulkan/vulkan.h"
@@ -9,6 +12,8 @@ export module vrock.ui.Image;
 
 namespace vrock::ui
 {
+    export auto convert_to_rgba( std::shared_ptr<utils::ByteArray<>> data ) -> std::shared_ptr<utils::ByteArray<>>;
+
     export enum class ImageFormat
     {
         None = 0,

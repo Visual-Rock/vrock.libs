@@ -433,4 +433,73 @@ void FramePresent( ImGui_ImplVulkanH_Window *wd )
 namespace vrock::ui
 {
 
+    auto Application::render_modal( std::size_t offset ) -> void
+    {
+        if ( offset == dialogs.size( ) )
+            return;
+
+        for ( auto &nd : new_dialogs )
+        {
+            if ( dialogs[ offset ] == nd )
+            {
+                nd->setup( );
+                ImGui::OpenPopup( nd->get_title( ).c_str( ), nd->get_flags( ) );
+            }
+        }
+
+        bool t = true;
+        if ( ImGui::BeginPopupModal( dialogs[ offset ]->get_title( ).c_str( ), &t,
+                                     dialogs[ offset ]->get_flags( ) ) )
+        {
+            dialogs[ offset ]->on_render( );
+            render_modal( ++offset );
+            ImGui::EndPopup( );
+        }
+        else
+            dialogs[ offset ]->close( );
+    }
+
+    BaseWidget::~BaseWidget( )
+    {
+    }
+
+    auto BaseWidget::on_update( ) -> void
+    {
+        for ( auto &child : children )
+            child->on_update( );
+        update( );
+    }
+
+    auto BaseWidget::on_render( ) -> void
+    {
+        if ( !visibility )
+            return;
+        // for ( auto &child : children )
+        //     child->on_render( );
+        render( );
+    }
+
+    auto BaseWidget::on_after_render( ) -> void
+    {
+        for ( auto &child : children )
+            child->on_after_render( );
+        after_render( );
+    }
+
+    auto BaseWidget::on_terminate( ) -> void
+    {
+        for ( auto &child : children )
+            child->on_terminate( );
+        terminate( );
+    }
+
+    auto BaseWidget::get_visibility( ) const -> bool
+    {
+        return visibility;
+    }
+
+    auto BaseWidget::set_visibility( bool new_visibility ) -> void
+    {
+        visibility = new_visibility;
+    }
 }
