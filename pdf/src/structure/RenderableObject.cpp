@@ -19,7 +19,8 @@ namespace vrock::pdf
                 if ( auto val = ext_g_states->get<PDFDictionary>( k->name ) ) // to avoid getting PDFRef
                     ext_g_state[ k->name ] = val;
 
-        load_xobject( dict->get<PDFDictionary>( "XObject" ) );
+        if ( auto xobject = dict->get<PDFDictionary>( "XObject" ) )
+            load_xobject( xobject );
 
         if ( auto font = dict->get<PDFDictionary>( "Font" ) )
         {
