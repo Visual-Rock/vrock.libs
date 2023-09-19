@@ -22,6 +22,7 @@ export namespace vrock::ui
     };
 
     /**
+     * @file FileDialog.cpp
      * @brief Display an "Open File" dialog synchronously and returns the selected file.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -32,6 +33,7 @@ export namespace vrock::ui
                            std::vector<Filter> filter_patterns );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display an "Open Multiple Files" dialog synchronously and returns the selected files.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -42,6 +44,7 @@ export namespace vrock::ui
                                                   std::vector<Filter> filter_patterns );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display a "Select Folder" dialog synchronously and returns the selected folder.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -50,6 +53,7 @@ export namespace vrock::ui
     std::string select_folder( const std::string &title, const std::string &default_path );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display a "Save File" dialog synchronously and returns the selected file.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -60,6 +64,7 @@ export namespace vrock::ui
                            std::vector<Filter> filter_patterns );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display an "Open File" dialog asynchronously and returns a future to the selected file path.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -70,6 +75,7 @@ export namespace vrock::ui
                                               const std::vector<Filter> &filter_patterns );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display an "Open Multiple Files" dialog asynchronously and returns a future to the selected files paths.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -81,6 +87,7 @@ export namespace vrock::ui
                                                                      const std::vector<Filter> &filter_patterns );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display a "Select Folder" dialog asynchronously and returns a future to the selected folder.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.
@@ -89,6 +96,7 @@ export namespace vrock::ui
     std::future<std::string> select_folder_async( const std::string &title, const std::string &default_path );
 
     /**
+     * @file FileDialog.cpp
      * @brief Display a "Save File" dialog asynchronously and returns a future to the selected file.
      * @param title The title of the dialog.
      * @param default_path The path where the dialog will initially point to.

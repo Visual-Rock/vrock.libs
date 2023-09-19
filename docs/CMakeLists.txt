@@ -3,6 +3,7 @@ find_package(Sphinx REQUIRED)
 
 set(FILES ${PROJECT_SOURCE_DIR}/utils/src/)
 string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/ui/src/)
+string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/security/src/)
 
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/_build)
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/xml/index.xml)
@@ -17,9 +18,9 @@ add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
         COMMENT "Generating Doxygen docs")
 add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
 
-file(COPY docs/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ./ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 add_custom_target(Docs ALL
-        COMMAND ${SPHINX_EXECUTABLE} -b html ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/out
+        COMMAND ${SPHINX_EXECUTABLE} -b html ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/_build/html
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating docs"
         DEPENDS Doxygen

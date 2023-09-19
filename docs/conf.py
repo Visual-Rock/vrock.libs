@@ -9,8 +9,8 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 import subprocess, os
 
 project = 'vrock.libs'
-copyright = '2023, visual-rock'
-author = 'visual-rock'
+copyright = '2023, Visual-Rock'
+author = 'Visual-Rock'
 release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
@@ -32,17 +32,13 @@ extensions = [
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
 highlight_language = 'c++'
-
-breathe_projects = {
-    "vrock.libs": "./xml/"
-}
-
-breathe_default_project = "vrock.libs"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'canonical_url': '',
     'analytics_id': '',
@@ -59,12 +55,11 @@ html_theme_options = {
     'includehidden': True,
     'titles_only': False
 }
-html_logo = "icon.svg"
-html_theme = "sphinx_rtd_theme"
+
 html_static_path = ['_static']
 
 breathe_projects = {
-    "C++ Sphinx Doxygen Breathe": "_build/"
+    "vrock.libs": "_build/xml/"
 }
-breathe_default_project = "C++ Sphinx Doxygen Breathe"
+breathe_default_project = "vrock.libs"
 breathe_default_members = ('members', 'undoc-members')
