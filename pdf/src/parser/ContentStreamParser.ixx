@@ -1,11 +1,11 @@
 module;
 
+import vrock.utils.List;
+
 import vrock.pdf.PDFObjectParser;
 import vrock.pdf.PDFBaseObjects;
 import vrock.pdf.RenderableObject;
 import vrock.pdf.Math;
-
-import vrock.utils.List;
 
 #include <functional>
 #include <memory>

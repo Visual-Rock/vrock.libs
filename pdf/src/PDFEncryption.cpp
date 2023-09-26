@@ -63,6 +63,12 @@ namespace vrock::pdf
         case 5:
         case 6:
             return decrypt_data_1a( data, key );
+        case 7: {
+            auto iv = data->subarr_shared( 0, 12 );
+            auto encrypted = data->subarr_shared( 12, data->size( ) - 12 - 16 );
+            auto ad = data->subarr_shared( data->size( ) + 12, 16 );
+            return security::decrypt_aes_gcm( encrypted, key, iv, ad );
+        }
         default:
             throw PDFEncryptedException( "revision is not supported" );
         }
@@ -80,6 +86,11 @@ namespace vrock::pdf
         case 5:
         case 6:
             return encrypt_data_1a( data, key );
+        case 7: {
+            auto iv = security::generate_random_bytes_shared( 12 );
+            iv->append( security::encrypt_aes_gcm( data, key, iv ) );
+            return iv;
+        }
         default:
             throw PDFEncryptedException( "revision is not supported" );
         }
@@ -97,6 +108,7 @@ namespace vrock::pdf
             return authenticate_user_password_6( password, dict, id );
         case 5:
         case 6:
+        case 7:
             return authenticate_user_password_11( prep_password( password ), dict, enc_meta );
         default:
             // log::get_logger( "pdf" )->log->info( "revision {} is not supported!", revision );
@@ -116,6 +128,7 @@ namespace vrock::pdf
             return authenticate_owner_password_7( password, dict, id );
         case 5:
         case 6:
+        case 7:
             return authenticate_owner_password_12( prep_password( password ), dict, enc_meta );
         default:
             // log::get_logger( "pdf" )->log->info( "revision {} is not supported!", revision );

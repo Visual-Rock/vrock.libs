@@ -177,8 +177,11 @@ namespace vrock::security
         e.SetKeyWithIV( key->data( ), key->size( ), iv->data( ), iv->size( ) );
         CryptoPP::AuthenticatedEncryptionFilter ef( e, new CryptoPP::StringSink( cipher ), false, 16 );
 
-        ef.ChannelPut( "AAD", authentication_data->data( ), authentication_data->size( ) );
-        ef.ChannelMessageEnd( "AAD" );
+        if ( authentication_data )
+        {
+            ef.ChannelPut( "AAD", authentication_data->data( ), authentication_data->size( ) );
+            ef.ChannelMessageEnd( "AAD" );
+        }
 
         ef.ChannelPut( "", data->data( ), data->size( ) );
         ef.ChannelMessageEnd( "" );
@@ -203,10 +206,12 @@ namespace vrock::security
                                                     16 );
 
         df.ChannelPut( "", (uint8_t *)mac.data( ), mac.size( ) );
-        df.ChannelPut( "AAD", authentication_data->data( ), authentication_data->size( ) );
+        if ( authentication_data )
+            df.ChannelPut( "AAD", authentication_data->data( ), authentication_data->size( ) );
         df.ChannelPut( "", (uint8_t *)enc.data( ), enc.size( ) );
 
-        df.ChannelMessageEnd( "AAD" );
+        if ( authentication_data )
+            df.ChannelMessageEnd( "AAD" );
         df.ChannelMessageEnd( "" );
 
         auto n = df.MaxRetrievable( );

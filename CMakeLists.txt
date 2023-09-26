@@ -11,7 +11,9 @@ endif ()
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 # Default to C++ extensions being off. Clang's modules support have trouble
 # with extensions right now and it is not required for any other compiler
+set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 23)
 
 option(TESTS "Build all vrock.lib Tests" OFF)
 option(EXAMPLES "Build all vrock.lib Examples" OFF)
@@ -38,8 +40,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FLAG
             "${compiler_flags_for_module_map} -fmodule-mapper=<MODULE_MAP_FILE>")
 endif ()
-set(CMAKE_CXX_STANDARD 20)
-
 if (${TESTS})
     include(FetchContent)
     FetchContent_Declare(
