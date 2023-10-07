@@ -45,9 +45,8 @@ namespace vrock::pdf
             content_streams.emplace_back( con );
         else if ( auto arr = dictionary->get<PDFArray>( "Contents" ) )
             for ( int i = 0; i < arr->value.size( ); ++i )
-                if ( auto ref = arr->get<PDFRef>( i ) )
-                    if ( auto con = PageBaseObject::context->get_object<PDFStream>( ref ) )
-                        content_streams.emplace_back( con );
+                if ( auto con = arr->get<PDFStream>( i ) )
+                    content_streams.emplace_back( con );
 
         if ( auto res = get_property<PDFDictionary>( "Resources" ) )
             resources = std::make_shared<ResourceDictionary>( res, PageBaseObject::context );
