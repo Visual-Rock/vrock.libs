@@ -7,7 +7,6 @@ import vrock.utils.FutureHelper;
 import vrock.pdf.PDFDocument;
 import vrock.pdf.PDFBaseObjects;
 import vrock.pdf.RenderableObject;
-import vrock.pdf.RenderableObject;
 import vrock.ui.FileDialog;
 import vrock.ui.Image;
 
@@ -54,6 +53,13 @@ public:
             doc->save( save_as_location );
         }
 
+        if ( ImGui::Button( "Render All" ) )
+        {
+            globals::rendered_pages.clear( );
+            for ( auto page : doc->get_pages( ) )
+                globals::rendered_pages.push_back( page_to_image( page ) );
+        }
+
         if ( ImGui::TreeNode( "Pages" ) )
         {
             for ( int i = 0; i < doc->get_page_count( ); ++i )
@@ -62,7 +68,10 @@ public:
                 if ( ImGui::TreeNode( std::format( "Page {}", i ).c_str( ) ) )
                 {
                     if ( ImGui::Button( "render" ) )
-                        globals::selected_page = doc->get_page( i );
+                    {
+                        globals::rendered_pages.clear( );
+                        globals::rendered_pages.push_back( page_to_image( doc->get_page( i ) ) );
+                    }
                     render_page( doc->get_page( i ) );
                     ImGui::TreePop( );
                 }

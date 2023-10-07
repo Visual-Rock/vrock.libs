@@ -17,6 +17,6 @@ export namespace globals
     inline std::vector<vrock::ui::Filter> pdf_file_filter = { { "PDF File", "*.pdf" } };
     inline std::vector<vrock::ui::Filter> image_file_filter = { { "PNG Image", "*.png" } };
 
-    inline std::shared_ptr<vrock::pdf::Page> selected_page;
+    inline std::vector<std::shared_ptr<vrock::ui::Image>> rendered_pages;
     inline float scale = 1.0;
 } // namespace globals
