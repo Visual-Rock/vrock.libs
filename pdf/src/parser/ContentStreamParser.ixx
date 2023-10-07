@@ -7,9 +7,10 @@ import vrock.pdf.PDFBaseObjects;
 import vrock.pdf.RenderableObject;
 import vrock.pdf.Math;
 
+// #include <deque>
 #include <functional>
 #include <memory>
-#include <stack>
+// #include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -358,7 +359,7 @@ namespace vrock::pdf
 
     public:
         std::shared_ptr<ResourceDictionary> res;
-        std::stack<GraphicState> graphic_state_stack = { };
+        std::vector<GraphicState> graphic_state_stack = { };
     };
 
     // operator functions
@@ -401,4 +402,10 @@ namespace vrock::pdf
             { ContentStreamOperator::Tw, operator_Tw }, { ContentStreamOperator::Tz, operator_Tz },
             { ContentStreamOperator::w, operator_w },
         };
+
+    template <>
+    auto to_object_type<PDFOperator>( ) -> PDFObjectType
+    {
+        return PDFObjectType::Operator;
+    }
 } // namespace vrock::pdf

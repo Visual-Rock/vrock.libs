@@ -54,17 +54,6 @@ namespace vrock::pdf
 
         // Colorspace
         color_space = to_colorspace( stm->dict->get( "ColorSpace" ) );
-
-        // TODO: implement JPXDecode and DCTDecode correctly
-        if ( stream->filters.contains( "JPXDecode" ) || stream->filters.contains( "DCTDecode" ) )
-        {
-            int w = 0, h = 0, c = 0;
-            auto i = stbi_load_from_memory( stream->data->data( ), stream->data->size( ), &w, &h, &c, 3 );
-            auto data = std::make_shared<utils::ByteArray<>>( w * c * h );
-            std::memcpy( data->data( ), i, data->size( ) );
-            stream->data = data;
-            stbi_image_free( i );
-        }
     }
 
     auto PDFImage::save( const std::string &path, ImageSaveFormat format ) -> void

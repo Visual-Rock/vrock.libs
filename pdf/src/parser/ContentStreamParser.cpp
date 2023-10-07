@@ -10,7 +10,7 @@ import vrock.pdf.RenderableObject;
 #include <format>
 #include <iostream>
 #include <memory>
-#include <stack>
+// #include <stack>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -26,7 +26,7 @@ namespace vrock::pdf
         std::cout << _string << std::endl;
         set_context( std::move( ctx ) );
 
-        graphic_state_stack.emplace( );
+        graphic_state_stack.emplace_back( );
         auto operator_seq = to_operator_array( );
 
         try
@@ -127,13 +127,13 @@ namespace vrock::pdf
         }
         // TODO: check if this is correct behavior
         mat3 mat{ { { data[ 0 ], data[ 1 ], 0 }, { data[ 2 ], data[ 3 ], 0 }, { data[ 4 ], data[ 5 ], 1 } } };
-        parser->graphic_state_stack.top( ).current_transformation_matrix =
-            mul( mat, parser->graphic_state_stack.top( ).current_transformation_matrix );
+        parser->graphic_state_stack.back( ).current_transformation_matrix =
+            mul( mat, parser->graphic_state_stack.back( ).current_transformation_matrix );
     }
 
     void operator_Do( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
-        auto &ctm = parser->graphic_state_stack.top( ).current_transformation_matrix;
+        auto &ctm = parser->graphic_state_stack.back( ).current_transformation_matrix;
         auto a = ctm[ 0 ][ 0 ];
         auto b = ctm[ 1 ][ 0 ];
         auto c = ctm[ 2 ][ 0 ];
@@ -180,7 +180,7 @@ namespace vrock::pdf
 
         if ( !parser->res->ext_g_state.contains( name->name ) )
             throw std::runtime_error( std::format( "gs {} not found!", name->name ) );
-        parser->graphic_state_stack.top( ).apply_dict( parser->res->ext_g_state[ name->name ] );
+        parser->graphic_state_stack.back( ).apply_dict( parser->res->ext_g_state[ name->name ] );
         return;
     _throw:
         throw std::runtime_error( "gs operator parameter wrong" );
@@ -188,12 +188,13 @@ namespace vrock::pdf
 
     void operator_q( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
-        parser->graphic_state_stack.emplace( parser->graphic_state_stack.top( ) );
+        GraphicState tmp = parser->graphic_state_stack[ parser->graphic_state_stack.size( ) - 1 ];
+        parser->graphic_state_stack.emplace_back( tmp );
     }
 
     void operator_Q( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
-        parser->graphic_state_stack.pop( );
+        parser->graphic_state_stack.pop_back( );
     }
 
     void operator_Tf( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -206,15 +207,15 @@ namespace vrock::pdf
 
         if ( !parser->res->fonts.contains( name ) )
             throw std::runtime_error( std::format( "font {} not found!", name ) );
-        parser->graphic_state_stack.top( ).text_state.font = parser->res->fonts[ name ];
-        parser->graphic_state_stack.top( ).text_state.font_size = get_number( op->paramteres[ 1 ] );
+        parser->graphic_state_stack.back( ).text_state.font = parser->res->fonts[ name ];
+        parser->graphic_state_stack.back( ).text_state.font_size = get_number( op->paramteres[ 1 ] );
     }
 
     void operator_Tc( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "Tc operator parameter wrong" );
-        parser->graphic_state_stack.top( ).text_state.character_spacing = get_number( op->paramteres[ 0 ] );
+        parser->graphic_state_stack.back( ).text_state.character_spacing = get_number( op->paramteres[ 0 ] );
     }
 
     void operator_Tj( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -226,8 +227,8 @@ namespace vrock::pdf
         parser->text.push_back( text );
         text->text = op->paramteres[ 0 ]->to<PDFString>( )->get_string( );
         text->offsets = { { text->text.length( ), 0 } };
-        text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
-        text->font = parser->graphic_state_stack.top( ).text_state.font;
+        text->font_size = parser->graphic_state_stack.back( ).text_state.font_size;
+        text->font = parser->graphic_state_stack.back( ).text_state.font;
     }
 
     void operator_TJ( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -252,35 +253,35 @@ namespace vrock::pdf
             else if ( i->is( PDFObjectType::Integer ) || i->is( PDFObjectType::Real ) )
                 offset = (int32_t)get_number( i );
         }
-        text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
-        text->font = parser->graphic_state_stack.top( ).text_state.font;
+        text->font_size = parser->graphic_state_stack.back( ).text_state.font_size;
+        text->font = parser->graphic_state_stack.back( ).text_state.font;
     }
 
     void operator_TL( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "TL operator parameter wrong" );
-        parser->graphic_state_stack.top( ).text_state.leading = (int32_t)get_number( op->paramteres[ 0 ] );
+        parser->graphic_state_stack.back( ).text_state.leading = (int32_t)get_number( op->paramteres[ 0 ] );
     }
 
     void operator_Tw( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "Tc operator parameter wrong" );
-        parser->graphic_state_stack.top( ).text_state.word_spacing = get_number( op->paramteres[ 0 ] );
+        parser->graphic_state_stack.back( ).text_state.word_spacing = get_number( op->paramteres[ 0 ] );
     }
 
     void operator_Tz( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "Tz operator parameter wrong" );
-        parser->graphic_state_stack.top( ).text_state.horizontal_scaling = get_number( op->paramteres[ 0 ] );
+        parser->graphic_state_stack.back( ).text_state.horizontal_scaling = get_number( op->paramteres[ 0 ] );
     }
 
     void operator_w( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         if ( op->paramteres.size( ) != 1 )
             throw std::runtime_error( "w operator parameter wrong" );
-        parser->graphic_state_stack.top( ).line_width = get_number( op->paramteres[ 0 ] );
+        parser->graphic_state_stack.back( ).line_width = get_number( op->paramteres[ 0 ] );
     }
 } // namespace vrock::pdf
