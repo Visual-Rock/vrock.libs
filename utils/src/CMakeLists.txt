@@ -6,4 +6,5 @@ target_sources(vrockutils
         Timer.ixx
         FutureHelper.ixx
         List.ixx
+        Task.ixx
 )
