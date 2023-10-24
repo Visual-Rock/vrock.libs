@@ -1,6 +1,6 @@
 #include <iostream>
 
-import vrock.utils.ByteArray;
+import vrock.utils;
 using namespace vrock::utils;
 
 int main( )
@@ -11,7 +11,7 @@ int main( )
     if ( data == data1 )
         std::cout << "equal" << std::endl;
 
-    auto subarr = data.subarr(1, 2);
-
+    auto subarr = data.subarr( 1, 2 );
+    
     return 0;
 }

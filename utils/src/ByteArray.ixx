@@ -12,7 +12,7 @@ module;
 /**
  * @brief module that holds the ByteArray class
  */
-export module vrock.utils.ByteArray;
+export module vrock.utils:ByteArray;
 
 namespace vrock::utils
 {

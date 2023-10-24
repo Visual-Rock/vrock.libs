@@ -3,28 +3,28 @@ module;
 #include <chrono>
 #include <functional>
 
-export module vrock.utils.Timer;
+export module vrock.utils:Timer;
 
 namespace vrock::utils
 {
     /**
      * @class Timer
-     * 
+     *
      * `Timer` is a class to measure time
-    */
+     */
     export class Timer
     {
     public:
         /**
          * @brief starts the internal timer
-        */
+         */
         Timer( ) : begin( std::chrono::high_resolution_clock::now( ) )
         {
         }
 
         /**
-         * @brief resets the intrnal timer 
-        */
+         * @brief resets the intrnal timer
+         */
         auto reset( ) -> void
         {
             begin = std::chrono::high_resolution_clock::now( );
@@ -34,7 +34,7 @@ namespace vrock::utils
          * @brief gets the elapsed time
          * @tparam T resolution of the returned value, default in milliseconds
          * @return time elapsed since timer start
-        */
+         */
         template <class T = std::chrono::milliseconds>
         auto elapsed( ) -> std::uint64_t
         {
@@ -47,10 +47,10 @@ namespace vrock::utils
 
     /**
      * @class ScopedTimer
-     * 
+     *
      * `ScopedTimer` is a class to measure time in a scope. it executes a given predicate on destruction
      * @tparam T resolution of the timer. default is milliseconds
-    */
+     */
     export template <class T = std::chrono::milliseconds>
     class ScopedTimer
     {
@@ -58,13 +58,13 @@ namespace vrock::utils
         /**
          * @brief starts the internal timer
          * @param fn function to execute on destruction
-        */
+         */
         explicit ScopedTimer( std::function<void( std::uint64_t )> fn ) : timer( { } ), fn( std::move( fn ) )
         {
         }
         /**
          * @brief executes the given function
-        */
+         */
         ~ScopedTimer( )
         {
             fn( elapsed( ) );

@@ -3,5 +3,5 @@
 File Dialog
 =========
 
-.. doxygenfile:: FileDialog.cpp
+.. doxygenfile:: FileDialog.ixx
     :project: vrock.libs

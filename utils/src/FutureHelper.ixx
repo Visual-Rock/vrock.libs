@@ -3,7 +3,7 @@ module;
 #include <chrono>
 #include <future>
 
-export module vrock.utils.FutureHelper;
+export module vrock.utils:FutureHelper;
 
 namespace vrock::utils
 {

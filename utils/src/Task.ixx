@@ -6,7 +6,7 @@ module;
 #include <stdexcept>
 #include <utility>
 
-export module vrock.utils.Task;
+export module vrock.utils:Task;
 
 namespace vrock::utils
 {
@@ -93,16 +93,10 @@ namespace vrock::utils
         ~Promise( )
         {
             if ( _state == TaskState::Value )
-            {
                 if constexpr ( not return_type_is_reference )
-                {
                     access_value( ).~stored_type( );
-                }
-            }
-            else if ( _state == TaskState::Error )
-            {
-                access_exception( ).~exception_ptr( );
-            }
+                else if ( _state == TaskState::Error )
+                    access_exception( ).~exception_ptr( );
         }
 
         auto get_return_object( ) noexcept -> task_type;

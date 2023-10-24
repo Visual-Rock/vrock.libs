@@ -15,13 +15,14 @@ module;
 #include <stdexcept>
 #include <tuple>
 
-export module vrock.utils.List;
+export module vrock.utils:List;
 
 namespace vrock::utils
 {
 
     /*! \cond */
-    template <typename R> constexpr auto less( const R &a, const R &b ) -> bool
+    template <typename R>
+    constexpr auto less( const R &a, const R &b ) -> bool
     {
         if constexpr ( std::is_floating_point<R>::value )
         {
@@ -52,7 +53,8 @@ namespace vrock::utils
             std::for_each( this->begin( ), this->end( ), exp );
         }
 
-        template <class R> auto aggregate( std::function<R( T, R )> exp, R start = R( ) ) -> R
+        template <class R>
+        auto aggregate( std::function<R( T, R )> exp, R start = R( ) ) -> R
         {
             R ret = start;
             for_each( [ & ]( T i ) { ret = exp( i, ret ); } );
@@ -189,7 +191,8 @@ namespace vrock::utils
             return *res1;
         }
 
-        template <class R> auto select( std::function<R( T )> exp ) -> List<R, Alloc>
+        template <class R>
+        auto select( std::function<R( T )> exp ) -> List<R, Alloc>
         {
             List<R, Alloc> ret = List<R, Alloc>( );
             std::for_each( this->begin( ), this->end( ), [ & ]( T i ) { ret.emplace_back( exp( i ) ); } );
@@ -216,7 +219,8 @@ namespace vrock::utils
             return ret;
         }
 
-        template <typename... R> auto group_by( R... params )
+        template <typename... R>
+        auto group_by( R... params )
         {
             using key_type = std::tuple<typename remove_pointers<R>::type...>;
 
@@ -302,25 +306,28 @@ namespace vrock::utils
 
         friend std::ostream &operator<<( std::ostream &os, const List &list )
         {
-            for ( int i = 0; i < list.size() - 1; ++i )
-                os << list[i] << ", ";
-            os << list[list.size() - 1];
+            for ( int i = 0; i < list.size( ) - 1; ++i )
+                os << list[ i ] << ", ";
+            os << list[ list.size( ) - 1 ];
             return os;
         }
 
     private:
         /*! \cond */
-        template <class M> struct remove_pointers
+        template <class M>
+        struct remove_pointers
         {
             typedef M type;
         };
 
-        template <typename M, typename N> struct remove_pointers<N M::*>
+        template <typename M, typename N>
+        struct remove_pointers<N M::*>
         {
             typedef N type;
         };
 
-        template <size_t i, size_t size, typename... R> struct tuple_less_t
+        template <size_t i, size_t size, typename... R>
+        struct tuple_less_t
         {
             constexpr static auto tuple_less( const std::tuple<R...> &a, const std::tuple<R...> &b ) -> bool
             {
@@ -330,7 +337,8 @@ namespace vrock::utils
             }
         };
 
-        template <size_t size, typename... Elements> struct tuple_less_t<size, size, Elements...>
+        template <size_t size, typename... Elements>
+        struct tuple_less_t<size, size, Elements...>
         {
             constexpr static auto tuple_less( const std::tuple<Elements...> &a, const std::tuple<Elements...> &b )
                 -> bool
@@ -339,7 +347,8 @@ namespace vrock::utils
             }
         };
 
-        template <typename... R> constexpr auto make_tuple_less( )
+        template <typename... R>
+        constexpr auto make_tuple_less( )
         {
             constexpr auto s = sizeof...( R );
             return tuple_less_t<0u, s, typename remove_pointers<R>::type...>::tuple_less;
@@ -347,7 +356,8 @@ namespace vrock::utils
         /*! \endcond */
     };
 
-    export template <class T> auto select_many( List<List<T>> &list ) -> List<T>
+    export template <class T>
+    auto select_many( List<List<T>> &list ) -> List<T>
     {
         List<T> flattened;
         for ( auto const &l : list )
@@ -355,7 +365,8 @@ namespace vrock::utils
         return flattened;
     }
 
-    export template <class T> auto select_many( List<std::vector<T>> &list ) -> List<T>
+    export template <class T>
+    auto select_many( List<std::vector<T>> &list ) -> List<T>
     {
         List<T> flattened;
         for ( auto const &v : list )
