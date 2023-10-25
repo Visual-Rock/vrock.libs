@@ -27,8 +27,6 @@ namespace vrock::utils
 
         AwaitEvent( const AwaitEvent & ) = delete;
         AwaitEvent( AwaitEvent && ) = delete;
-        auto operator=( const AwaitEvent & ) -> AwaitEvent & = delete;
-        auto operator=( AwaitEvent && ) -> AwaitEvent & = delete;
         ~AwaitEvent( ) = default;
 
         auto set( ) noexcept -> void
@@ -37,7 +35,6 @@ namespace vrock::utils
                 std::lock_guard<std::mutex> g{ _mutex };
                 _set = true;
             }
-
             _cv.notify_all( );
         }
 
@@ -52,6 +49,9 @@ namespace vrock::utils
             std::unique_lock<std::mutex> lk{ _mutex };
             _cv.wait( lk, [ this ] { return _set; } );
         }
+
+        auto operator=( const AwaitEvent & ) -> AwaitEvent & = delete;
+        auto operator=( AwaitEvent && ) -> AwaitEvent & = delete;
 
     private:
         std::mutex _mutex;
@@ -115,11 +115,15 @@ namespace vrock::utils
                 {
                     return false;
                 }
+
                 auto await_suspend( coroutine_type coroutine ) const noexcept
                 {
                     coroutine.promise( )._event->set( );
                 }
-                auto await_resume( ) noexcept { };
+
+                auto await_resume( ) noexcept
+                {
+                }
             };
 
             return completion_notifier{ };
@@ -167,11 +171,15 @@ namespace vrock::utils
                 {
                     return false;
                 }
+
                 auto await_suspend( coroutine_type coroutine ) const noexcept
                 {
                     coroutine.promise( )._event->set( );
                 }
-                auto await_resume( ) noexcept { };
+
+                auto await_resume( ) noexcept
+                {
+                }
             };
 
             return completion_notifier{ };
@@ -195,7 +203,7 @@ namespace vrock::utils
         using promise_type = AwaitTaskPromise<ReturnType>;
         using coroutine_type = std::coroutine_handle<promise_type>;
 
-        explicit AwaitTask( coroutine_type coroutine ) noexcept : _coroutine( coroutine )
+        AwaitTask( coroutine_type coroutine ) noexcept : _coroutine( coroutine )
         {
         }
 
@@ -203,7 +211,6 @@ namespace vrock::utils
         AwaitTask( AwaitTask &&other ) noexcept : _coroutine( std::exchange( other.m_coroutine, coroutine_type{ } ) )
         {
         }
-
         ~AwaitTask( )
         {
             if ( _coroutine )
@@ -241,28 +248,25 @@ namespace vrock::utils
         coroutine_type _coroutine;
     };
 
-    template <awaitable awaitable_type, typename return_type = awaitable_traits<awaitable_type>::awaiter_return_type>
-    auto make_await_task( awaitable_type &&a ) -> AwaitTask<return_type>;
-
-    template <awaitable awaitable_type, typename ReturnType>
-    auto make_await_task( awaitable_type &&a ) -> AwaitTask<ReturnType>
+    template <Awaitable AwaitableType, typename ReturnType = awaitable_traits<AwaitableType>::awaiter_return_type>
+    auto make_await_task( AwaitableType &&a ) -> AwaitTask<ReturnType>
     {
         if constexpr ( std::is_void_v<ReturnType> )
         {
-            co_await std::forward<awaitable_type>( a );
+            co_await std::forward<AwaitableType>( a );
             co_return;
         }
         else
         {
-            co_yield co_await std::forward<awaitable_type>( a );
+            co_yield co_await std::forward<AwaitableType>( a );
         }
     }
 
-    export template <awaitable awaitable_type>
-    auto await( awaitable_type &&a ) -> decltype( auto )
+    export template <Awaitable AwaitableType>
+    auto await( AwaitableType &&a ) -> decltype( auto )
     {
         AwaitEvent e{ };
-        auto task = make_await_task( std::forward<awaitable_type>( a ) );
+        auto task = make_await_task( std::forward<AwaitableType>( a ) );
         task.start( e );
         e.wait( );
 

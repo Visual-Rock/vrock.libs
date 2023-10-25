@@ -11,7 +11,7 @@ namespace vrock::utils
     concept in_types = ( std::same_as<type, types> || ... );
 
     template <typename type>
-    concept awaiter = requires( type t, std::coroutine_handle<> c ) {
+    concept Awaiter = requires( type t, std::coroutine_handle<> c ) {
         {
             t.await_ready( )
         } -> std::same_as<bool>;
@@ -23,68 +23,68 @@ namespace vrock::utils
         };
     };
 
-    template <typename type>
-    concept member_co_await_awaitable = requires( type t ) {
+    template <typename Type>
+    concept member_co_await_awaitable = requires( Type t ) {
         {
             t.operator co_await( )
-        } -> awaiter;
+        } -> Awaiter;
     };
 
-    template <typename type>
-    concept global_co_await_awaitable = requires( type t ) {
+    template <typename Type>
+    concept global_co_await_awaitable = requires( Type t ) {
         {
             operator co_await( t )
-        } -> awaiter;
+        } -> Awaiter;
     };
 
-    template <typename type>
-    concept awaitable = member_co_await_awaitable<type> || global_co_await_awaitable<type> || awaiter<type>;
+    template <typename Type>
+    concept Awaitable = member_co_await_awaitable<Type> || global_co_await_awaitable<Type> || Awaiter<Type>;
 
-    template <typename type>
-    concept awaiter_void = awaiter<type> && requires( type t ) {
+    template <typename Type>
+    concept AwaiterVoid = Awaiter<Type> && requires( Type t ) {
         {
             t.await_resume( )
         } -> std::same_as<void>;
     };
 
-    template <typename type>
-    concept member_co_await_awaitable_void = requires( type t ) {
+    template <typename Type>
+    concept member_co_await_awaitable_void = requires( Type t ) {
         {
             t.operator co_await( )
-        } -> awaiter_void;
+        } -> AwaiterVoid;
     };
 
-    template <typename type>
-    concept global_co_await_awaitable_void = requires( type t ) {
+    template <typename Type>
+    concept global_co_await_awaitable_void = requires( Type t ) {
         {
             operator co_await( t )
-        } -> awaiter_void;
+        } -> AwaiterVoid;
     };
 
-    template <typename type>
-    concept awaitable_void =
-        member_co_await_awaitable_void<type> || global_co_await_awaitable_void<type> || awaiter_void<type>;
+    template <typename Type>
+    concept AwaitableVoid =
+        member_co_await_awaitable_void<Type> || global_co_await_awaitable_void<Type> || AwaiterVoid<Type>;
 
-    template <awaitable awaitable, typename = void>
+    template <Awaitable Awaitable, typename = void>
     struct awaitable_traits
     {
     };
 
-    export template <awaitable awaitable>
-    auto get_awaiter( awaitable &&value )
+    export template <Awaitable Awaitable>
+    auto get_awaiter( Awaitable &&value )
     {
-        if constexpr ( member_co_await_awaitable<awaitable> )
-            return std::forward<awaitable>( value ).operator co_await( );
-        else if constexpr ( global_co_await_awaitable<awaitable> )
-            return operator co_await( std::forward<awaitable>( value ) );
-        else if constexpr ( awaiter<awaitable> )
-            return std::forward<awaitable>( value );
+        if constexpr ( member_co_await_awaitable<Awaitable> )
+            return std::forward<Awaitable>( value ).operator co_await( );
+        else if constexpr ( global_co_await_awaitable<Awaitable> )
+            return operator co_await( std::forward<Awaitable>( value ) );
+        else if constexpr ( Awaiter<Awaitable> )
+            return std::forward<Awaitable>( value );
     }
 
-    template <awaitable awaitable>
-    struct awaitable_traits<awaitable>
+    template <Awaitable Awaitable>
+    struct awaitable_traits<Awaitable>
     {
-        using awaiter_type = decltype( get_awaiter( std::declval<awaitable>( ) ) );
+        using awaiter_type = decltype( get_awaiter( std::declval<Awaitable>( ) ) );
         using awaiter_return_type = decltype( std::declval<awaiter_type>( ).await_resume( ) );
     };
 } // namespace vrock::utils
