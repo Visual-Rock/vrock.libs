@@ -13,7 +13,7 @@ namespace vrock::utils
     export template <typename ReturnType = void>
     class Task;
 
-    struct PromiseBase
+    export struct PromiseBase
     {
         friend struct FinalAwaitable;
         struct FinalAwaitable
@@ -61,7 +61,7 @@ namespace vrock::utils
         std::coroutine_handle<> _continuation{ nullptr };
     };
 
-    template <typename ReturnType = void>
+    export template <typename ReturnType = void>
     struct Promise final : public PromiseBase
     {
         enum class TaskState : std::uint8_t
@@ -93,10 +93,12 @@ namespace vrock::utils
         ~Promise( )
         {
             if ( _state == TaskState::Value )
+            {
                 if constexpr ( not return_type_is_reference )
                     access_value( ).~stored_type( );
                 else if ( _state == TaskState::Error )
                     access_exception( ).~exception_ptr( );
+            }
         }
 
         auto get_return_object( ) noexcept -> task_type;
@@ -210,7 +212,7 @@ namespace vrock::utils
         }
     };
 
-    template <>
+    export template <>
     struct Promise<void> final : public PromiseBase
     {
         using task_type = Task<void>;
@@ -254,7 +256,7 @@ namespace vrock::utils
 
         struct AwaitableBase
         {
-            AwaitableBase( coroutine_handle coroutine ) noexcept : _coroutine( coroutine )
+            explicit AwaitableBase( coroutine_handle coroutine ) noexcept : _coroutine( coroutine )
             {
             }
 
@@ -348,26 +350,34 @@ namespace vrock::utils
 
         auto operator co_await( ) const & noexcept
         {
-            struct awaitable : public AwaitableBase
+            struct Awaitable : public AwaitableBase
             {
+                explicit Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
+                {
+                }
+
                 auto await_resume( ) -> decltype( auto )
                 {
                     return this->_coroutine.promise( ).result( );
                 }
             };
-            return awaitable{ _coroutine };
+            return Awaitable{ _coroutine };
         }
 
         auto operator co_await( ) const && noexcept
         {
-            struct awaitable : public AwaitableBase
+            struct Awaitable : public AwaitableBase
             {
+                explicit Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
+                {
+                }
+
                 auto await_resume( ) -> decltype( auto )
                 {
                     return std::move( this->_coroutine.promise( ) ).result( );
                 }
             };
-            return awaitable{ _coroutine };
+            return Awaitable{ _coroutine };
         }
 
     private:
