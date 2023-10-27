@@ -11,4 +11,6 @@ target_sources(vrockutils
         List.ixx
         Task.ixx
         Concepts.ixx
+        await.ixx
+        when_all.ixx
 )
