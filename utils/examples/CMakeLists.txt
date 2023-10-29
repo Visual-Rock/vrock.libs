@@ -1,2 +1,8 @@
 add_executable(example_ByteArray example_ByteArray.cpp)
 target_link_libraries(example_ByteArray PRIVATE vrockutils)
+
+add_executable(example_Coroutines example_Coroutines.cpp)
+target_link_libraries(example_Coroutines PRIVATE vrockutils)
+
+add_executable(example_Lazy example_Lazy.cpp)
+target_link_libraries(example_Lazy PRIVATE vrockutils)

@@ -1,6 +1,8 @@
 module;
 
 #include <atomic>
+#include <concepts>
+#include <condition_variable>
 #include <coroutine>
 #include <mutex>
 #include <tuple>
@@ -8,12 +10,346 @@ module;
 #include <utility>
 #include <vector>
 
-export module vrock.utils:when_all;
-
-import :Concepts;
+export module vrock.utils:CoroutineHelpers;
 
 namespace vrock::utils
 {
+    template <typename type, typename... types>
+    concept in_types = ( std::same_as<type, types> || ... );
+
+    template <typename type>
+    concept Awaiter = requires( type t, std::coroutine_handle<> c ) {
+        {
+            t.await_ready( )
+        } -> std::same_as<bool>;
+        {
+            t.await_suspend( c )
+        } -> in_types<void, bool, std::coroutine_handle<>>;
+        {
+            t.await_resume( )
+        };
+    };
+
+    template <typename Type>
+    concept member_co_await_awaitable = requires( Type t ) {
+        {
+            t.operator co_await( )
+        } -> Awaiter;
+    };
+
+    template <typename Type>
+    concept global_co_await_awaitable = requires( Type t ) {
+        {
+            operator co_await( t )
+        } -> Awaiter;
+    };
+
+    template <typename Type>
+    concept Awaitable = member_co_await_awaitable<Type> || global_co_await_awaitable<Type> || Awaiter<Type>;
+
+    template <typename Type>
+    concept AwaiterVoid = Awaiter<Type> && requires( Type t ) {
+        {
+            t.await_resume( )
+        } -> std::same_as<void>;
+    };
+
+    template <typename Type>
+    concept member_co_await_awaitable_void = requires( Type t ) {
+        {
+            t.operator co_await( )
+        } -> AwaiterVoid;
+    };
+
+    template <typename Type>
+    concept global_co_await_awaitable_void = requires( Type t ) {
+        {
+            operator co_await( t )
+        } -> AwaiterVoid;
+    };
+
+    template <typename Type>
+    concept AwaitableVoid =
+        member_co_await_awaitable_void<Type> || global_co_await_awaitable_void<Type> || AwaiterVoid<Type>;
+
+    template <Awaitable Awaitable, typename = void>
+    struct awaitable_traits
+    {
+    };
+
+    template <Awaitable Awaitable>
+    auto get_awaiter( Awaitable &&value )
+    {
+        if constexpr ( member_co_await_awaitable<Awaitable> )
+            return std::forward<Awaitable>( value ).operator co_await( );
+        else if constexpr ( global_co_await_awaitable<Awaitable> )
+            return operator co_await( std::forward<Awaitable>( value ) );
+        else if constexpr ( Awaiter<Awaitable> )
+            return std::forward<Awaitable>( value );
+    }
+
+    template <Awaitable Awaitable>
+    struct awaitable_traits<Awaitable>
+    {
+        using awaiter_type = decltype( get_awaiter( std::declval<Awaitable>( ) ) );
+        using awaiter_return_type = decltype( std::declval<awaiter_type>( ).await_resume( ) );
+    };
+
+    class AwaitEvent
+    {
+    public:
+        explicit AwaitEvent( bool initially_set = false ) : _set( initially_set )
+        {
+        }
+
+        AwaitEvent( const AwaitEvent & ) = delete;
+        AwaitEvent( AwaitEvent && ) = delete;
+        ~AwaitEvent( ) = default;
+
+        auto set( ) noexcept -> void
+        {
+            {
+                std::lock_guard<std::mutex> g{ _mutex };
+                _set = true;
+            }
+            _cv.notify_all( );
+        }
+
+        auto reset( ) noexcept -> void
+        {
+            std::lock_guard<std::mutex> g{ _mutex };
+            _set = false;
+        }
+
+        auto wait( ) noexcept -> void
+        {
+            std::unique_lock<std::mutex> lk{ _mutex };
+            _cv.wait( lk, [ this ] { return _set; } );
+        }
+
+        auto operator=( const AwaitEvent & ) -> AwaitEvent & = delete;
+        auto operator=( AwaitEvent && ) -> AwaitEvent & = delete;
+
+    private:
+        std::mutex _mutex;
+        std::condition_variable _cv;
+        bool _set{ false };
+    };
+
+    class AwaitTaskPromiseBase
+    {
+    public:
+        AwaitTaskPromiseBase( ) noexcept = default;
+
+        auto initial_suspend( ) noexcept -> std::suspend_always
+        {
+            return { };
+        }
+
+        auto unhandled_exception( ) -> void
+        {
+            _exception = std::current_exception( );
+        }
+
+    protected:
+        AwaitEvent *_event{ nullptr };
+        std::exception_ptr _exception;
+
+        ~AwaitTaskPromiseBase( ) = default;
+    };
+
+    template <typename ReturnType>
+    class AwaitTaskPromise : public AwaitTaskPromiseBase
+    {
+    public:
+        using coroutine_type = std::coroutine_handle<AwaitTaskPromise<ReturnType>>;
+
+        AwaitTaskPromise( ) noexcept = default;
+        ~AwaitTaskPromise( ) = default;
+
+        auto start( AwaitEvent &event )
+        {
+            _event = &event;
+            coroutine_type::from_promise( *this ).resume( );
+        }
+
+        auto get_return_object( ) noexcept
+        {
+            return coroutine_type::from_promise( *this );
+        }
+
+        auto yield_value( ReturnType &&value ) noexcept
+        {
+            _return_value = std::addressof( value );
+            return final_suspend( );
+        }
+
+        auto final_suspend( ) noexcept
+        {
+            struct CompletionNotifier
+            {
+                auto await_ready( ) const noexcept
+                {
+                    return false;
+                }
+
+                auto await_suspend( coroutine_type coroutine ) const noexcept
+                {
+                    coroutine.promise( )._event->set( );
+                }
+
+                auto await_resume( ) noexcept
+                {
+                }
+            };
+
+            return CompletionNotifier{ };
+        }
+
+        auto result( ) -> ReturnType &&
+        {
+            if ( _exception )
+                std::rethrow_exception( _exception );
+            return static_cast<ReturnType &&>( *_return_value );
+        }
+        void return_void( ) noexcept
+        {
+        }
+
+    private:
+        std::remove_reference_t<ReturnType> *_return_value;
+    };
+
+    template <>
+    class AwaitTaskPromise<void> : public AwaitTaskPromiseBase
+    {
+        using coroutine_type = std::coroutine_handle<AwaitTaskPromise<void>>;
+
+    public:
+        AwaitTaskPromise( ) noexcept = default;
+        ~AwaitTaskPromise( ) = default;
+
+        auto start( AwaitEvent &event )
+        {
+            _event = &event;
+            coroutine_type::from_promise( *this ).resume( );
+        }
+
+        auto get_return_object( ) noexcept
+        {
+            return coroutine_type::from_promise( *this );
+        }
+
+        auto final_suspend( ) noexcept
+        {
+            struct CompletionNotifier
+            {
+                auto await_ready( ) const noexcept
+                {
+                    return false;
+                }
+
+                auto await_suspend( coroutine_type coroutine ) const noexcept
+                {
+                    coroutine.promise( )._event->set( );
+                }
+
+                auto await_resume( ) noexcept
+                {
+                }
+            };
+
+            return CompletionNotifier{ };
+        }
+
+        auto return_void( ) noexcept -> void
+        {
+        }
+
+        auto result( ) -> void
+        {
+            if ( _exception )
+                std::rethrow_exception( _exception );
+        }
+    };
+
+    template <typename ReturnType>
+    class AwaitTask
+    {
+    public:
+        using promise_type = AwaitTaskPromise<ReturnType>;
+        using coroutine_type = std::coroutine_handle<promise_type>;
+
+        AwaitTask( coroutine_type coroutine ) noexcept : _coroutine( coroutine )
+        {
+        }
+
+        AwaitTask( const AwaitTask & ) = delete;
+        AwaitTask( AwaitTask &&other ) noexcept : _coroutine( std::exchange( other._coroutine, coroutine_type{ } ) )
+        {
+        }
+        ~AwaitTask( )
+        {
+            if ( _coroutine )
+                _coroutine.destroy( );
+        }
+
+        auto start( AwaitEvent &event ) noexcept
+        {
+            _coroutine.promise( ).start( event );
+        }
+
+        auto return_value( ) -> decltype( auto )
+        {
+            if constexpr ( std::is_same_v<void, ReturnType> )
+            {
+                // Propagate exceptions.
+                _coroutine.promise( ).result( );
+                return;
+            }
+            else
+            {
+                return _coroutine.promise( ).result( );
+            }
+        }
+
+        auto operator=( const AwaitTask & ) -> AwaitTask & = delete;
+        auto operator=( AwaitTask &&other ) noexcept -> AwaitTask &
+        {
+            if ( std::addressof( other ) != this )
+                _coroutine = std::exchange( other._coroutine, coroutine_type{ } );
+            return *this;
+        }
+
+    private:
+        coroutine_type _coroutine;
+    };
+
+    template <Awaitable AwaitableType, typename ReturnType = awaitable_traits<AwaitableType>::awaiter_return_type>
+    auto make_await_task( AwaitableType &&a ) -> AwaitTask<ReturnType>
+    {
+        if constexpr ( std::is_void_v<ReturnType> )
+        {
+            co_await std::forward<AwaitableType>( a );
+            co_return;
+        }
+        else
+        {
+            co_yield co_await std::forward<AwaitableType>( a );
+        }
+    }
+
+    export template <Awaitable AwaitableType>
+    auto await( AwaitableType &&a ) -> decltype( auto )
+    {
+        AwaitEvent e{ };
+        auto task = make_await_task( std::forward<AwaitableType>( a ) );
+        task.start( e );
+        e.wait( );
+
+        return task.return_value( );
+    }
+
     class WhenAllLatch
     {
     public:
@@ -434,7 +770,7 @@ namespace vrock::utils
         std::exception_ptr _exception_ptr;
     };
 
-    struct Void
+    export struct Void
     {
     };
 
@@ -464,7 +800,7 @@ namespace vrock::utils
                 _coroutine.destroy( );
         }
 
-        auto return_value( ) & -> decltype( auto )
+        auto value( ) & -> decltype( auto )
         {
             if constexpr ( std::is_void_v<ReturnType> )
             {
@@ -477,7 +813,7 @@ namespace vrock::utils
             }
         }
 
-        auto return_value( ) const & -> decltype( auto )
+        auto value( ) const & -> decltype( auto )
         {
             if constexpr ( std::is_void_v<ReturnType> )
             {
@@ -488,7 +824,7 @@ namespace vrock::utils
                 return _coroutine.promise( ).return_value( );
         }
 
-        auto return_value( ) && -> decltype( auto )
+        auto value( ) && -> decltype( auto )
         {
             if constexpr ( std::is_void_v<ReturnType> )
             {
@@ -510,9 +846,9 @@ namespace vrock::utils
 
         coroutine_handle_type _coroutine;
     };
-    
+
     template <Awaitable Awaitable, typename ReturnType>
-    static auto make_when_all_task( Awaitable a ) -> WhenAllTask<ReturnType>
+    auto make_when_all_task( Awaitable a ) -> WhenAllTask<ReturnType>
     {
         if constexpr ( std::is_void_v<ReturnType> )
         {
@@ -523,6 +859,9 @@ namespace vrock::utils
             co_yield co_await static_cast<Awaitable &&>( a );
     }
 
+    template <Awaitable Awaitable, typename ReturnType = typename awaitable_traits<Awaitable &&>::awaiter_return_type>
+    auto make_when_all_task( Awaitable a ) -> WhenAllTask<ReturnType>;
+
     export template <Awaitable... AwaitablesType>
     [[nodiscard]] auto when_all( AwaitablesType... awaitables )
     {
@@ -531,9 +870,8 @@ namespace vrock::utils
             std::make_tuple( make_when_all_task( std::move( awaitables ) )... ) );
     }
 
-    /*
-    template <std::ranges::range RangeType, Awaitable AwaitableType = std::ranges::range_value_t<RangeType>,
-              typename ReturnType = typename awaitable_traits<AwaitableType>::awaiter_return_type>
+    export template <std::ranges::range RangeType, Awaitable AwaitableType = std::ranges::range_value_t<RangeType>,
+                     typename ReturnType = typename awaitable_traits<AwaitableType>::awaiter_return_type>
     [[nodiscard]] auto when_all( RangeType awaitables ) -> WhenAllReadyAwaitable<std::vector<WhenAllTask<ReturnType>>>
     {
         std::vector<WhenAllTask<ReturnType>> output_tasks;
@@ -545,5 +883,5 @@ namespace vrock::utils
             output_tasks.emplace_back( make_when_all_task( std::move( a ) ) );
 
         return WhenAllReadyAwaitable( std::move( output_tasks ) );
-    }*/
+    }
 } // namespace vrock::utils

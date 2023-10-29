@@ -2495,7 +2495,7 @@ DOT_FONTPATH           =
 # If the CLASS_GRAPH tag is set to YES (or GRAPH) then doxygen will generate a
 # graph for each documented class showing the direct and indirect inheritance
 # relations. In case HAVE_DOT is set as well dot will be used to draw the graph,
-# otherwise the built-in generator will be used. If the CLASS_GRAPH tag is set
+# otherwise the built-in Generator will be used. If the CLASS_GRAPH tag is set
 # to TEXT the direct and indirect inheritance relations will be shown as texts /
 # links.
 # Possible values are: NO, YES, TEXT and GRAPH.

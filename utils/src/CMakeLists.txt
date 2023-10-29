@@ -9,8 +9,8 @@ target_sources(vrockutils
         Timer.ixx
         FutureHelper.ixx
         List.ixx
+        Lazy.ixx
         Task.ixx
-        Concepts.ixx
-        await.ixx
-        when_all.ixx
+        Generator.ixx
+        CoroutineHelpers.ixx
 )

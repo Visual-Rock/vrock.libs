@@ -166,7 +166,7 @@ namespace vrock::utils
 
         struct AwaitableBase
         {
-            explicit AwaitableBase( coroutine_handle coroutine ) noexcept : _coroutine( coroutine )
+            AwaitableBase( coroutine_handle coroutine ) noexcept : _coroutine( coroutine )
             {
             }
 
@@ -192,7 +192,7 @@ namespace vrock::utils
         {
         }
         Task( const Task & ) = delete;
-        Task( Task &&other ) noexcept : _coroutine( std::exchange( other.m_coroutine, nullptr ) )
+        Task( Task &&other ) noexcept : _coroutine( std::exchange( other._coroutine, nullptr ) )
         {
         }
 
@@ -262,7 +262,7 @@ namespace vrock::utils
         {
             struct Awaitable : public AwaitableBase
             {
-                explicit Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
+                Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
                 {
                 }
 
@@ -278,7 +278,7 @@ namespace vrock::utils
         {
             struct Awaitable : public AwaitableBase
             {
-                explicit Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
+                Awaitable( coroutine_handle handle ) : AwaitableBase( handle )
                 {
                 }
 
