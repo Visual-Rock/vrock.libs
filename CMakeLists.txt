@@ -16,6 +16,7 @@ option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 add_subdirectory(external)
 
 if (${VROCKLIBS_TESTS})
+    include(CTest)
     include(FetchContent)
     FetchContent_Declare(
             googletest
