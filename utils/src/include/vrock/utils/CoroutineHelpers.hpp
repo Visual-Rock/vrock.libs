@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <atomic>
 #include <concepts>
@@ -9,8 +9,6 @@ module;
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-export module vrock.utils:CoroutineHelpers;
 
 namespace vrock::utils
 {
@@ -339,7 +337,7 @@ namespace vrock::utils
         }
     }
 
-    export template <Awaitable AwaitableType>
+    template <Awaitable AwaitableType>
     auto await( AwaitableType &&a ) -> decltype( auto )
     {
         AwaitEvent e{ };
@@ -770,7 +768,7 @@ namespace vrock::utils
         std::exception_ptr _exception_ptr;
     };
 
-    export struct Void
+    struct Void
     {
     };
 
@@ -862,7 +860,7 @@ namespace vrock::utils
     template <Awaitable Awaitable, typename ReturnType = typename awaitable_traits<Awaitable &&>::awaiter_return_type>
     auto make_when_all_task( Awaitable a ) -> WhenAllTask<ReturnType>;
 
-    export template <Awaitable... AwaitablesType>
+    template <Awaitable... AwaitablesType>
     [[nodiscard]] auto when_all( AwaitablesType... awaitables )
     {
         return WhenAllReadyAwaitable<
@@ -870,8 +868,8 @@ namespace vrock::utils
             std::make_tuple( make_when_all_task( std::move( awaitables ) )... ) );
     }
 
-    export template <std::ranges::range RangeType, Awaitable AwaitableType = std::ranges::range_value_t<RangeType>,
-                     typename ReturnType = typename awaitable_traits<AwaitableType>::awaiter_return_type>
+    template <std::ranges::range RangeType, Awaitable AwaitableType = std::ranges::range_value_t<RangeType>,
+              typename ReturnType = typename awaitable_traits<AwaitableType>::awaiter_return_type>
     [[nodiscard]] auto when_all( RangeType awaitables ) -> WhenAllReadyAwaitable<std::vector<WhenAllTask<ReturnType>>>
     {
         std::vector<WhenAllTask<ReturnType>> output_tasks;

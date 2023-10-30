@@ -1,14 +1,11 @@
 src = [
-    'ByteArray.ixx',
-    'List.ixx',
-    'Timer.ixx',
-    'FutureHelper.ixx'
+    'src/main.cpp'
 ]
 
-utilslib = static_library('vrockutils', src)
+utilslib = library('vrockutils', src)
 
 vrockutils_dep = declare_dependency(
-    include_directories: include_directories('.'),
+    include_directories: include_directories('./include'),
     sources: src,
 )
 

@@ -4,8 +4,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <vrock/utils.hpp>
 
-import vrock.utils;
 using namespace vrock::utils;
 
 Generator<int> fib( )

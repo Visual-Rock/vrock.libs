@@ -1,4 +1,4 @@
-import vrock.utils.ByteArray;
+#include <vrock/utils.hpp>
 
 #include <gtest/gtest.h>
 
@@ -32,7 +32,7 @@ TEST( ByteArrayConstructor, BasicAssertion )
     }
 }
 
-TEST(ByteArrayAppend, BasicAssertion)
+TEST( ByteArrayAppend, BasicAssertion )
 {
     ByteArray ba = ByteArray( "Test" );
     ByteArray ba1 = ByteArray( "Te" );
@@ -51,7 +51,7 @@ TEST( ByteArrayReserve, BasicAssertion )
 {
     ByteArray ba = ByteArray( "Te" );
 
-    EXPECT_NO_FATAL_FAILURE( ba.reserve( 4 ));
+    EXPECT_NO_FATAL_FAILURE( ba.reserve( 4 ) );
     EXPECT_NO_FATAL_FAILURE( ba[ 2 ] = 's' );
     EXPECT_NO_FATAL_FAILURE( ba[ 3 ] = 't' );
 
@@ -66,5 +66,4 @@ TEST( ByteArraySubArray, BasicAssertion )
 
     EXPECT_EQ( ba.subarr( 2 ).to_string( ), "st" );
     EXPECT_EQ( ba.subarr( 2, 1 ).to_string( ), "s" );
-
 }

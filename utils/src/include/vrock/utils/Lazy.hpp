@@ -1,12 +1,8 @@
-module;
-
 #include <functional>
-
-export module vrock.utils:Lazy;
 
 namespace vrock::utils
 {
-    export template <typename T>
+    template <typename T>
     class Lazy
     {
     public:

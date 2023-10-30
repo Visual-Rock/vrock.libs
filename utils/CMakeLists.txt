@@ -1,6 +1,6 @@
 add_subdirectory(src)
 
-if (${EXAMPLES})
+if (${VROCKLIBS_EXAMPLES})
     add_subdirectory(examples)
 endif ()
 

@@ -3,5 +3,5 @@
 Future Helper
 =========
 
-.. doxygenfile:: FutureHelper.ixx
+.. doxygenfile:: FutureHelper.hpp
     :project: vrock.libs

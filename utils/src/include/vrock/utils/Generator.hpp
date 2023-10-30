@@ -1,15 +1,13 @@
-module;
+#pragma once
 
 #include <coroutine>
 #include <exception>
 #include <iterator>
 #include <type_traits>
 
-export module vrock.utils:Generator;
-
 namespace vrock::utils
 {
-    export template <typename T>
+    template <typename T>
     class Generator;
 
     template <typename T>

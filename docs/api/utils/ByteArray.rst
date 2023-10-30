@@ -3,5 +3,5 @@
 ByteArray
 =========
 
-.. doxygenfile:: ByteArray.ixx
+.. doxygenfile:: ByteArray.hpp
     :project: vrock.libs

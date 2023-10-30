@@ -1,46 +1,21 @@
 cmake_minimum_required(VERSION 3.26)
 project(vrocklibs)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-if (${CMAKE_MINOR_VERSION} EQUAL 26)
-    set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
-endif ()
-if (${CMAKE_MINOR_VERSION} EQUAL 27)
-    set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
-endif ()
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
-# Default to C++ extensions being off. Clang's modules support have trouble
-# with extensions right now and it is not required for any other compiler
-set(CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-option(TESTS "Build all vrock.lib Tests" OFF)
-option(EXAMPLES "Build all vrock.lib Examples" OFF)
-option(DOCS "Build vrock.lib Docs" ON)
+option(VROCKLIBS_TESTS "Build all vrock.lib Tests" ON)
+option(VROCKLIBS_EXAMPLES "Build all vrock.lib Examples" ON)
+option(VROCKLIBS_DOCS "Build vrock.lib Docs" ON)
 
-option(SECURITY "Build the security module of vrock.lib" ON)
-option(LOG "Build the log module of vrock.lib" ON)
-option(UI "Build the ui module of vrock.lib" ON)
-option(PDF "Build the pdf module of vrock.lib" ON)
-
-include(FindPkgConfig)
-find_package(PkgConfig)
+option(VROCKLIBS_SECURITY "Build the security module of vrock.lib" OFF)
+option(VROCKLIBS_LOG "Build the log module of vrock.lib" OFF)
+option(VROCKLIBS_UI "Build the ui module of vrock.lib" OFF)
+option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 
 add_subdirectory(external)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    string(CONCAT CMAKE_EXPERIMENTAL_CXX_SCANDEP_SOURCE
-            "<CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS> <SOURCE>"
-            " -MT <DYNDEP_FILE> -MD -MF <DEP_FILE>"
-            " ${flags_to_scan_deps} -fdep-file=<DYNDEP_FILE> -fdep-output=<OBJECT>"
-    )
-
-    set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FORMAT "gcc")
-    set(CMAKE_EXPERIMENTAL_CXX_MODULE_MAP_FLAG
-            "${compiler_flags_for_module_map} -fmodule-mapper=<MODULE_MAP_FILE>")
-endif ()
-if (${TESTS})
+if (${VROCKLIBS_TESTS})
     include(FetchContent)
     FetchContent_Declare(
             googletest
@@ -69,6 +44,6 @@ if (${PDF})
     add_subdirectory(pdf)
 endif ()
 
-if (${DOCS})
+if (${VROCKLIBS_DOCS})
     add_subdirectory(docs)
 endif ()

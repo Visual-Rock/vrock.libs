@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <coroutine>
 #include <cstdint>
@@ -7,14 +7,12 @@ module;
 #include <stdexcept>
 #include <utility>
 
-export module vrock.utils:Task;
-
 namespace vrock::utils
 {
-    export template <typename ReturnType = void>
+    template <typename ReturnType = void>
     class Task;
 
-    export struct PromiseBase
+    struct PromiseBase
     {
         friend struct FinalAwaitable;
         struct FinalAwaitable
@@ -68,7 +66,7 @@ namespace vrock::utils
         std::exception_ptr _exception_ptr{ };
     };
 
-    export template <typename ReturnType>
+    template <typename ReturnType>
     struct Promise final : public PromiseBase
     {
         using task_type = Task<ReturnType>;
@@ -134,7 +132,7 @@ namespace vrock::utils
         held_type _return_value{ };
     };
 
-    export template <>
+    template <>
     struct Promise<void> final : public PromiseBase
     {
         using task_type = Task<void>;

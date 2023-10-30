@@ -1,6 +1,6 @@
 #include <iostream>
+#include <vrock/utils.hpp>
 
-import vrock.utils;
 using namespace vrock::utils;
 
 int main( )

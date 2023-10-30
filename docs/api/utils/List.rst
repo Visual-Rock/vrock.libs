@@ -3,5 +3,5 @@
 List
 =========
 
-.. doxygenfile:: List.ixx
+.. doxygenfile:: List.hpp
     :project: vrock.libs
