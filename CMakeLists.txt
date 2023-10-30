@@ -4,9 +4,9 @@ project(vrocklibs)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-option(VROCKLIBS_TESTS "Build all vrock.lib Tests" ON)
-option(VROCKLIBS_EXAMPLES "Build all vrock.lib Examples" ON)
-option(VROCKLIBS_DOCS "Build vrock.lib Docs" ON)
+option(VROCKLIBS_TESTS "Build all vrock.lib Tests" OFF)
+option(VROCKLIBS_EXAMPLES "Build all vrock.lib Examples" OFF)
+option(VROCKLIBS_DOCS "Build vrock.lib Docs" OFF)
 
 option(VROCKLIBS_SECURITY "Build the security module of vrock.lib" OFF)
 option(VROCKLIBS_LOG "Build the log module of vrock.lib" OFF)
