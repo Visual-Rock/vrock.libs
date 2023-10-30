@@ -7,7 +7,7 @@ if (${LOG})
     add_subdirectory(spdlog)
 endif ()
 
-if (${SECURITY})
+if (${VROCKLIBS_SECURITY})
     option(CRYPTOPP_BUILD_TESTING "" OFF)
     option(CRYPTOPP_INSTALL "" OFF)
     add_subdirectory(cryptopp)
