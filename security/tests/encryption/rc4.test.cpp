@@ -1,5 +1,4 @@
-import vrock.security.encryption;
-import vrock.utils.ByteArray;
+#include <vrock/security.hpp>
 
 #include <gtest/gtest.h>
 

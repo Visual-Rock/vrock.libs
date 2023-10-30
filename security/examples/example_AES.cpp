@@ -1,8 +1,6 @@
 #include <iomanip>
 #include <iostream>
-
-import vrock.utils.ByteArray;
-import vrock.security.encryption;
+#include <vrock/security.hpp>
 
 using namespace vrock::security;
 using namespace vrock::utils;

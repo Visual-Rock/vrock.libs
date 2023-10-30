@@ -1,2 +1,3 @@
-add_library(vrockutils INTERFACE)
-target_include_directories(vrockutils INTERFACE ./include/)
+add_library(vrockutils)
+target_include_directories(vrockutils PUBLIC ./include/)
+target_sources(vrockutils PRIVATE src/ByteArray.cpp)

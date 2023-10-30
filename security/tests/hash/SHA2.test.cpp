@@ -1,5 +1,4 @@
-import vrock.security.hash;
-import vrock.utils.ByteArray;
+#include <vrock/security.hpp>
 
 #include <gtest/gtest.h>
 

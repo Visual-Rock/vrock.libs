@@ -29,7 +29,7 @@ endif ()
 
 add_subdirectory(utils) # utils is always included
 
-if (${SECURITY})
+if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
 endif ()
 
