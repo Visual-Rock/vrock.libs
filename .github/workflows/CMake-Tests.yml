@@ -66,6 +66,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DVROCKLIBS_TESTS=ON
           -DVROCKLIBS_SECURITY=ON
+          -DVROCKLIBS_PDF=ON
           -S ${{ github.workspace }}
 
       - name: Build

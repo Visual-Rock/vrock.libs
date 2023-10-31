@@ -2,8 +2,8 @@ find_package(Doxygen REQUIRED)
 find_package(Sphinx REQUIRED)
 
 set(FILES ${PROJECT_SOURCE_DIR}/utils/src/)
-string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/ui/src/)
 string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/security/src/)
+string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/pdf/src/)
 
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/_build)
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/xml/index.xml)

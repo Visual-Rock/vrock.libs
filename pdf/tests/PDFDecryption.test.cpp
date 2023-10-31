@@ -1,5 +1,4 @@
-import vrock.pdf.PDFDocument;
-import vrock.pdf.PDFEncryption;
+#include <vrock/pdf/PDFDocument.hpp>
 
 #include <gtest/gtest.h>
 

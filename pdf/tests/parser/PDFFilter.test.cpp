@@ -1,5 +1,4 @@
-import vrock.pdf.PDFBaseObjects;
-import vrock.utils.ByteArray;
+#include <vrock/pdf/structure/PDFFilters.hpp>
 
 #include <gtest/gtest.h>
 
