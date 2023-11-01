@@ -57,11 +57,11 @@ namespace vrock::pdf
                 obj = std::make_shared<PDFNull>( );
                 break;
             case 1: {
-                // parser->_offset = entry->offset;
-                // if ( auto ref = parser->parse_object( nullptr, false )->to<PDFRef>( ) )
-                //     obj = parser->parse_object( ref, true );
-                // else
-                //     throw std::runtime_error( "failed to parse object reference" );
+                parser->_offset = entry->offset;
+                if ( auto ref = parser->parse_object( nullptr, false )->to<PDFRef>( ) )
+                    obj = parser->parse_object( ref, true );
+                else
+                    throw std::runtime_error( "failed to parse object reference" );
                 break;
             }
             case 2: {

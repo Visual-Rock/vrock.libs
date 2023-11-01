@@ -2,7 +2,7 @@ enable_testing()
 
 file(COPY ../pdfs DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 add_executable(pdf_tests
-        #PDFDecryption.test.cpp
+        PDFDecryption.test.cpp
 
         parser/BaseParser.test.cpp
         parser/PDFObjectParser.test.cpp

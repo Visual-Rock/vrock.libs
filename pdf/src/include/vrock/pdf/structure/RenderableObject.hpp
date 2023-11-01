@@ -10,6 +10,7 @@
 
 #include "Font.hpp"
 #include "PDFDataStructures.hpp"
+#include "PDFImage.hpp"
 #include "PDFObjects.hpp"
 #include "PDFStreams.hpp"
 #include "Rectangle.hpp"
@@ -125,10 +126,10 @@ namespace vrock::pdf
     };
 
     template <>
-    auto to_renderable_object_type<Image>( ) -> RenderableObjectType
-    {
-        return RenderableObjectType::Image;
-    }
+    auto to_renderable_object_type<Image>( ) -> RenderableObjectType;
+
+    template <>
+    auto to_renderable_object_type<Text>( ) -> RenderableObjectType;
 
     class Renderable
     {

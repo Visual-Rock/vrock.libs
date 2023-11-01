@@ -9,12 +9,17 @@ target_sources(vrockpdf
 
         src/parser/PDFObjectParser.cpp
 
+        src/structure/Colorspaces.cpp
+        src/structure/Font.cpp
+        src/structure/PDFContext.cpp
         src/structure/PDFObjects.cpp
         src/structure/PDFStreams.cpp
         src/structure/PDFFilters.cpp
-        src/structure/PDFContext.cpp
         src/structure/PDFEncryption.cpp
         src/structure/PDFPageTree.cpp
+        src/structure/PDFImage.cpp
+        src/structure/Rectangle.cpp
+        src/structure/RenderableObject.cpp
 )
 target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
 
