@@ -28,15 +28,13 @@ namespace vrock::pdf
     {
         static_assert( "unknown conversion from type" );
     }
-
+    
     class RenderableObject : public std::enable_shared_from_this<RenderableObject>
     {
     public:
-        RenderableObject( RenderableObjectType t, std::int64_t z ) : z_index( z ), type( t )
-        {
-        }
+        RenderableObject( RenderableObjectType t, std::int64_t z );
 
-        OPTNONE_START bool is( RenderableObjectType t ) __attribute__( ( optnone ) )
+        OPTNONE_START bool is( RenderableObjectType t )
         {
             if ( this == nullptr )
                 return false;
@@ -46,7 +44,7 @@ namespace vrock::pdf
 
         template <class T>
             requires std::is_base_of_v<RenderableObject, T>
-        OPTNONE_START std::shared_ptr<T> as( ) __attribute__( ( optnone ) )
+        OPTNONE_START std::shared_ptr<T> as( )
         {
             if ( this == nullptr )
                 return nullptr;
@@ -70,13 +68,9 @@ namespace vrock::pdf
     class Image : public RenderableObject
     {
     public:
-        Image( ) : RenderableObject( RenderableObjectType::Image, 0 )
-        {
-        }
+        Image( );
 
-        explicit Image( std::int64_t z ) : RenderableObject( RenderableObjectType::Image, z )
-        {
-        }
+        explicit Image( std::int64_t z );
 
         Point position, scale;
         double shear = 0, rotation = 0;
@@ -86,13 +80,9 @@ namespace vrock::pdf
     class Text : public RenderableObject
     {
     public:
-        Text( ) : RenderableObject( RenderableObjectType::Text, 0 )
-        {
-        }
+        Text( );
 
-        explicit Text( std::int64_t z ) : RenderableObject( RenderableObjectType::Text, z )
-        {
-        }
+        explicit Text( std::int64_t z );
 
         std::string text;
         /// @brief List of offsets. the pairs are structured in the following way:
@@ -134,21 +124,11 @@ namespace vrock::pdf
     class Renderable
     {
     public:
-        explicit Renderable( std::shared_ptr<PDFContext> ctx ) : context( std::move( ctx ) )
-        {
-        }
+        explicit Renderable( std::shared_ptr<PDFContext> ctx );
 
-        auto get_images( ) -> utils::List<std::shared_ptr<Image>>
-        {
-            parse_content( );
-            return images;
-        }
+        auto get_images( ) -> utils::List<std::shared_ptr<Image>>;
 
-        auto get_text( ) -> utils::List<std::shared_ptr<Text>>
-        {
-            parse_content( );
-            return text;
-        }
+        auto get_text( ) -> utils::List<std::shared_ptr<Text>>;
 
         std::shared_ptr<ResourceDictionary> resources = nullptr;
 
@@ -167,14 +147,7 @@ namespace vrock::pdf
     class Form : public Renderable
     {
     public:
-        Form( std::shared_ptr<PDFStream> form, std::shared_ptr<PDFContext> ctx ) : Renderable( std::move( ctx ) )
-        {
-            if ( auto array = form->dict->get<PDFArray>( "BBox" ) )
-                bbox = std::make_shared<Rectangle>( array );
-            content_streams.push_back( form );
-            if ( auto res = form->dict->get<PDFDictionary>( "Resources" ) )
-                resources = std::make_shared<ResourceDictionary>( res, context );
-        }
+        Form( std::shared_ptr<PDFStream> form, std::shared_ptr<PDFContext> ctx );
 
         std::shared_ptr<Rectangle> bbox;
     };

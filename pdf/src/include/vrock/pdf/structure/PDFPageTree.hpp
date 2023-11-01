@@ -18,11 +18,7 @@ namespace vrock::pdf
     {
     public:
         PageBaseObject( std::shared_ptr<PDFDictionary> dict, PageTreeNode *parent, std::shared_ptr<PDFContext> ctx,
-                        bool leaf = true )
-            : PDFBaseObject( leaf ? PDFObjectType::Page : PDFObjectType::PageTreeNode ), parent( parent ),
-              context( std::move( ctx ) ), dictionary( std::move( dict ) )
-        {
-        }
+                        bool leaf = true );
 
     protected:
         std::shared_ptr<PDFContext> context;

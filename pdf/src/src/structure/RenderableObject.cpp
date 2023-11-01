@@ -4,6 +4,26 @@
 
 namespace vrock::pdf
 {
+    RenderableObject::RenderableObject( RenderableObjectType t, std::int64_t z ) : z_index( z ), type( t )
+    {
+    }
+
+    Image::Image( ) : RenderableObject( RenderableObjectType::Image, 0 )
+    {
+    }
+
+    Image::Image( std::int64_t z ) : RenderableObject( RenderableObjectType::Image, z )
+    {
+    }
+
+    Text::Text( ) : RenderableObject( RenderableObjectType::Text, 0 )
+    {
+    }
+
+    Text::Text( std::int64_t z ) : RenderableObject( RenderableObjectType::Text, z )
+    {
+    }
+
     ResourceDictionary::ResourceDictionary( std::shared_ptr<PDFDictionary> dict_, std::shared_ptr<PDFContext> ctx )
         : dict( std::move( dict_ ) ), context( std::move( ctx ) )
     {
@@ -61,6 +81,34 @@ namespace vrock::pdf
             dict->set( "XObject", xobjects );
     }
 
+    template <>
+    auto to_renderable_object_type<Image>( ) -> RenderableObjectType
+    {
+        return RenderableObjectType::Image;
+    }
+
+    template <>
+    auto to_renderable_object_type<Text>( ) -> RenderableObjectType
+    {
+        return RenderableObjectType::Text;
+    }
+
+    Renderable::Renderable( std::shared_ptr<PDFContext> ctx ) : context( std::move( ctx ) )
+    {
+    }
+
+    auto Renderable::get_images( ) -> utils::List<std::shared_ptr<Image>>
+    {
+        parse_content( );
+        return images;
+    }
+
+    auto Renderable::get_text( ) -> utils::List<std::shared_ptr<Text>>
+    {
+        parse_content( );
+        return text;
+    }
+
     auto Renderable::parse_content( ) -> void
     {
         if ( parsed )
@@ -80,16 +128,13 @@ namespace vrock::pdf
         // text = std::move( parser.text );
         parsed = true;
     }
-
-    template <>
-    auto to_renderable_object_type<Image>( ) -> RenderableObjectType
+    
+    Form::Form( std::shared_ptr<PDFStream> form, std::shared_ptr<PDFContext> ctx ) : Renderable( std::move( ctx ) )
     {
-        return RenderableObjectType::Image;
-    }
-
-    template <>
-    auto to_renderable_object_type<Text>( ) -> RenderableObjectType
-    {
-        return RenderableObjectType::Text;
+        if ( auto array = form->dict->get<PDFArray>( "BBox" ) )
+            bbox = std::make_shared<Rectangle>( array );
+        content_streams.push_back( form );
+        if ( auto res = form->dict->get<PDFDictionary>( "Resources" ) )
+            resources = std::make_shared<ResourceDictionary>( res, context );
     }
 } // namespace vrock::pdf

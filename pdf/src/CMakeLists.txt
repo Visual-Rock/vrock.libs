@@ -7,23 +7,30 @@ target_sources(vrockpdf
         PRIVATE
         src/PDFDocument.cpp
 
+        src/parser/BaseParser.cpp
         src/parser/PDFObjectParser.cpp
 
         src/structure/Colorspaces.cpp
         src/structure/Font.cpp
         src/structure/PDFContext.cpp
-        src/structure/PDFObjects.cpp
-        src/structure/PDFStreams.cpp
-        src/structure/PDFFilters.cpp
+        src/structure/PDFDataStructures.cpp
         src/structure/PDFEncryption.cpp
-        src/structure/PDFPageTree.cpp
+        src/structure/PDFFilters.cpp
         src/structure/PDFImage.cpp
+        src/structure/PDFObjects.cpp
+        src/structure/PDFPageTree.cpp
+        src/structure/PDFStreams.cpp
         src/structure/Rectangle.cpp
         src/structure/RenderableObject.cpp
 )
 target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(vrockpdf PRIVATE "-Wno-tautological-undefined-compare")
+    target_compile_options(vrockpdf PRIVATE "-Wno-unknown-attributes")
+endif ()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vrockpdf PRIVATE "-Wno-tautological-undefined-compare")
     target_compile_options(vrockpdf PRIVATE "-Wno-unknown-attributes")
 endif ()

@@ -23,22 +23,12 @@ namespace vrock::pdf
     struct XRefEntryPtrHash
     {
     public:
-        size_t operator( )( const std::shared_ptr<XRefEntry> &r ) const
-        {
-            if ( r->type == 2 )
-                return std::hash<std::uint64_t>( )( ( (uint64_t)r->object_number ) << 32 | 0 );
-            return std::hash<std::uint64_t>( )( ( (uint64_t)r->object_number ) << 32 | r->generation_number );
-        }
+        size_t operator( )( const std::shared_ptr<XRefEntry> &r ) const;
     };
 
     struct XRefEntryPtrEqual
     {
-        bool operator( )( const std::shared_ptr<XRefEntry> &l, const std::shared_ptr<XRefEntry> &r ) const
-        {
-            if ( r->type == 2 )
-                return l->object_number == r->object_number;
-            return l->object_number == r->object_number && l->generation_number == r->generation_number;
-        }
+        bool operator( )( const std::shared_ptr<XRefEntry> &l, const std::shared_ptr<XRefEntry> &r ) const;
     };
 
     class XRefTable

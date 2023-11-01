@@ -10,6 +10,21 @@ namespace vrock::pdf
     {
     }
 
+    size_t XRefEntryPtrHash::operator( )( const std::shared_ptr<XRefEntry> &r ) const
+    {
+        if ( r->type == 2 )
+            return std::hash<std::uint64_t>( )( ( (uint64_t)r->object_number ) << 32 | 0 );
+        return std::hash<std::uint64_t>( )( ( (uint64_t)r->object_number ) << 32 | r->generation_number );
+    }
+
+    bool XRefEntryPtrEqual::operator( )( const std::shared_ptr<XRefEntry> &l,
+                                         const std::shared_ptr<XRefEntry> &r ) const
+    {
+        if ( r->type == 2 )
+            return l->object_number == r->object_number;
+        return l->object_number == r->object_number && l->generation_number == r->generation_number;
+    }
+
     auto XRefTable::get_entry( const std::shared_ptr<PDFRef> &ref ) -> std::shared_ptr<XRefEntry>
     {
         auto entry = std::make_shared<XRefEntry>( 0, ref->object_number, ref->generation_number, 1 );

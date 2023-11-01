@@ -14,7 +14,7 @@ namespace vrock::pdf
     class PDFImage
     {
     public:
-        PDFImage( std::shared_ptr<PDFStream> stm );
+        explicit PDFImage( std::shared_ptr<PDFStream> stm );
 
         auto save( const std::string &path, ImageSaveFormat format = ImageSaveFormat::png ) -> void;
 
@@ -38,18 +38,7 @@ namespace vrock::pdf
             return color_space->convert_to_rgb( stream->data, stream->dict );
         }
 
-        auto as_rgba( ) -> std::shared_ptr<utils::ByteArray<>>
-        {
-            auto rgb = as_rgb( );
-            auto converted = std::make_shared<utils::ByteArray<>>( ( rgb->size( ) / 3 ) * 4 );
-            for ( auto i = 0; i < rgb->size( ) / 3; i++ )
-            {
-                std::memcpy( converted->data( ) + ( 4 * i ), rgb->data( ) + ( 3 * i ), 3 );
-                converted->at( ( 4 * i ) + 3 ) = 0xff;
-            }
-            // TODO: Image mask Soft Masks...
-            return converted;
-        }
+        auto as_rgba( ) -> std::shared_ptr<utils::ByteArray<>>;
 
     private:
         std::int32_t width = 0, height = 0, channel = 3;

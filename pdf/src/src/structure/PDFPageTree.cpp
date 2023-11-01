@@ -2,6 +2,13 @@
 
 namespace vrock::pdf
 {
+    PageBaseObject::PageBaseObject( std::shared_ptr<PDFDictionary> dict, PageTreeNode *parent,
+                                    std::shared_ptr<PDFContext> ctx, bool leaf )
+        : PDFBaseObject( leaf ? PDFObjectType::Page : PDFObjectType::PageTreeNode ), parent( parent ),
+          context( std::move( ctx ) ), dictionary( std::move( dict ) )
+    {
+    }
+
     auto PageBaseObject::get_property( const std::string &name ) -> std::shared_ptr<PDFBaseObject>
     {
         auto obj = dictionary->get( name );

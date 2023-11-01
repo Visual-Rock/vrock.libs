@@ -141,6 +141,11 @@ namespace vrock::pdf
         else
             throw std::runtime_error( "Size not found in XRefStream Dictionary or it is not an Integer" );
     }
+    
+    PDFXRefStream::PDFXRefStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data )
+        : PDFStream( std::move( d ), std::move( data ), PDFStreamType::XRef )
+    {
+    }
 
     template <>
     auto to_object_type<PDFStream>( ) -> PDFObjectType

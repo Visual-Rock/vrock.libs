@@ -5,9 +5,7 @@ namespace vrock::pdf
     class Unit
     {
     public:
-        explicit Unit( double u = 0.0 ) : units( u )
-        {
-        }
+        explicit Unit( float u = 0.0 );
 
         ~Unit( ) = default;
 

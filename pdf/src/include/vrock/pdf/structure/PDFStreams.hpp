@@ -66,10 +66,7 @@ namespace vrock::pdf
     class PDFXRefStream : public PDFStream
     {
     public:
-        explicit PDFXRefStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data )
-            : PDFStream( std::move( d ), std::move( data ), PDFStreamType::XRef )
-        {
-        }
+        explicit PDFXRefStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data );
 
         auto get_entries( ) -> std::unordered_map<std::shared_ptr<XRefEntry>, std::shared_ptr<XRefEntry>,
                                                   XRefEntryPtrHash, XRefEntryPtrEqual>;
