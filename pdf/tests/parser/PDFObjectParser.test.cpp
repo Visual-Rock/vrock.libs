@@ -218,19 +218,19 @@ TEST( ParseXref, BasicAssertions )
     auto &xref1 = xrefs[ 0 ]; // normal text based
     auto &xref2 = xrefs[ 1 ]; // XRefStream
     EXPECT_EQ( xref1->entries.size( ), 6 );
-    check_entry( xref1->entries[ make_entry( 0, 65535 ) ], { 3, 0, 65535, 0 } ); /*
-     check_entry( xref1->entries[ 1 ], { 17, 1, 0, 1 } );
-     check_entry( xref1->entries[ 2 ], { 81, 2, 0, 1 } );
-     check_entry( xref1->entries[ 3 ], { 0, 3, 7, 0 } );
-     check_entry( xref1->entries[ 4 ], { 331, 4, 0, 1 } );
-     check_entry( xref1->entries[ 5 ], { 409, 5, 0, 1 } );
-     EXPECT_EQ( xref2->entries.size( ), 8 );
-     check_entry( xref2->entries[ 0 ], { 0, 0, 65535, 0 } );
-     check_entry( xref2->entries[ 1 ], { 18212, 1, 0, 1 } );
-     check_entry( xref2->entries[ 2 ], { 13, 2, 0, 0 } );
-     check_entry( xref2->entries[ 3 ], { 19212, 3, 0, 1 } );
-     check_entry( xref2->entries[ 4 ], { 0, 1, 8, 2 } );
-     check_entry( xref2->entries[ 5 ], { 1, 1, 9, 2 } );
-     check_entry( xref2->entries[ 6 ], { 2, 1, 10, 2 } );
-     check_entry( xref2->entries[ 7 ], { 3, 1, 11, 2 } );*/
+    check_entry( xref1->entries[ make_entry( 0, 65535 ) ], { 3, 0, 65535, 0 } );
+    check_entry( xref1->entries[ make_entry( 1, 0 ) ], { 17, 1, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 2, 0 ) ], { 81, 2, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 3, 7 ) ], { 0, 3, 7, 0 } );
+    check_entry( xref1->entries[ make_entry( 4, 0 ) ], { 331, 4, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 5, 0 ) ], { 409, 5, 0, 1 } );
+    EXPECT_EQ( xref2->entries.size( ), 8 );
+    check_entry( xref2->entries[ make_entry( 0, 65535 ) ], { 0, 0, 65535, 0 } );
+    check_entry( xref2->entries[ make_entry( 1, 0 ) ], { 18212, 1, 0, 1 } );
+    check_entry( xref2->entries[ make_entry( 2, 0 ) ], { 13, 2, 0, 0 } );
+    check_entry( xref2->entries[ make_entry( 3, 0 ) ], { 19212, 3, 0, 1 } );
+    check_entry( xref2->entries[ make_entry( 8, 0 ) ], { 1, 8, 0, 2 } );
+    check_entry( xref2->entries[ make_entry( 9, 0 ) ], { 1, 9, 1, 2 } );
+    check_entry( xref2->entries[ make_entry( 10, 0 ) ], { 1, 10, 2, 2 } );
+    check_entry( xref2->entries[ make_entry( 11, 0 ) ], { 1, 11, 3, 2 } );
 }

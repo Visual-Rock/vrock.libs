@@ -6,8 +6,8 @@ add_executable(pdf_tests
 
         parser/BaseParser.test.cpp
         parser/PDFObjectParser.test.cpp
-        parser/PDFFilter.test.cpp
 
+        structure/PDFFilter.test.cpp
         #structure/Image.test.cpp
 )
 
