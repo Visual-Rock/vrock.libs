@@ -49,9 +49,7 @@ namespace vrock::pdf
     class GrayColorSpace : public ColorSpace
     {
     public:
-        explicit GrayColorSpace( ) : ColorSpace( ColorSpaceType::Gray )
-        {
-        }
+        explicit GrayColorSpace( );
 
         auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> params )
             -> std::shared_ptr<utils::ByteArray<>> final;

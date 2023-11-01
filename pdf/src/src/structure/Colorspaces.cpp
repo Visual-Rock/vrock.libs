@@ -2,6 +2,16 @@
 
 namespace vrock::pdf
 {
+    GrayColorSpace::GrayColorSpace( ) : ColorSpace( ColorSpaceType::Gray )
+    {
+    }
+    
+    auto GrayColorSpace::convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data,
+                                         std::shared_ptr<PDFBaseObject> params ) -> std::shared_ptr<utils::ByteArray<>>
+    {
+        return std::shared_ptr<utils::ByteArray<>>( );
+    }
+
     auto get_num( std::uint8_t *data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
     {
         auto bit_offset = idx * stride;

@@ -8,6 +8,7 @@ target_sources(vrockpdf
         src/PDFDocument.cpp
 
         src/parser/BaseParser.cpp
+        src/parser/ContentStreamParser.cpp
         src/parser/PDFObjectParser.cpp
 
         src/structure/Colorspaces.cpp

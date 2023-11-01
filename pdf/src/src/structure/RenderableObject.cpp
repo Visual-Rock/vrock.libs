@@ -1,5 +1,7 @@
 #include "vrock/pdf/structure/RenderableObject.hpp"
 
+#include "vrock/pdf/parser/ContentStreamParser.hpp"
+
 #include <iostream>
 
 namespace vrock::pdf
@@ -122,13 +124,12 @@ namespace vrock::pdf
         for ( auto &content_stream : content_streams )
             content += content_stream->data->to_string( );
 
-        // uto parser = ContentStreamParser( content, resources, context );
-        // text = std::move( parser.text_elements );
-        // images = std::move( parser.images );
-        // text = std::move( parser.text );
+        auto parser = ContentStreamParser( content, resources, context );
+        images = std::move( parser.images );
+        text = std::move( parser.text );
         parsed = true;
     }
-    
+
     Form::Form( std::shared_ptr<PDFStream> form, std::shared_ptr<PDFContext> ctx ) : Renderable( std::move( ctx ) )
     {
         if ( auto array = form->dict->get<PDFArray>( "BBox" ) )

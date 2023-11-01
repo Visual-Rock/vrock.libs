@@ -5,6 +5,7 @@ add_executable(pdf_tests
         PDFDecryption.test.cpp
 
         parser/BaseParser.test.cpp
+        parser/ContentStreamParser.test.cpp
         parser/PDFObjectParser.test.cpp
 
         structure/PDFFilter.test.cpp
