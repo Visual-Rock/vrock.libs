@@ -11,7 +11,14 @@ namespace vrock::pdf
         RGB,
         Gray,
         CMYK,
-        Indexed
+        Separation,
+        DeviceN,
+        Indexed,
+        Pattern,
+        CalRGB,
+        CalGray,
+        Lab,
+        ICC
     };
 
     class ColorSpace
@@ -24,7 +31,18 @@ namespace vrock::pdf
         virtual auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
             -> std::shared_ptr<utils::ByteArray<>> = 0;
 
+        virtual auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>> = 0;
+
+        virtual auto convert_to_gray( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
+            -> std::shared_ptr<utils::ByteArray<>> = 0;
+
         ColorSpaceType type;
+
+    protected:
+        std::shared_ptr<PDFBaseObject> _settings = nullptr;
+        std::uint8_t bpp = 8;
+        std::int32_t width = 0, height = 0;
     };
 
     class RGBColorSpace : public ColorSpace
