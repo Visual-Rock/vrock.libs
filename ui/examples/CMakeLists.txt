@@ -1,0 +1,2 @@
+add_executable(example_SimpleButton example_SimpleButton.cpp)
+target_link_libraries(example_SimpleButton PRIVATE vrockui)

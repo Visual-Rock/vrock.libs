@@ -9,7 +9,6 @@ option(VROCKLIBS_EXAMPLES "Build all vrock.lib Examples" OFF)
 option(VROCKLIBS_DOCS "Build vrock.lib Docs" OFF)
 
 option(VROCKLIBS_SECURITY "Build the security module of vrock.lib" OFF)
-option(VROCKLIBS_LOG "Build the log module of vrock.lib" OFF)
 option(VROCKLIBS_UI "Build the ui module of vrock.lib" OFF)
 option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 
@@ -31,6 +30,10 @@ add_subdirectory(utils) # utils is always included
 
 if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
+endif ()
+
+if (${VROCKLIBS_UI})
+    add_subdirectory(ui)
 endif ()
 
 if (${PDF})

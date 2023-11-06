@@ -7,3 +7,9 @@
 [submodule "external/icu"]
 	path = external/icu
 	url = https://github.com/viaduck/icu-cmake.git
+[submodule "external/glfw"]
+	path = external/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "external/glew"]
+	path = external/glew
+	url = https://github.com/Perlmint/glew-cmake.git
