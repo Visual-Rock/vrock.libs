@@ -1,2 +1,0 @@
-add_executable(example_Logger example_Logger.cpp)
-target_link_libraries(example_Logger PRIVATE vrocklog)

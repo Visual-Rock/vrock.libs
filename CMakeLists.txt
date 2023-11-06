@@ -33,14 +33,6 @@ if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
 endif ()
 
-if (${LOG})
-    add_subdirectory(log)
-endif ()
-
-if (${UI})
-    add_subdirectory(ui)
-endif ()
-
 if (${PDF})
     add_subdirectory(pdf)
 endif ()
