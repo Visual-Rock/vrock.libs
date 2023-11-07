@@ -18,7 +18,7 @@ namespace vrock::ui
     {
         options = std::move( options );
         window = glfwCreateWindow( options.width, options.height, options.window_title.c_str( ), nullptr, nullptr );
-        if ( window != nullptr )
+        if ( window == nullptr )
         {
             glfwTerminate( );
             return false;
