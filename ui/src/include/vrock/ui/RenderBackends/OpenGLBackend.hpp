@@ -6,7 +6,7 @@ struct GLFWwindow;
 
 namespace vrock::ui
 {
-    class OpenGLBackend : RenderBackend
+    class OpenGLBackend : public RenderBackend
     {
     public:
         OpenGLBackend( ) = default;
@@ -14,7 +14,15 @@ namespace vrock::ui
         auto init( ) -> bool final;
         auto open_window( WindowOptions options ) -> bool final;
 
-    private:
+        auto frame_begin( ) -> void override;
+        auto frame_end( ) -> void override;
+
+        auto draw_triangle( Point p1, Point p2, Point p3, Color color ) -> void override;
+        auto draw_rectangle( Point lower_left, Point upper_right, Color color ) -> void override;
+        auto draw_rectangle( Point position, int width, int height, Color color ) -> void override;
+
+    public:
+        // private:
         GLFWwindow *window = nullptr;
     };
 } // namespace vrock::ui
