@@ -6,6 +6,22 @@ namespace vrock::ui
 {
     struct Point
     {
-        std::uint32_t x, y;
+        Point( ) : x( 0 ), y( 0 )
+        {
+        }
+
+        Point( int _1, int _2 ) : x( _1 ), y( _2 )
+        {
+        }
+
+        union {
+            int width;
+            int x;
+        };
+
+        union {
+            int height;
+            int y;
+        };
     };
 } // namespace vrock::ui

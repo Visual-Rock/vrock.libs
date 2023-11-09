@@ -65,17 +65,30 @@ int main( )
 
     if ( !renderer.open_window( { 800, 600, "Test", vrock::ui::Color( 0x2e, 0x34, 0x40, 0xff ) } ) )
         std::cout << "init failed" << std::endl;
-    glViewport( 0, 0, 800, 600 );
+
+    auto panel = vrock::ui::Panel{ };
+    // panel.position = { 0, 0 };
+    panel.position = { 100, 100 };
+    // panel.size = { 142, 37 };
+    panel.size = { 300, 100 };
+    panel.background = dark1;
+
+    auto panel1 = vrock::ui::Panel{ };
+    panel1.position = panel.position;
+    panel1.size = panel.size;
+    panel1.background = { 1.0f, 1.0f, 1.0f, 0.5f };
+    panel1.set_corner_radius( 10 );
+    panel1.upper_left_radius.x = 15;
+    panel1.upper_right_radius.y = 30;
 
     while ( !glfwWindowShouldClose( renderer.window ) )
     {
         renderer.frame_begin( );
 
-        glColor3f( 1.0, 0.0, 0.0 );
+        panel.render( renderer );
+        panel1.render( renderer );
 
-        renderer.draw_triangle( { 0, 0 }, { 300, 0 }, { 0, 300 }, dark1 );
-
-        renderer.draw_rectangle( { 300, 300 }, 100, 50, dark1 );
+        // renderer.draw_circle( { 400, 300 }, 50, { 1.0f, 0.0f, 0.0f, 1.0f }, 50, 360, 0 );
 
         renderer.frame_end( );
     }
