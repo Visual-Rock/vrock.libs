@@ -4,14 +4,50 @@ namespace vrock::ui
 {
     void Panel::render( const RenderBackend &renderer )
     {
+        if ( border_thikness_left != 0 || border_thikness_up != 0 || border_thikness_right != 0 ||
+             border_thikness_bottom != 0 )
+        {
+            auto border = Panel{ };
+            border.position = position;
+            border.position.x -= border_thikness_left;
+            border.position.y -= border_thikness_up;
+
+            border.round_upper_left = round_upper_left;
+            border.upper_left_radius = upper_left_radius;
+            border.upper_left_radius.width += border_thikness_left;
+            border.upper_left_radius.height += border_thikness_up;
+
+            border.round_upper_right = round_upper_right;
+            border.upper_right_radius = upper_right_radius;
+            border.upper_right_radius.width += border_thikness_right;
+            border.upper_right_radius.height += border_thikness_up;
+
+            border.round_lower_left = round_lower_left;
+            border.lower_left_radius = lower_left_radius;
+            border.lower_left_radius.width += border_thikness_left;
+            border.lower_left_radius.height += border_thikness_bottom;
+
+            border.round_lower_right = round_lower_right;
+            border.lower_right_radius = lower_right_radius;
+            border.lower_right_radius.width += border_thikness_right;
+            border.lower_right_radius.height += border_thikness_bottom;
+
+            border.size = size;
+            border.size.width += border_thikness_left + border_thikness_right;
+            border.size.height += border_thikness_bottom + border_thikness_up;
+            border.background = border_color;
+
+            border.render( renderer );
+        }
+
         // |----|-----------------------------|----|
-        // |  0 | r          1                | 2  |
+        // |  0 |            1                | 2  |
         // |----|-----------------------------|----|
-        // |  r |                             |    |
-        // |    |            3                |    |
-        // |  r |                             |    |
+        // |    |                             |    |
+        // |  3 |            4                | 5  |
+        // |    |                             |    |
         // |----|-----------------------------|----|
-        // |    | r                           |    |
+        // |  6 |            7                | 8  |
         // |----|-----------------------------|----|
 
         {
@@ -26,8 +62,7 @@ namespace vrock::ui
             }
             else
             {
-                renderer.draw_rectangle( position, std::max( upper_left_radius.x, lower_left_radius.x ),
-                                         std::max( upper_left_radius.y, upper_right_radius.y ), background );
+                renderer.draw_rectangle( position, upper_left_radius.width, upper_left_radius.height, background );
             }
         }
 
@@ -40,6 +75,7 @@ namespace vrock::ui
         }
 
         {
+            // Segment 2
             if ( round_upper_right )
             {
                 auto pos = position;
@@ -50,8 +86,9 @@ namespace vrock::ui
             }
             else
             {
-                renderer.draw_rectangle( position, std::max( upper_left_radius.x, lower_left_radius.x ),
-                                         std::max( upper_left_radius.y, upper_right_radius.y ), background );
+                auto pos = position;
+                pos.x += size.width - upper_right_radius.x;
+                renderer.draw_rectangle( pos, upper_right_radius.width, upper_right_radius.height, background );
             }
         }
 
@@ -63,78 +100,73 @@ namespace vrock::ui
                                      size.height - upper_left_radius.height - lower_left_radius.height, background );
         }
 
-        // {
-        //     // Segment 0
-        //     if ( round_upper_left )
-        //     {
-        //         Point pos = position;
-        //         pos.x += corner_radius;
-        //         pos.y += corner_radius;
-        //         renderer.draw_circle( pos, corner_radius, background, std::max( 5, corner_radius ), 90, 180 );
-        //     }
-        //     else
-        //     {
-        //         renderer.draw_rectangle( position, corner_radius, corner_radius, background );
-        //     }
-        // }
-        //
-        // {
-        //     // Segment 1
-        //     Point pos = position;
-        //     pos.x += corner_radius;
-        //     Point s = size;
-        //     s.x -= corner_radius * 2;
-        //     s.y = corner_radius;
-        //     renderer.draw_rectangle( pos, s.width, s.height, background );
-        // }
-        //
-        // {
-        //     // Segment 2
-        //     if ( round_upper_right )
-        //     {
-        //         Point pos = position;
-        //         pos.x += size.width - corner_radius;
-        //         pos.y += corner_radius;
-        //         renderer.draw_circle( pos, corner_radius, background, std::max( 5, corner_radius ), 90, 270 );
-        //     }
-        //     else
-        //     {
-        //         Point pos = position;
-        //         pos.x += size.width - corner_radius;
-        //         renderer.draw_rectangle( pos, corner_radius, corner_radius, background );
-        //     }
-        // }
-        //
-        // {
-        //     // Segment 3
-        //     Point pos = position;
-        //     pos.y += corner_radius;
-        //     renderer.draw_rectangle( pos, size.width, size.height - 2 * corner_radius, background );
-        // }
-        //
-        // {
-        //     // Segment 4
-        //     Point pos = position;
-        //     pos.x += corner_radius;
-        //     pos.y += size.height - corner_radius;
-        //     renderer.draw_circle( pos, corner_radius, background, std::max( 5, corner_radius ), 90, 90 );
-        // }
-        //
-        // {
-        //     // Segment 5
-        //     Point pos = position;
-        //     pos.x += corner_radius;
-        //     pos.y += size.height - corner_radius;
-        //     renderer.draw_rectangle( pos, size.width - corner_radius * 2, corner_radius, background );
-        // }
-        //
-        // {
-        //     // Segment 5
-        //     Point pos = position;
-        //     pos.x += size.width - corner_radius;
-        //     pos.y += size.height - corner_radius;
-        //     renderer.draw_circle( pos, corner_radius, background, std::max( 5, corner_radius ), 90 );
-        // }
+        {
+            // Segment 4
+            auto pos = position;
+            pos.x += std::max( upper_left_radius.x, lower_left_radius.x );
+            pos.y += std::max( upper_left_radius.y, upper_right_radius.y );
+            renderer.draw_rectangle( pos,
+                                     size.width - std::max( upper_right_radius.x, lower_right_radius.x ) -
+                                         std::max( upper_left_radius.x, lower_left_radius.x ),
+                                     size.height - std::max( upper_right_radius.y, upper_left_radius.y ) -
+                                         std::max( lower_right_radius.y, lower_left_radius.y ),
+                                     background );
+        }
+
+        {
+            // Segment 5
+            auto pos = position;
+            pos.y += upper_right_radius.y;
+            pos.x += size.width - std::max( upper_right_radius.x, lower_right_radius.x );
+            renderer.draw_rectangle( pos, std::max( upper_right_radius.x, lower_right_radius.x ),
+                                     size.height - upper_right_radius.height - lower_right_radius.height, background );
+        }
+
+        {
+            // Segment 6
+            if ( round_lower_left )
+            {
+                auto pos = position;
+                pos.x += lower_left_radius.x;
+                pos.y += size.height - lower_left_radius.y;
+                renderer.draw_ellipse( pos, lower_left_radius.x, lower_left_radius.y, background,
+                                       std::max( 5, std::max( lower_left_radius.x, lower_left_radius.y ) ), 90, 90 );
+            }
+            else
+            {
+                auto pos = position;
+                pos.y += size.height - lower_left_radius.y;
+                renderer.draw_rectangle( pos, lower_left_radius.width, lower_left_radius.height, background );
+            }
+        }
+
+        {
+            // Segment 7
+            auto pos = position;
+            pos.x += lower_left_radius.x;
+            pos.y += size.height - std::max( lower_left_radius.y, lower_right_radius.y );
+            renderer.draw_rectangle( pos, size.width - lower_left_radius.x - lower_right_radius.x,
+                                     std::max( lower_left_radius.y, lower_right_radius.y ), background );
+        }
+
+        {
+            // Segment 8
+            if ( round_lower_right )
+            {
+                auto pos = position;
+                pos.x += size.width - lower_right_radius.x;
+                pos.y += size.height - lower_right_radius.y;
+                renderer.draw_ellipse( pos, lower_right_radius.x, lower_right_radius.y, background,
+                                       std::max( 5, std::max( lower_right_radius.x, lower_right_radius.y ) ), 90 );
+            }
+            else
+            {
+                auto pos = position;
+                pos.x += size.width - lower_right_radius.x;
+                pos.y += size.height - lower_right_radius.y;
+                renderer.draw_rectangle( pos, lower_right_radius.width, lower_right_radius.height, background );
+            }
+        }
     }
 
     auto Panel::set_corner_radius( int radius ) -> void
@@ -143,5 +175,13 @@ namespace vrock::ui
         upper_left_radius = { radius, radius };
         lower_right_radius = { radius, radius };
         upper_right_radius = { radius, radius };
+    }
+
+    auto Panel::set_border_width( int width ) -> void
+    {
+        border_thikness_left = width;
+        border_thikness_up = width;
+        border_thikness_right = width;
+        border_thikness_bottom = width;
     }
 } // namespace vrock::ui

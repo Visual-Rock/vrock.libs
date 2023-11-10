@@ -24,7 +24,7 @@ namespace vrock::ui
             glfwTerminate( );
             return false;
         }
-
+        glfwWindowHint( GLFW_SAMPLES, 8 );
         // glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
         // glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
         // glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -45,6 +45,7 @@ namespace vrock::ui
         glfwSetFramebufferSizeCallback( window, framebuffer_size_callback );
         glfwSetInputMode( window, GLFW_STICKY_KEYS, GLFW_TRUE );
 
+        glEnable( GL_MULTISAMPLE );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         glEnable( GL_BLEND );
 
