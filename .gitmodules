@@ -1,25 +1,3 @@
-[submodule "external/spdlog"]
-	path = external/spdlog
-	url = https://github.com/gabime/spdlog.git
-[submodule "external/imgui"]
-	path = external/imgui
-	url = https://github.com/ocornut/imgui.git
-	branch = docking
-[submodule "external/zlib"]
-	path = external/zlib
-	url = https://github.com/madler/zlib.git
-[submodule "external/cryptopp"]
-	path = external/cryptopp
-	url = https://github.com/abdes/cryptopp-cmake.git
-[submodule "external/glfw"]
-	path = external/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "external/freetype"]
-	path = external/freetype
-	url = https://github.com/freetype/freetype.git
 [submodule "external/icu"]
 	path = external/icu
 	url = https://github.com/viaduck/icu-cmake.git
-[submodule "external/glew"]
-	path = external/glew
-	url = https://github.com/Perlmint/glew-cmake.git

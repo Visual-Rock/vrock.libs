@@ -1,4 +1,7 @@
 add_library(vrockpdf)
+
+find_package(ZLIB REQUIRED)
+
 target_include_directories(vrockpdf PUBLIC ./include/)
 target_sources(vrockpdf
         PUBLIC
@@ -37,4 +40,4 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 target_link_libraries(vrockpdf PUBLIC vrockutils)
-target_link_libraries(vrockpdf PRIVATE vrocksecurity icu zlibstatic stb_image)
+target_link_libraries(vrockpdf PRIVATE vrocksecurity icu ZLIB::ZLIB stb_image)
