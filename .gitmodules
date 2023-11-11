@@ -1,9 +1,6 @@
 [submodule "external/zlib"]
 	path = external/zlib
 	url = https://github.com/madler/zlib.git
-[submodule "external/cryptopp"]
-	path = external/cryptopp
-	url = https://github.com/abdes/cryptopp-cmake.git
 [submodule "external/icu"]
 	path = external/icu
 	url = https://github.com/viaduck/icu-cmake.git
