@@ -1,11 +1,13 @@
 #include "vrock/ui.hpp"
 
-#include <cairo/cairo-xlib.h>
-#include <cairo/cairo.h>
+#include "vrock/ui/Color.hpp"
+
+#include "vrock/ui/gui/native/linux/XlibWindow.hpp"
 
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <thread>
 
 vrock::ui::Color dark0 = vrock::ui::Color( 0x2e, 0x34, 0x40 );
 vrock::ui::Color dark1 = vrock::ui::Color( 0x3b, 0x42, 0x52 );
@@ -18,9 +20,27 @@ vrock::ui::Color light2 = vrock::ui::Color( 0xec, 0xef, 0xf4 );
 
 int main( )
 {
-    auto renderer = vrock::ui::X11RenderBackend( );
-    if ( !renderer.open_window( { 800, 600, "Test", dark0 } ) )
-        return 1;
+    // auto renderer = vrock::ui::X11RenderBackend( );
+    // if ( !renderer.open_window( { 800, 600, "Test", dark0 } ) )
+    //     return 1;
+
+    std::cout << "Hello World!" << std::endl;
+
+    auto window = std::make_unique<vrock::ui::XlibWindow>( vrock::ui::WindowFlags::AntiAlias );
+    window->create( { 200, 200 }, { 800, 600 }, true );
+    bool show = true;
+    while ( true )
+    {
+        std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
+        if ( show )
+            window->show( );
+        else
+        {
+            window->close( );
+            break;
+        }
+        show = !show;
+    }
 
     return 0;
 }
