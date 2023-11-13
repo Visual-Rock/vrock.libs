@@ -1,4 +1,5 @@
 find_package(unofficial-skia CONFIG REQUIRED)
+find_package(glfw3 REQUIRED)
 
 add_library(vrockui)
 target_include_directories(vrockui PUBLIC ./include/)
@@ -36,4 +37,4 @@ if (UNIX AND NOT APPLE)
     target_include_directories(vrockui PRIVATE ${XCB_IMAGE_INCLUDE_DIRS})
 endif ()
 
-target_link_libraries(vrockui PRIVATE unofficial::skia::skia)
+target_link_libraries(vrockui PUBLIC unofficial::skia::skia glfw)

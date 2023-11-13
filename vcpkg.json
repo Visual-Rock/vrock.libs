@@ -1,19 +1,17 @@
 {
-  "name": "vrocklibs",
-  "version-string": "1.0.0",
-  "builtin-baseline": "4a600e9fea71bd7872080cbb716797e04d30e6d3",
-  "dependencies": [
-    {
-      "name": "cryptopp",
-      "version>=": "8.8.0",
-      "$comment": "    # this is heuristically generated, and may not be correct\n\n    find_package(cryptopp CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE cryptopp::cryptopp)\n"
-    },
-    {
-      "name": "skia",
-      "version>=": "0.36.0#9",
-      "features": [
-        "default-features"
-      ]
-    }
-  ]
+  "name" : "vrocklibs",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "4a600e9fea71bd7872080cbb716797e04d30e6d3",
+  "dependencies" : [ {
+    "name" : "cryptopp",
+    "version>=" : "8.8.0",
+    "$comment" : "    # this is heuristically generated, and may not be correct\n\n    find_package(cryptopp CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE cryptopp::cryptopp)\n"
+  }, {
+    "name" : "skia",
+    "version>=" : "0.36.0#9",
+    "features" : [ "default-features" ]
+  }, {
+    "name" : "glfw3",
+    "version>=" : "3.3.8#2"
+  } ]
 }
