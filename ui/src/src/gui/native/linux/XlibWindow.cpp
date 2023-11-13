@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "vrock/ui/gui/native/linux/GlxVisual.hpp"
 #include "vrock/ui/gui/native/linux/XcbVisual.hpp"
 
 #include <X11/Xlib-xcb.h>
@@ -9,10 +10,23 @@
 
 namespace vrock::ui
 {
+    auto make_native_window( const Point &position, const Point &size, const WindowFlags &flags )
+        -> std::unique_ptr<NativeWindow>
+    {
+        std::unique_ptr<NativeWindow> window;
+        if ( has_flag( flags, WindowFlags::OpenGL ) )
+            window = std::make_unique<XlibWindow>( flags );
+        else
+            window = std::make_unique<XcbWindow>( );
+        window->create( position, size, true );
+        return window;
+    }
+
     std::unique_ptr<NativeVisual> create_native_visuals( Display *display, const WindowFlags &flags )
     {
-        if ( false && has_flag( flags, WindowFlags::OpenGL ) )
+        if ( has_flag( flags, WindowFlags::OpenGL ) )
         {
+            return std::make_unique<GlxVisual>( display );
         }
         else
         {
@@ -28,27 +42,40 @@ namespace vrock::ui
     {
     }
 
-    //    void XlibWindow::create( const Point &position, const Point &size, bool show_title_bar )
-    //    {
-    //        Window root = DefaultRootWindow( display.get( ) );
-    //
-    //        XVisualInfo *xvisualinfo = get_xvisualinfo( );
-    //
-    //        XSetWindowAttributes window_attributes;
-    //        window_attributes.colormap = XCreateColormap( display.get( ), root, xvisualinfo->visual, AllocNone );
-    //        window_attributes.event_mask = ExposureMask | StructureNotifyMask | PointerMotionMask | ButtonPressMask |
-    //                                       ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | KeyPressMask |
-    //                                       KeyReleaseMask;
-    //
-    //        window = static_cast<xcb_window_t>( XCreateWindow(
-    //            display.get( ), root, static_cast<int>( initial_position.x ), static_cast<int>( initial_position.y ),
-    //            static_cast<unsigned int>( initial_size.width ), static_cast<unsigned int>( initial_size.width ),
-    //            0, // border width
-    //            xvisualinfo->depth, InputOutput, xvisualinfo->visual, CWColormap | CWEventMask, &window_attributes )
-    //            );
-    //
-    //        native_visual->create_surface( window );
-    //    }
+    XVisualInfo *XlibWindow::get_xvisualinfo( ) const
+    {
+        auto glx_native_visual = dynamic_cast<GlxVisual *>( native_visual.get( ) );
+        if ( glx_native_visual )
+            return glx_native_visual->get_xvisualinfo( );
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    void XlibWindow::create( const Point &position, const Point &size, bool show_title_bar )
+    {
+        Window root = DefaultRootWindow( display.get( ) );
+
+        XVisualInfo *xvisualinfo = get_xvisualinfo( );
+
+        XSetWindowAttributes window_attributes;
+        window_attributes.colormap = XCreateColormap( display.get( ), root, xvisualinfo->visual, AllocNone );
+        window_attributes.background_pixmap = None;
+        window_attributes.background_pixel = 0;
+        window_attributes.event_mask = ExposureMask | StructureNotifyMask | PointerMotionMask | ButtonPressMask |
+                                       ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | KeyPressMask |
+                                       KeyReleaseMask;
+
+        unsigned int mask = CWBackPixmap | CWBorderPixel | CWColormap | CWEventMask;
+        window = static_cast<xcb_window_t>(
+            XCreateWindow( display.get( ), root, position.x, position.y, static_cast<unsigned int>( size.width ),
+                           static_cast<unsigned int>( size.height ),
+                           0, // border width
+                           xvisualinfo->depth, InputOutput, xvisualinfo->visual, mask, &window_attributes ) );
+
+        native_visual->create_surface( window );
+    }
 
     XlibWindow::~XlibWindow( ) = default;
 } // namespace vrock::ui

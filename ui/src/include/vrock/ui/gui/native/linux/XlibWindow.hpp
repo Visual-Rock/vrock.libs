@@ -32,6 +32,9 @@ namespace vrock::ui
     public:
         explicit XlibWindow( const WindowFlags &flags );
         ~XlibWindow( ) override;
-        //        auto create( const Point &position, const Point &size, bool show_title_bar ) -> void override;
+
+        auto get_xvisualinfo( ) const -> XVisualInfo *;
+
+        auto create( const Point &position, const Point &size, bool show_title_bar ) -> void override;
     };
 } // namespace vrock::ui

@@ -5,6 +5,8 @@ target_include_directories(vrockui PUBLIC ./include/)
 target_sources(vrockui PRIVATE
         src/Color.cpp
 
+        src/gui/native/Canvas.cpp
+        src/gui/native/Context.cpp
         src/gui/native/NativeVisual.cpp
         src/gui/native/NativeWindow.cpp
         src/gui/native/RasterVisual.cpp
@@ -24,6 +26,7 @@ if (UNIX AND NOT APPLE)
     pkg_check_modules(XCB_IMAGE REQUIRED xcb-image)
 
     target_sources(vrockui PRIVATE
+            src/gui/native/linux/GlxVisual.cpp
             src/gui/native/linux/XcbVisual.cpp
             src/gui/native/linux/XcbWindow.cpp
             src/gui/native/linux/XlibWindow.cpp

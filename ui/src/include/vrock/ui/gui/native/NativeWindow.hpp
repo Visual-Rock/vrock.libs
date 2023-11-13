@@ -4,6 +4,7 @@
 #include <string>
 
 #include "NativeVisual.hpp"
+#include "WindowFlags.hpp"
 #include "vrock/ui/Point.hpp"
 
 namespace vrock::ui
@@ -32,4 +33,7 @@ namespace vrock::ui
     protected:
         std::unique_ptr<NativeVisual> native_visual;
     };
+
+    auto make_native_window( const Point &position, const Point &size, const WindowFlags &flags )
+        -> std::unique_ptr<NativeWindow>;
 } // namespace vrock::ui
