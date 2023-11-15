@@ -1,81 +1,72 @@
 #include "vrock/ui/gui/Window.hpp"
 
-#include "vrock/ui/gui/native/Context.hpp"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/gl/GrGLInterface.h"
+
+#include <GLFW/glfw3.h>
+#include <vector>
 
 namespace vrock::ui
 {
-    Window::Window( Point position, Point initial_size, WindowFlags flags )
-        : position( position ), size( size ), native_window( nullptr ), flags( flags )
-    {
-        std::unique_lock lock{ mutex };
-        std::atomic_bool initialized{ false };
+    std::vector<std::pair<GLFWwindow *, Window *>> windows = { };
 
-        std::thread t( &Window::initialize_execute_platform_loop, this, std::ref( initialized ) );
-        event_thread.swap( t );
-        conditional_var.wait( lock, [ & ] { return initialized.load( ); } );
-        lock.unlock( );
+    void frame_buffer_size_callback( GLFWwindow *fwindow, int w, int h )
+    {
+        for ( auto &[ k, v ] : windows )
+        {
+            if ( fwindow == k )
+            {
+                v->size = { w, h };
+                v->update_surface( );
+                break;
+            }
+        }
     }
 
-    Window::Window( WindowFlags flags )
+    Window::Window( Point position, Point initial_size ) : position( position ), size( size )
     {
+        if ( !glfwInit( ) )
+        {
+            // TODO: Handle error
+        }
+        window = glfwCreateWindow( size.width, size.height, "Skia Test", nullptr, nullptr );
+        glfwMakeContextCurrent( window );
+        glfwGetFramebufferSize( window, &( size.width ), &( size.height ) );
+        glfwSetFramebufferSizeCallback( window, frame_buffer_size_callback );
+        windows.emplace_back( window, this );
+        update_surface( );
     }
 
     Window::~Window( )
     {
-        if ( native_window )
-            native_window->close( );
     }
 
     auto Window::show( ) -> void
     {
-        native_window->show( );
     }
 
     auto Window::hide( ) -> void
     {
-        native_window->hide( );
     }
 
     auto Window::close( ) -> void
     {
-        native_window->close( );
+        glfwDestroyWindow( window );
+        glfwTerminate( );
     }
 
-    auto Window::initialize_execute_platform_loop( std::atomic_bool &initialized ) -> void
+    auto Window::update_surface( ) -> void
     {
-        native_window = make_native_window( position, size, flags );
-
-        auto t = std::thread( &Window::create_gcontext_execute_render_loop, this, std::ref( initialized ) );
-        render_thread.swap( t );
-
-        std::unique_lock lock{ mutex };
-        conditional_var.wait( lock, [ & ] { return initialized.load( ); } );
-        lock.release( );
-
-        native_window.reset( );
+        info = SkImageInfo::Make( size.width, size.height, SkColorType::kRGBA_8888_SkColorType,
+                                  SkAlphaType::kPremul_SkAlphaType );
+        surface = SkSurface::MakeRaster( info );
+        canvas = surface->getCanvas( );
+        canvas->translate( 0.0f, size.height );
+        canvas->scale( 1.0f, -1.0f );
     }
 
-    auto Window::create_gcontext_execute_render_loop( std::atomic_bool &initialized ) -> void
-    {
-        if ( has_flag( flags, WindowFlags::OpenGL ) )
-        {
-            show( );
-            const auto &native_visual = native_window->get_native_visual( );
-            native_visual.make_current( );
-            context = std::make_unique<OpenGlContext>( native_visual.get_gl_function( ) );
-        }
-
-        {
-            std::unique_lock lock{ mutex };
-        }
-        initialized = true;
-
-        conditional_var.notify_all( );
-
-        while ( true )
-        {
-        }
-
-        context.reset( );
-    }
 } // namespace vrock::ui

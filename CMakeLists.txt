@@ -12,6 +12,8 @@ option(VROCKLIBS_SECURITY "Build the security module of vrock.lib" OFF)
 option(VROCKLIBS_UI "Build the ui module of vrock.lib" OFF)
 option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 
+option(VROCKLIBS_WASM "Build wasm" ON)
+
 add_subdirectory(external)
 
 if (${VROCKLIBS_TESTS})

@@ -4,3 +4,6 @@
 [submodule "external/icu"]
 	path = external/icu
 	url = https://github.com/viaduck/icu-cmake.git
+[submodule "external/glfw"]
+	path = external/glfw
+	url = https://github.com/glfw/glfw.git
