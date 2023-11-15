@@ -6,6 +6,8 @@
 
 namespace vrock::pdf
 {
+    PDFBaseObject::~PDFBaseObject( ) = default;
+
     PDFBaseObject::PDFBaseObject( PDFObjectType t ) : type( t )
     {
     }
@@ -94,7 +96,7 @@ namespace vrock::pdf
             return nullptr;
         if ( resolve && value[ idx ]->type == PDFObjectType::IndirectObject )
         {
-            auto ref = value[ idx ]->as<PDFRef>( );
+            auto ref = value[ idx ]->to<PDFRef>( );
             return context->get_object( ref );
         }
         return value[ idx ];
@@ -229,11 +231,11 @@ namespace vrock::pdf
     auto PDFDictionary::get( const std::string &k, bool resolve ) -> std::shared_ptr<PDFBaseObject>
     {
         auto key = std::make_shared<PDFName>( k );
-        if ( dict.find( key ) == dict.end( ) )
+        if ( !dict.contains( key ) )
             return nullptr;
         if ( resolve && dict[ key ]->type == PDFObjectType::IndirectObject )
         {
-            auto ref = dict[ key ]->as<PDFRef>( );
+            auto ref = dict[ key ]->to<PDFRef>( );
             return context->get_object( ref );
         }
         return dict[ key ];

@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -58,6 +59,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFBaseObject( PDFObjectType t );
+        virtual ~PDFBaseObject( ) = 0;
 
         OPTNONE_START bool is( PDFObjectType t )
         {
@@ -93,6 +95,7 @@ namespace vrock::pdf
     {
     public:
         PDFRef( uint32_t obj_num, uint32_t gen_num, uint8_t type );
+        ~PDFRef( ) override = default;
 
         bool operator==( const PDFRef &rhs ) const;
 
@@ -119,6 +122,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFName( std::string n, bool parse = false );
+        ~PDFName( ) override = default;
 
         bool operator==( const PDFName &rhs ) const;
 
@@ -142,6 +146,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFBool( bool b );
+        ~PDFBool( ) override = default;
 
         bool value;
     };
@@ -150,6 +155,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFArray( std::shared_ptr<PDFContext> ctx, std::vector<std::shared_ptr<PDFBaseObject>> v = { } );
+        ~PDFArray( ) override = default;
 
         auto get( std::size_t idx, bool resolve = true ) -> std::shared_ptr<PDFBaseObject>;
 
@@ -170,12 +176,14 @@ namespace vrock::pdf
     {
     public:
         PDFNull( );
+        ~PDFNull( ) override = default;
     };
 
     class PDFNumber : public PDFBaseObject
     {
     public:
         PDFNumber( );
+        ~PDFNumber( ) override = default;
 
         virtual auto as_int( ) -> std::int32_t = 0;
         virtual auto as_double( ) -> double = 0;
@@ -185,6 +193,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFInteger( std::int32_t v = 0 );
+        ~PDFInteger( ) override = default;
 
         auto as_int( ) -> std::int32_t final;
         auto as_double( ) -> double final;
@@ -196,6 +205,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFReal( double v = 0.0 );
+        ~PDFReal( ) override = default;
 
         auto as_int( ) -> std::int32_t final;
         auto as_double( ) -> double final;
@@ -207,6 +217,7 @@ namespace vrock::pdf
     {
     public:
         PDFString( );
+        ~PDFString( ) override = default;
 
         virtual auto get_string( ) -> std::string;
         virtual auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>>;
@@ -218,6 +229,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFByteString( std::shared_ptr<utils::ByteArray<>> d = nullptr );
+        ~PDFByteString( ) override = default;
 
         auto get_string( ) -> std::string override;
         auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>> override;
@@ -232,6 +244,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFTextString( std::string s );
+        ~PDFTextString( ) override = default;
 
         auto get_string( ) -> std::string override;
         auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>> override;
@@ -249,6 +262,7 @@ namespace vrock::pdf
     {
     public:
         explicit PDFUTF8String( const std::string &s );
+        ~PDFUTF8String( ) override = default;
 
         auto convert_from( const std::string &str ) -> std::string final;
     };
@@ -260,6 +274,7 @@ namespace vrock::pdf
                                 std::unordered_map<std::shared_ptr<PDFName>, std::shared_ptr<PDFBaseObject>,
                                                    PDFNamePtrHash, PDFNamePtrEqual>
                                     d = { } );
+        ~PDFDictionary( ) override = default;
 
         auto get( const std::string &k, bool resolve = true ) -> std::shared_ptr<PDFBaseObject>;
 

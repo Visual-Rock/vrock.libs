@@ -16,6 +16,7 @@ target_sources(vrockpdf
 
         src/structure/Colorspaces.cpp
         src/structure/Font.cpp
+        src/structure/Functions.cpp
         src/structure/PDFContext.cpp
         src/structure/PDFDataStructures.cpp
         src/structure/PDFEncryption.cpp

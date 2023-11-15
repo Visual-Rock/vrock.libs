@@ -100,29 +100,29 @@ TEST( ParseRefOrNumber, BasicAssertions )
     PDFObjectParser parser( "-13 37.25 555 12 0 R 11 0 obj" );
     auto num1 = parser.parse_number_or_reference( );
     EXPECT_EQ( num1->type, PDFObjectType::Number );
-    EXPECT_EQ( num1->as<PDFNumber>( )->as_int( ), -13 );
+    EXPECT_EQ( num1->to<PDFNumber>( )->as_int( ), -13 );
 
     parser.skip_comments_and_whitespaces( );
     auto num2 = parser.parse_number_or_reference( );
     EXPECT_EQ( num2->type, PDFObjectType::Number );
-    EXPECT_EQ( num2->as<PDFNumber>( )->as_double( ), 37.25 );
+    EXPECT_EQ( num2->to<PDFNumber>( )->as_double( ), 37.25 );
 
     parser.skip_comments_and_whitespaces( );
     auto num3 = parser.parse_number_or_reference( );
     EXPECT_EQ( num3->type, PDFObjectType::Number );
-    EXPECT_EQ( num3->as<PDFNumber>( )->as_int( ), 555 );
+    EXPECT_EQ( num3->to<PDFNumber>( )->as_int( ), 555 );
 
     parser.skip_comments_and_whitespaces( );
     auto ref = parser.parse_number_or_reference( );
     EXPECT_EQ( ref->type, PDFObjectType::IndirectObject );
-    EXPECT_EQ( ref->as<PDFRef>( )->object_number, 12 );
-    EXPECT_EQ( ref->as<PDFRef>( )->generation_number, 0 );
+    EXPECT_EQ( ref->to<PDFRef>( )->object_number, 12 );
+    EXPECT_EQ( ref->to<PDFRef>( )->generation_number, 0 );
 
     parser.skip_comments_and_whitespaces( );
     auto ref1 = parser.parse_number_or_reference( );
     EXPECT_EQ( ref1->type, PDFObjectType::IndirectObject );
-    EXPECT_EQ( ref1->as<PDFRef>( )->object_number, 11 );
-    EXPECT_EQ( ref1->as<PDFRef>( )->generation_number, 0 );
+    EXPECT_EQ( ref1->to<PDFRef>( )->object_number, 11 );
+    EXPECT_EQ( ref1->to<PDFRef>( )->generation_number, 0 );
 }
 
 TEST( ParseDictionaryOrStream, BasicAssertions )
@@ -131,21 +131,21 @@ TEST( ParseDictionaryOrStream, BasicAssertions )
         PDFObjectParser parser( "<</Length 4>>stream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->as<PDFStream>( )->data->to_string( ), "Test" );
+        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
     }
     {
         PDFObjectParser parser( "<<>>\nstream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->as<PDFStream>( )->data->to_string( ), "Test" );
+        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
     }
     {
         PDFObjectParser parser( "<</Length 5/Test /Test /Active true>>" );
         auto dict = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( dict->type, PDFObjectType::Dictionary );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFInteger>( "Length" )->value, 5 );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFName>( "Test" )->name, "Test" );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFBool>( "Active" )->value, true );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFInteger>( "Length" )->value, 5 );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFName>( "Test" )->name, "Test" );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFBool>( "Active" )->value, true );
     }
 }
 
