@@ -1,4 +1,5 @@
 find_package(unofficial-skia CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(glfw3 REQUIRED)
 
 add_library(vrockui
@@ -17,4 +18,4 @@ message("emscript: " $ENV{EMSDK})
 if ()
 endif ()
 
-target_link_libraries(vrockui PUBLIC unofficial::skia::skia glfw)
+target_link_libraries(vrockui PUBLIC unofficial::skia::skia glfw glad::glad vrockutils)

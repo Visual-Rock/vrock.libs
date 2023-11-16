@@ -1,0 +1,11 @@
+// #include "vrock/ui/Application.hpp"
+//
+// int main( )
+// {
+//     vrock::ui::ApplicationSettings settings;
+//     settings.window.size = { 800, 600 };
+//     settings.window.title = "Test";
+//
+//     auto app = std::make_unique<vrock::ui::Application>( settings );
+//     app->run( );
+// }
