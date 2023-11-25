@@ -2,20 +2,33 @@
 
 namespace vrock::pdf
 {
-    Function::Function( std::shared_ptr<PDFDictionary> dict ) : dict( std::move( dict ) )
+    Function::Function( std::shared_ptr<PDFDictionary> _dict ) : dict( std::move( _dict ) )
     {
         if ( auto t = dict->get<PDFNumber>( "FunctionType" ) )
             type = static_cast<FunctionType>( t->as_int( ) );
+
         // Domain
         if ( auto d = dict->get<PDFArray>( "Domain" ) )
-            for ( auto &e : d->value )
-                if ( auto n = e->to<PDFNumber>( ) )
-                    domain.push_back( n );
+        {
+            m = d->value.size( ) / 2;
+            for ( int i = 0; i < m; ++i )
+            {
+                domain.emplace_back( );
+                if ( auto num1 = d->get<PDFNumber>( 2 * i ) )
+                    domain[ i ][ 0 ] = num1->as_double( );
+                if ( auto num2 = d->get<PDFNumber>( 2 * i + 1 ) )
+                    domain[ i ][ 1 ] = num2->as_double( );
+                std::cout << domain[ i ][ 0 ] << " " << domain[ i ][ 1 ] << std::endl;
+            }
+        }
+        //            for ( auto &e : d->value )
+        //                if ( auto n = e->to<PDFNumber>( ) )
+        //                    domain.push_back( n );
         // Range
-        if ( auto d = dict->get<PDFArray>( "Range" ) )
-            for ( auto &e : d->value )
-                if ( auto n = e->to<PDFNumber>( ) )
-                    domain.push_back( n );
+        //        if ( auto d = dict->get<PDFArray>( "Range" ) )
+        //            for ( auto &e : d->value )
+        //                if ( auto n = e->to<PDFNumber>( ) )
+        //                    domain.push_back( n );
     }
 
     SampledFunction::SampledFunction( std::shared_ptr<PDFStream> stream ) : Function( stream->dict )

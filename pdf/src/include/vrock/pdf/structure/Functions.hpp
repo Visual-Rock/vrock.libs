@@ -6,6 +6,7 @@ namespace vrock::pdf
 {
     enum class FunctionType : std::int32_t
     {
+        Identity = -1,
         Sampled = 0,
         ExponentialInterpolation = 2,
         Stitching = 3,
@@ -18,7 +19,12 @@ namespace vrock::pdf
         explicit Function( std::shared_ptr<PDFDictionary> dict );
 
         FunctionType type;
-        std::vector<std::shared_ptr<PDFNumber>> domain;
+
+    private:
+        int32_t m;
+        std::vector<std::array<double, 2>> domain = { };
+
+        //        std::vector<std::shared_ptr<PDFNumber>> domain;
         std::vector<std::shared_ptr<PDFNumber>> range;
 
         std::shared_ptr<PDFDictionary> dict;

@@ -91,44 +91,44 @@ namespace vrock::pdf
     RGBColorSpace::RGBColorSpace( ) : ColorSpace( ColorSpaceType::RGB )
     {
     }
+    //
+    //    auto RGBColorSpace::convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
+    //        -> std::shared_ptr<utils::ByteArray<>>
+    //    {
+    //        return data;
+    //    }
+    //
+    //    auto RGBColorSpace::convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> data,
+    //                                         std::shared_ptr<PDFBaseObject> sharedPtr )
+    //        -> std::shared_ptr<utils::ByteArray<>>
+    //    {
+    //        auto processed = std::make_shared<utils::ByteArray<>>( ( data->size( ) / 3 ) * 4 * sizeof( CMYKFloat ) );
+    //
+    //        CMYKFloat r, g, b, k;
+    //        std::size_t rgb = 0, cmyk = 0;
+    //        for ( int i = 0; i < data->size( ) / 3; ++i )
+    //        {
+    //            rgb = i * 3;
+    //            cmyk = i * 4 * sizeof( CMYKFloat );
+    //
+    //            r = (CMYKFloat)data->at( rgb ) / 255;
+    //            g = (CMYKFloat)data->at( rgb + 1 ) / 255;
+    //            b = (CMYKFloat)data->at( rgb + 2 ) / 255;
+    //
+    //            k = std::max( { r, g, b } );
+    //
+    //            processed->at( cmyk ) = ( 1.0f - r - k ) / ( 1 - k );
+    //        }
+    //
+    //        return std::shared_ptr<utils::ByteArray<>>( );
+    //    }
 
-    auto RGBColorSpace::convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
-        -> std::shared_ptr<utils::ByteArray<>>
-    {
-        return data;
-    }
-
-    auto RGBColorSpace::convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> data,
-                                         std::shared_ptr<PDFBaseObject> sharedPtr )
-        -> std::shared_ptr<utils::ByteArray<>>
-    {
-        auto processed = std::make_shared<utils::ByteArray<>>( ( data->size( ) / 3 ) * 4 * sizeof( CMYKFloat ) );
-
-        CMYKFloat r, g, b, k;
-        std::size_t rgb = 0, cmyk = 0;
-        for ( int i = 0; i < data->size( ) / 3; ++i )
-        {
-            rgb = i * 3;
-            cmyk = i * 4 * sizeof( CMYKFloat );
-
-            r = (CMYKFloat)data->at( rgb ) / 255;
-            g = (CMYKFloat)data->at( rgb + 1 ) / 255;
-            b = (CMYKFloat)data->at( rgb + 2 ) / 255;
-
-            k = std::max( { r, g, b } );
-
-            processed->at( cmyk ) = ( 1.0f - r - k ) / ( 1 - k );
-        }
-
-        return std::shared_ptr<utils::ByteArray<>>( );
-    }
-
-    auto RGBColorSpace::convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr,
-                                         std::shared_ptr<PDFBaseObject> sharedPtr )
-        -> std::shared_ptr<utils::ByteArray<>>
-    {
-        return std::shared_ptr<utils::ByteArray<>>( );
-    }
+    //    auto RGBColorSpace::convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr,
+    //                                         std::shared_ptr<PDFBaseObject> sharedPtr )
+    //        -> std::shared_ptr<utils::ByteArray<>>
+    //    {
+    //        return std::shared_ptr<utils::ByteArray<>>( );
+    //    }
 
     GrayColorSpace::GrayColorSpace( ) : ColorSpace( ColorSpaceType::Gray )
     {
