@@ -20,12 +20,10 @@ namespace vrock::pdf
 
         FunctionType type;
 
-    private:
-        int32_t m;
-        std::vector<std::array<double, 2>> domain = { };
-
-        //        std::vector<std::shared_ptr<PDFNumber>> domain;
-        std::vector<std::shared_ptr<PDFNumber>> range;
+    protected:
+        std::int32_t m, n;
+        std::vector<std::pair<double, double>> domain = { };
+        std::vector<std::pair<double, double>> range = { };
 
         std::shared_ptr<PDFDictionary> dict;
     };
@@ -38,7 +36,14 @@ namespace vrock::pdf
 
         auto sample( std::vector<float> numbers ) -> std::vector<float>;
 
+    private:
         std::vector<std::int32_t> size = { };
+        std::vector<std::int32_t> offsets = { };
+        std::int32_t bits_per_sample = 8;
+
+        std::vector<std::pair<double, double>> encode = { };
+        std::vector<double> input_multipliers = { };
+        std::vector<std::pair<double, double>> decode = { };
     };
 
     auto make_function( std::shared_ptr<PDFBaseObject> object ) -> std::shared_ptr<Function>;

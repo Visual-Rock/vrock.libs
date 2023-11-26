@@ -11,32 +11,107 @@ namespace vrock::pdf
         if ( auto d = dict->get<PDFArray>( "Domain" ) )
         {
             m = d->value.size( ) / 2;
+            domain.resize( m );
             for ( int i = 0; i < m; ++i )
             {
-                domain.emplace_back( );
                 if ( auto num1 = d->get<PDFNumber>( 2 * i ) )
-                    domain[ i ][ 0 ] = num1->as_double( );
+                    domain[ i ].first = num1->as_double( );
                 if ( auto num2 = d->get<PDFNumber>( 2 * i + 1 ) )
-                    domain[ i ][ 1 ] = num2->as_double( );
-                std::cout << domain[ i ][ 0 ] << " " << domain[ i ][ 1 ] << std::endl;
+                    domain[ i ].second = num2->as_double( );
             }
         }
-        //            for ( auto &e : d->value )
-        //                if ( auto n = e->to<PDFNumber>( ) )
-        //                    domain.push_back( n );
+
         // Range
-        //        if ( auto d = dict->get<PDFArray>( "Range" ) )
-        //            for ( auto &e : d->value )
-        //                if ( auto n = e->to<PDFNumber>( ) )
-        //                    domain.push_back( n );
+        if ( auto r = dict->get<PDFArray>( "Range" ) )
+        {
+            n = r->value.size( ) / 2;
+            for ( int i = 0; i < n; ++i )
+            {
+                range.emplace_back( );
+                if ( auto num1 = r->get<PDFNumber>( 2 * i ) )
+                    domain[ i ].first = num1->as_double( );
+                if ( auto num2 = r->get<PDFNumber>( 2 * i + 1 ) )
+                    domain[ i ].second = num2->as_double( );
+            }
+        }
     }
 
     SampledFunction::SampledFunction( std::shared_ptr<PDFStream> stream ) : Function( stream->dict )
     {
+        // Size
         if ( auto size_arr = stream->dict->get<PDFArray>( "Size" ) )
             for ( auto &e : size_arr->value )
                 if ( auto num = e->to<PDFNumber>( ) )
                     size.emplace_back( num->as_int( ) );
+
+        // Offsets
+        offsets.reserve( 1 << m );
+        std::int32_t idx, bit, j, t;
+        for ( int i = 0; i < ( 1 << m ); ++i )
+        {
+            idx = 0;
+            for ( j = m - 1, t = i; j >= 1; --j, j <<= 1 )
+            {
+                if ( size[ j ] == 1 )
+                    bit = 0;
+                else
+                    bit = ( t >> ( m - 1 ) ) & 1;
+                idx = ( idx + bit ) * size[ j - 1 ];
+            }
+            if ( m > 0 && size[ 0 ] == 1 )
+                bit = 0;
+            else
+                bit = ( t >> ( m - 1 ) ) & 1;
+            offsets[ i ] = ( idx + bit ) * n;
+        }
+
+        // BitsPerSample
+        if ( auto bps = stream->dict->get<PDFNumber>( "BitsPerSample" ) )
+            bits_per_sample = bps->as_int( );
+
+        // Encode
+        if ( auto e = dict->get<PDFArray>( "Encode" ) )
+        {
+            encode.resize( m );
+            for ( int i = 0; i < m; ++i )
+            {
+                if ( auto num1 = e->get<PDFNumber>( 2 * i ) )
+                    encode[ i ].first = num1->as_double( );
+                if ( auto num2 = e->get<PDFNumber>( 2 * i + 1 ) )
+                    encode[ i ].second = num2->as_double( );
+            }
+        }
+        else
+        {
+            encode.resize( m );
+            for ( int i = 0; i < m; ++i )
+            {
+                encode[ i ].first = 0.0;
+                encode[ i ].second = size[ i ] - 1;
+            }
+        }
+
+        // input multipliers
+        input_multipliers.resize( m, 0.0 );
+        for ( int i = 0; i < m; ++i )
+            input_multipliers[ i ] =
+                ( encode[ i ].second - encode[ i ].first ) / ( domain[ i ].second - domain[ i ].first );
+
+        // Decode
+        if ( auto d = dict->get<PDFArray>( "Decode" ) )
+        {
+            decode.resize( n );
+            for ( int i = 0; i < n; ++i )
+            {
+                if ( auto num1 = d->get<PDFNumber>( 2 * i ) )
+                    decode[ i ].first = num1->as_double( );
+                if ( auto num2 = d->get<PDFNumber>( 2 * i + 1 ) )
+                    decode[ i ].second = num2->as_double( );
+            }
+        }
+        else
+            for ( int i = 0; i < n; ++i )
+                decode[ i ] = range[ i ];
     }
 
     auto SampledFunction::sample( std::vector<float> numbers ) -> std::vector<float>
