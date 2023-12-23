@@ -9,9 +9,15 @@
   }, {
     "name" : "skia",
     "version>=" : "0.36.0#9",
-    "features" : [ ]
+    "features" : [ "default-features" ]
   }, {
     "name" : "glad",
     "version>=" : "0.1.36"
+  }, {
+    "name" : "opengl-registry",
+    "version>=" : "2022-09-29#1"
+  }, {
+    "name" : "zlib",
+    "version>=" : "1.3"
   } ]
 }

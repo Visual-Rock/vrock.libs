@@ -8,10 +8,13 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 
 #include <vrock/utils/Timer.hpp>
@@ -28,10 +31,16 @@ void error_callback( int error, const char *description )
 GrDirectContext *grDirectContext = nullptr;
 SkSurface *skSurface = nullptr;
 
+auto fn( void *, const char *p ) -> GrGLFuncPtr
+{
+    return glfwGetProcAddress( p );
+}
+
 void init_Skia( int width, int height )
 {
-    auto interface = GrGLMakeNativeInterface( );
-    grDirectContext = GrDirectContext::MakeGL( interface ).release( );
+    // auto interface = GrGLMakeAssembledInterface( nullptr, &fn );
+
+    grDirectContext = GrDirectContext::MakeGL( ).release( );
     GrGLFramebufferInfo framebufferInfo;
     framebufferInfo.fFBOID = 0;
     framebufferInfo.fFormat = GL_RGBA8;
@@ -99,16 +108,17 @@ int main( )
             p.setStyle( SkPaint::kStroke_Style );
             p.setStrokeWidth( 10 );
 
-            for ( int r = 0; r <= 255; r += 10 )
+            for ( int r = 0; r <= 15000; r++ )
             {
-                for ( int g = 0; g <= 255; g += 10 )
-                {
-                    for ( int b = 0; b <= 255; b += 10 )
-                    {
-                        p.setColor( SkColorSetRGB( r, g, b ) );
-                        canvas->drawRect( SkRect::MakeXYWH( r, g, b, 1 ), p );
-                    }
-                }
+                p.setColor( SkColorSetRGB( 255, 0, 255 ) );
+                SkVector corners[] = { { 15, 17 }, { 17, 19 }, { 19, 15 }, { 15, 15 } };
+                SkRRect rect = SkRRect::MakeRect( SkRect::MakeWH( 100, 50 ) );
+                rect.setRectRadii( SkRect::MakeWH( 100, 50 ), corners );
+                SkPaint paint;
+                auto col = SkColors::kCyan;
+                paint.setColor( col );
+                canvas->drawRRect( rect, paint );
+                // canvas->drawRect( SkRect::MakeXYWH( r, g, b, 1 ), p );
             }
         }
 
