@@ -15,6 +15,13 @@ Welcome to vrock.libs's documentation!
 
 .. toctree::
     :maxdepth: 2
+    :caption: Examples:
+    :glob:
+
+    examples/*
+
+.. toctree::
+    :maxdepth: 2
     :caption: API:
     :glob:
 

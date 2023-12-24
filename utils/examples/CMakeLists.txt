@@ -6,3 +6,6 @@ target_link_libraries(example_Coroutines PRIVATE vrockutils)
 
 add_executable(example_Lazy example_Lazy.cpp)
 target_link_libraries(example_Lazy PRIVATE vrockutils)
+
+add_executable(example_Timer example_Timer.cpp)
+target_link_libraries(example_Timer PRIVATE vrockutils)

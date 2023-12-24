@@ -3,5 +3,6 @@
 ByteArray
 =========
 
-.. doxygenfile:: ByteArray.hpp
+.. doxygenclass:: vrock::utils::ByteArray
     :project: vrock.libs
+    :allow-dot-graphs:

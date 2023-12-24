@@ -3,5 +3,5 @@
 Timer
 =========
 
-.. doxygenfile:: Timer.hpp
+.. doxygenclass:: vrock::utils::Timer
     :project: vrock.libs
