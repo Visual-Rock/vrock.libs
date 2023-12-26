@@ -14,7 +14,7 @@ The :ref:`Timer<api_utils_timer>` class utilizes the **<chrono>** library in C++
 This example demonstrates the usage of the :ref:`Timer<api_utils_timer>` class by measuring the time it takes to perform simulated computational work at two distinct intervals within the program.
 
 .. code-block:: c++
-    :caption: using the Timer class
+    :caption: using the :ref:`Timer<api_utils_timer>` class
 
     #include <iostream>
     #include <thread>

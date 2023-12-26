@@ -47,7 +47,7 @@ namespace vrock::utils
      * @class ScopedTimer
      *
      * `ScopedTimer` is a class to measure time in a scope. it executes a given predicate on destruction
-     * @tparam T resolution of the timer. default is milliseconds
+     * @tparam T resolution of the timer. defaults to milliseconds
      */
     template <class T = std::chrono::milliseconds>
     class ScopedTimer
