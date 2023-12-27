@@ -1,7 +1,7 @@
 .. _api_utils_future_helper:
 
 Future Helper
-=========
+=============
 
 .. note::
     every future_\* has two signatures one for std::future and one for std::shared_future

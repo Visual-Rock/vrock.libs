@@ -9,6 +9,11 @@ function, `async_function`, which returns a :ref:`Task\<int\><api_utils_task>`. 
 `print_result_async`, awaits the result of `async_function` and prints the value.
 The main function awaits the task.
 
+.. note::
+    it is recommended to use the :ref:`await<api_utils_coroutine_helper>` and
+    :ref:`when_all<api_utils_coroutine_helper>` methods.
+    for more information look at the coroutine example in the utils example folder
+
 .. code-block:: c++
     :caption: using the :ref:`Task<api_utils_task>` class
 

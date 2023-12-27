@@ -1,5 +1,7 @@
 #include <vrock/utils.hpp>
 
+#include <coroutine>
+
 #include <gtest/gtest.h>
 
 using namespace vrock::utils;

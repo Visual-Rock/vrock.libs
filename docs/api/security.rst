@@ -1,7 +1,7 @@
 .. _api_security::
 
-Security
-=====
+security
+========
 
 .. toctree::
     :maxdepth: 2

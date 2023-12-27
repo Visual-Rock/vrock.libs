@@ -149,30 +149,68 @@ namespace vrock::utils
         coroutine_handle _coroutine{ nullptr };
     };
 
+    /**
+     * @brief A generator class template that represents a coroutine-based generator.
+     *
+     * @tparam T The type of values produced by the generator.
+     */
     template <typename T>
     class Generator
     {
     public:
+        /**
+         * @brief The promise type associated with the generator.
+         */
         using promise_type = GeneratorPromise<T>;
+
+        /**
+         * @brief Iterator type for the generator.
+         */
         using iterator = GeneratorIterator<T>;
+
+        /**
+         * @brief Sentinel type for the generator.
+         */
         using sentinel = GeneratorSentinel;
 
+        /**
+         * @brief Default constructor for the generator.
+         */
         Generator( ) noexcept : _coroutine( nullptr )
         {
         }
 
+        /**
+         * @brief Deleted copy constructor to prevent copying of generators.
+         */
         Generator( const Generator & ) = delete;
+
+        /**
+         * @brief Move constructor for the generator.
+         *
+         * @param other The generator to be moved.
+         */
         Generator( Generator &&other ) noexcept : _coroutine( other._coroutine )
         {
             other._coroutine = nullptr;
         }
 
+        /**
+         * @brief Destructor for the generator.
+         * Destroys the coroutine if it is still active.
+         */
         ~Generator( )
         {
             if ( _coroutine )
                 _coroutine.destroy( );
         }
 
+        /**
+         * @brief Retrieves the iterator pointing to the beginning of the generator sequence.
+         * Resumes the coroutine if not done and rethrows any exceptions if present.
+         *
+         * @return An iterator representing the beginning of the generator sequence.
+         */
         auto begin( ) -> iterator
         {
             if ( _coroutine != nullptr )
@@ -184,12 +222,27 @@ namespace vrock::utils
             return iterator{ _coroutine };
         }
 
+        /**
+         * @brief Retrieves the sentinel representing the end of the generator sequence.
+         *
+         * @return A sentinel representing the end of the generator sequence.
+         */
         auto end( ) noexcept -> sentinel
         {
             return sentinel{ };
         }
 
+        /**
+         * @brief Deleted copy assignment operator to prevent copying of generators.
+         */
         auto operator=( const Generator & ) = delete;
+
+        /**
+         * @brief Move assignment operator for the generator.
+         *
+         * @param other The generator to be moved.
+         * @return A reference to the moved generator.
+         */
         auto operator=( Generator &&other ) noexcept -> Generator &
         {
             _coroutine = other._coroutine;
@@ -201,10 +254,18 @@ namespace vrock::utils
     private:
         friend class GeneratorPromise<T>;
 
+        /**
+         * @brief Private constructor used to create a generator from a coroutine handle.
+         *
+         * @param coroutine The coroutine handle associated with the generator.
+         */
         explicit Generator( std::coroutine_handle<promise_type> coroutine ) noexcept : _coroutine( coroutine )
         {
         }
 
+        /**
+         * @brief The coroutine handle associated with the generator.
+         */
         std::coroutine_handle<promise_type> _coroutine;
     };
 

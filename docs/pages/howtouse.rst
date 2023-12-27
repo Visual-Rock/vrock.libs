@@ -1,5 +1,5 @@
 How to use
-=======================================
+==========
 
 vrock libs use the cmake system so integrating it into your cmake project is fairly easy.
 you can add it as submodule.

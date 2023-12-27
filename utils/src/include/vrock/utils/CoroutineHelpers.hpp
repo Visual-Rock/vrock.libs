@@ -337,6 +337,13 @@ namespace vrock::utils
         }
     }
 
+    /**
+     * @brief A waiting function for awaitable objects.
+     *
+     * @tparam AwaitableType The type of the awaitable object.
+     * @param a The awaitable object to wait for.
+     * @return The result of the awaitable task.
+     */
     template <Awaitable AwaitableType>
     auto await( AwaitableType &&a ) -> decltype( auto )
     {
@@ -860,6 +867,14 @@ namespace vrock::utils
     template <Awaitable Awaitable, typename ReturnType = typename awaitable_traits<Awaitable &&>::awaiter_return_type>
     auto make_when_all_task( Awaitable a ) -> WhenAllTask<ReturnType>;
 
+    /**
+     * @brief Combines multiple awaitable objects into a single awaitable representing the completion
+     * of all the provided awaitables.
+     *
+     * @tparam AwaitablesType Variadic template representing the types of awaitable objects.
+     * @param awaitables The awaitable objects to be combined.
+     * @return An awaitable representing the completion of all provided awaitables.
+     */
     template <Awaitable... AwaitablesType>
     [[nodiscard]] auto when_all( AwaitablesType... awaitables )
     {
@@ -868,6 +883,16 @@ namespace vrock::utils
             std::make_tuple( make_when_all_task( std::move( awaitables ) )... ) );
     }
 
+    /**
+     * @brief Combines awaitable objects from a range into a single awaitable representing the completion
+     * of all the provided awaitables.
+     *
+     * @tparam RangeType The type of the range containing awaitable objects.
+     * @tparam AwaitableType The type of the awaitable object (deduced from RangeType).
+     * @tparam ReturnType The type of the awaiter's return value from awaitable_traits.
+     * @param awaitables The range of awaitable objects to be combined.
+     * @return An awaitable representing the completion of all provided awaitables.
+     */
     template <std::ranges::range RangeType, Awaitable AwaitableType = std::ranges::range_value_t<RangeType>,
               typename ReturnType = typename awaitable_traits<AwaitableType>::awaiter_return_type>
     [[nodiscard]] auto when_all( RangeType awaitables ) -> WhenAllReadyAwaitable<std::vector<WhenAllTask<ReturnType>>>
