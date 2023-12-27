@@ -90,7 +90,7 @@ TEST( DecryptUserOwner, BasicAssertions )
     }
 }
 
-TEST( DecryptÜserÖwner, BasicAssertions )
+TEST( DecryptUeserOewner, BasicAssertions )
 {
     auto doc = PDFDocument( "pdfs/Encrypted/üser_öwner.pdf" );
     auto sec = doc.decryption_handler->to<PDFStandardSecurityHandler>( );
