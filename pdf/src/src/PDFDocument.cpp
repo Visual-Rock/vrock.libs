@@ -25,6 +25,7 @@ namespace vrock::pdf
         // else if ( auto node = kid->to<PageTreeNode>( ) )
         //     get_pages_( node, pages );
         // return pages;
+        return { };
     }
 
     PDFDocument::PDFDocument( std::string path ) : file_path( std::move( path ) )

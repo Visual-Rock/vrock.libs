@@ -86,6 +86,7 @@ namespace vrock::pdf
         else
         {
         }
+        return CMYKf{ };
     }
 
     RGBColorSpace::RGBColorSpace( ) : ColorSpace( ColorSpaceType::RGB )
