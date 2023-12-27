@@ -18,13 +18,14 @@ to your Binary
 
     target_link_libraries(TARGET PUBLIC vrockutils)
 
-vrock.libs use C++20 Modules. To use the ByteArray for do the following:
+To include the :ref:`Timer<api_utils_timer>` class do the following
 
 .. code-block:: c++
     :caption: adding ByteArray module
 
-    import vrock.utils.ByteArray;
+    #include <vrock/utils.hpp>
 
-    int main( ) {
-        auto array = vrock::utils::ByteArray( "Test" );
+    int main( )
+    {
+        auto array = vrock::utils::Timer( );
     }

@@ -37,6 +37,13 @@ namespace vrock::utils
     }
     /*! \endcond */
 
+    /**
+     * @class List
+     *
+     * @brief LINQ impl. for C++
+     *
+     * @deprecated use the ranges library instead
+     */
     template <class T, typename Alloc = std::allocator<T>>
     class List : public std::vector<T, Alloc>
     {

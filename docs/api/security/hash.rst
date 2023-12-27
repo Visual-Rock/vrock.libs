@@ -1,7 +1,7 @@
 .. _api_security_hash:
 
 Hash
-=========
+====
 
-.. doxygenfile:: hash.ixx
+.. doxygenfile:: hash.hpp
     :project: vrock.libs
