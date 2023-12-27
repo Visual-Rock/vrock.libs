@@ -21,7 +21,7 @@ namespace vrock::utils
         }
 
         /**
-         * @brief resets the intrnal timer
+         * @brief resets the internal timer
          */
         auto reset( ) -> void
         {
