@@ -28,7 +28,7 @@ namespace vrock::pdf
     {
         static_assert( "unknown conversion from type" );
     }
-    
+
     class RenderableObject : public std::enable_shared_from_this<RenderableObject>
     {
     public:
@@ -38,9 +38,9 @@ namespace vrock::pdf
         {
             if ( this == nullptr )
                 return false;
-            OPTNONE_END
             return t == type;
         }
+        OPTNONE_END
 
         template <class T>
             requires std::is_base_of_v<RenderableObject, T>
@@ -48,9 +48,9 @@ namespace vrock::pdf
         {
             if ( this == nullptr )
                 return nullptr;
-            OPTNONE_END
             return std::static_pointer_cast<T>( shared_from_this( ) );
         }
+        OPTNONE_END
 
         template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>

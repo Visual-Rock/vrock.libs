@@ -66,8 +66,8 @@ namespace vrock::pdf
             if ( this == nullptr )
                 return false;
             return t == type;
-            OPTNONE_END
         }
+        OPTNONE_END
 
         template <class T>
             requires std::is_base_of_v<PDFBaseObject, T>
@@ -76,8 +76,8 @@ namespace vrock::pdf
             if ( this == nullptr )
                 return nullptr;
             return std::static_pointer_cast<T>( shared_from_this( ) );
-            OPTNONE_END
         }
+        OPTNONE_END
 
         template <typename T>
             requires std::is_base_of_v<PDFBaseObject, T>

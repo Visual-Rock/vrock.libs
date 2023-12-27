@@ -34,7 +34,7 @@ namespace vrock::pdf
         auto get_file_name( ) -> std::string
         {
             std::filesystem::path p( file_path );
-            return p.filename( );
+            return p.filename( ).generic_string( );
         }
 
         auto get_page( std::size_t idx ) -> std::shared_ptr<Page>
