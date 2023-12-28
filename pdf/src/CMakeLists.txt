@@ -41,4 +41,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 target_link_libraries(vrockpdf PUBLIC vrockutils)
-target_link_libraries(vrockpdf PRIVATE vrocksecurity icu ZLIB::ZLIB stb_image)
+target_link_libraries(vrockpdf PRIVATE vrocksecurity ZLIB::ZLIB stb_image)
+
+if (WIN32)
+    find_package(ICU COMPONENTS uc REQUIRED)
+    target_link_libraries(vrockpdf PRIVATE ICU::uc)
+else()
+    target_link_libraries(vrockpdf PRIVATE icu)
+endif()
