@@ -27,6 +27,10 @@ endif ()
 
 add_subdirectory(utils) # utils is always included
 
+if (${VROCKLIBS_LOG})
+    add_subdirectory(log)
+endif ()
+
 if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
 endif ()
