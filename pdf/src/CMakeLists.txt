@@ -1,40 +1,51 @@
 add_library(vrockpdf)
+
+find_package(ZLIB REQUIRED)
+
+target_include_directories(vrockpdf PUBLIC ./include/)
 target_sources(vrockpdf
         PUBLIC
-        FILE_SET cxx_modules TYPE CXX_MODULES FILES
-        PDFDocument.ixx
-        PDFPageObjects.ixx
-        PDFEncryption.ixx
-        PDFDataStructures.ixx
+        include/vrock/pdf/structure/PDFObjects.hpp
 
-        Math.ixx
-
-        parser/BaseParser.ixx
-        parser/PDFObjectParser.ixx
-        parser/PDFObjects.ixx
-        parser/ContentStreamParser.ixx
-
-        structure/PDFPageTree.ixx
-        structure/RenderableObject.ixx
         PRIVATE
-        PDFDocument.cpp
-        PDFEncryption.cpp
-        parser/ColorSpace.cpp
+        src/PDFDocument.cpp
 
-        parser/PDFPageObjects.cpp
-        parser/BaseParser.cpp
-        parser/PDFObjectParser.cpp
-        parser/PDFObjects.cpp
-        parser/PDFFilter.cpp
-        parser/ContentStreamParser.cpp
+        src/parser/BaseParser.cpp
+        src/parser/ContentStreamParser.cpp
+        src/parser/PDFObjectParser.cpp
 
-        structure/PDFPageTree.cpp
-        structure/RenderableObject.cpp
+        src/structure/Colorspaces.cpp
+        src/structure/Font.cpp
+        src/structure/Functions.cpp
+        src/structure/PDFContext.cpp
+        src/structure/PDFDataStructures.cpp
+        src/structure/PDFEncryption.cpp
+        src/structure/PDFFilters.cpp
+        src/structure/PDFImage.cpp
+        src/structure/PDFObjects.cpp
+        src/structure/PDFPageTree.cpp
+        src/structure/PDFStreams.cpp
+        src/structure/Rectangle.cpp
+        src/structure/RenderableObject.cpp
 )
 target_include_directories(vrockpdf PRIVATE ../../external/zlib/)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(vrockpdf PRIVATE "-Wno-tautological-undefined-compare")
+    target_compile_options(vrockpdf PRIVATE "-Wno-unknown-attributes")
 endif ()
 
-target_link_libraries(vrockpdf PRIVATE vrockutils vrocksecurity vrocklog icu zlibstatic stb_image)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(vrockpdf PRIVATE "-Wno-tautological-undefined-compare")
+    target_compile_options(vrockpdf PRIVATE "-Wno-unknown-attributes")
+endif ()
+
+target_link_libraries(vrockpdf PUBLIC vrockutils)
+target_link_libraries(vrockpdf PRIVATE vrocksecurity ZLIB::ZLIB stb_image)
+
+if (WIN32)
+    find_package(ICU COMPONENTS uc REQUIRED)
+    target_link_libraries(vrockpdf PRIVATE ICU::uc)
+else()
+    target_link_libraries(vrockpdf PRIVATE icu)
+endif()

@@ -3,6 +3,7 @@ vcpkg_installed/
 build/
 builddir/
 .idea/
+.vs/
 /build/*
 !/build/build.sh
 /subprojects/*

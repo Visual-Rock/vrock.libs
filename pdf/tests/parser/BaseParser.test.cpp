@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-import vrock.pdf.BaseParser;
+#include <vrock/pdf/parser/BaseParser.hpp>
 
 TEST( ParseDouble, BasicAssertions )
 {

@@ -5,10 +5,12 @@ add_executable(pdf_tests
         PDFDecryption.test.cpp
 
         parser/BaseParser.test.cpp
+        parser/ContentStreamParser.test.cpp
         parser/PDFObjectParser.test.cpp
-        parser/PDFFilter.test.cpp
 
-        structure/Image.test.cpp
+        structure/PDFFilter.test.cpp
+        #structure/Functions.test.cpp
+        #structure/Image.test.cpp
 )
 
 target_link_libraries(

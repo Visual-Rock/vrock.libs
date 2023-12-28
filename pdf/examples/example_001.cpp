@@ -1,11 +1,8 @@
 #include <chrono>
 #include <iostream>
 
-import vrock.utils.ByteArray;
-import vrock.pdf.PDFBaseObjects;
-import vrock.pdf.PDFDocument;
-import vrock.pdf.PDFEncryption;
-import vrock.utils.Timer;
+#include "vrock/pdf/PDFDocument.hpp"
+#include "vrock/utils.hpp"
 
 using namespace vrock::pdf;
 
@@ -13,7 +10,7 @@ int main( )
 {
     vrock::utils::ScopedTimer timer( []( auto t ) { std::cout << t << "ms" << std::endl; } );
 
-    auto doc = PDFDocument( "./üser_öwner.pdf" );
+    auto doc = PDFDocument( "./image.pdf" );
 
     if ( doc.decryption_handler->is_encrypted( ) )
         if ( auto handler = doc.decryption_handler->to<PDFStandardSecurityHandler>( ) )
@@ -22,8 +19,9 @@ int main( )
 
     std::size_t i = 0;
     for ( const auto &page : doc.get_pages( ) )
-        for ( auto [ key, img ] : page->resources->images )
-            img->save( std::format( "./{}.png", i++ ) );
+        for ( auto img : page->get_images( ) )
+        {
+        }
 
     return 0;
 }

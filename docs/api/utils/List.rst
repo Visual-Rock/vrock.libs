@@ -3,5 +3,7 @@
 List
 =========
 
-.. doxygenfile:: List.hpp
+.. doxygenclass:: vrock::utils::List
     :project: vrock.libs
+
+.. doxygenfunction:: vrock::utils::select_many

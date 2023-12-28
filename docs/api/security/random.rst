@@ -1,7 +1,7 @@
 .. _api_security_random:
 
 Random
-=========
+======
 
-.. doxygenfile:: random.ixx
+.. doxygenfile:: random.hpp
     :project: vrock.libs

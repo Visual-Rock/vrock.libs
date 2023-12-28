@@ -4,9 +4,17 @@
   "builtin-baseline": "4a600e9fea71bd7872080cbb716797e04d30e6d3",
   "dependencies": [
     {
+      "$comment": "    # this is heuristically generated, and may not be correct\n\n    find_package(cryptopp CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE cryptopp::cryptopp)\n",
       "name": "cryptopp",
-      "version>=": "8.8.0",
-      "$comment": "    # this is heuristically generated, and may not be correct\n\n    find_package(cryptopp CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE cryptopp::cryptopp)\n"
+      "version>=": "8.8.0"
+    },
+    {
+      "name": "zlib",
+      "version>=": "1.3"
+    },
+    {
+      "name": "icu",
+      "platform": "windows"
     }
   ]
 }

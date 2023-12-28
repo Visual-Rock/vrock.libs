@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.26)
 project(vrocklibs)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -9,8 +9,6 @@ option(VROCKLIBS_EXAMPLES "Build all vrock.lib Examples" OFF)
 option(VROCKLIBS_DOCS "Build vrock.lib Docs" OFF)
 
 option(VROCKLIBS_SECURITY "Build the security module of vrock.lib" OFF)
-option(VROCKLIBS_LOG "Build the log module of vrock.lib" OFF)
-option(VROCKLIBS_UI "Build the ui module of vrock.lib" OFF)
 option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 
 add_subdirectory(external)
@@ -33,7 +31,7 @@ if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
 endif ()
 
-if (${PDF})
+if (${VROCKLIBS_PDF})
     add_subdirectory(pdf)
 endif ()
 

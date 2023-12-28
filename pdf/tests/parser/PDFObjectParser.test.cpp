@@ -1,5 +1,4 @@
-import vrock.pdf.PDFBaseObjects;
-import vrock.pdf.PDFObjectParser;
+#include "vrock/pdf/parser/PDFObjectParser.hpp"
 
 #include <gtest/gtest.h>
 
@@ -100,30 +99,30 @@ TEST( ParseRefOrNumber, BasicAssertions )
 {
     PDFObjectParser parser( "-13 37.25 555 12 0 R 11 0 obj" );
     auto num1 = parser.parse_number_or_reference( );
-    EXPECT_EQ( num1->type, PDFObjectType::Integer );
-    EXPECT_EQ( num1->as<PDFInteger>( )->value, -13 );
+    EXPECT_EQ( num1->type, PDFObjectType::Number );
+    EXPECT_EQ( num1->to<PDFNumber>( )->as_int( ), -13 );
 
     parser.skip_comments_and_whitespaces( );
     auto num2 = parser.parse_number_or_reference( );
-    EXPECT_EQ( num2->type, PDFObjectType::Real );
-    EXPECT_EQ( num2->as<PDFReal>( )->value, 37.25 );
+    EXPECT_EQ( num2->type, PDFObjectType::Number );
+    EXPECT_EQ( num2->to<PDFNumber>( )->as_double( ), 37.25 );
 
     parser.skip_comments_and_whitespaces( );
     auto num3 = parser.parse_number_or_reference( );
-    EXPECT_EQ( num3->type, PDFObjectType::Integer );
-    EXPECT_EQ( num3->as<PDFInteger>( )->value, 555 );
+    EXPECT_EQ( num3->type, PDFObjectType::Number );
+    EXPECT_EQ( num3->to<PDFNumber>( )->as_int( ), 555 );
 
     parser.skip_comments_and_whitespaces( );
     auto ref = parser.parse_number_or_reference( );
     EXPECT_EQ( ref->type, PDFObjectType::IndirectObject );
-    EXPECT_EQ( ref->as<PDFRef>( )->object_number, 12 );
-    EXPECT_EQ( ref->as<PDFRef>( )->generation_number, 0 );
+    EXPECT_EQ( ref->to<PDFRef>( )->object_number, 12 );
+    EXPECT_EQ( ref->to<PDFRef>( )->generation_number, 0 );
 
     parser.skip_comments_and_whitespaces( );
     auto ref1 = parser.parse_number_or_reference( );
     EXPECT_EQ( ref1->type, PDFObjectType::IndirectObject );
-    EXPECT_EQ( ref1->as<PDFRef>( )->object_number, 11 );
-    EXPECT_EQ( ref1->as<PDFRef>( )->generation_number, 0 );
+    EXPECT_EQ( ref1->to<PDFRef>( )->object_number, 11 );
+    EXPECT_EQ( ref1->to<PDFRef>( )->generation_number, 0 );
 }
 
 TEST( ParseDictionaryOrStream, BasicAssertions )
@@ -132,21 +131,21 @@ TEST( ParseDictionaryOrStream, BasicAssertions )
         PDFObjectParser parser( "<</Length 4>>stream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->as<PDFStream>( )->data->to_string( ), "Test" );
+        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
     }
     {
         PDFObjectParser parser( "<<>>\nstream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->as<PDFStream>( )->data->to_string( ), "Test" );
+        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
     }
     {
         PDFObjectParser parser( "<</Length 5/Test /Test /Active true>>" );
         auto dict = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( dict->type, PDFObjectType::Dictionary );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFInteger>( "Length" )->value, 5 );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFName>( "Test" )->name, "Test" );
-        EXPECT_EQ( dict->as<PDFDictionary>( )->get<PDFBool>( "Active" )->value, true );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFInteger>( "Length" )->value, 5 );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFName>( "Test" )->name, "Test" );
+        EXPECT_EQ( dict->to<PDFDictionary>( )->get<PDFBool>( "Active" )->value, true );
     }
 }
 
@@ -213,23 +212,25 @@ TEST( ParseXref, BasicAssertions )
         EXPECT_EQ( e1->generation_number, e2.generation_number );
         EXPECT_EQ( e1->type, e2.type );
     };
+    auto make_entry = []( int num, int gen ) { return std::make_shared<XRefEntry>( 0, num, gen, 0 ); };
+
     EXPECT_EQ( xrefs.size( ), 2 );
     auto &xref1 = xrefs[ 0 ]; // normal text based
     auto &xref2 = xrefs[ 1 ]; // XRefStream
     EXPECT_EQ( xref1->entries.size( ), 6 );
-    check_entry( xref1->entries[ 0 ], { 3, 0, 65535, 0 } );
-    check_entry( xref1->entries[ 1 ], { 17, 1, 0, 1 } );
-    check_entry( xref1->entries[ 2 ], { 81, 2, 0, 1 } );
-    check_entry( xref1->entries[ 3 ], { 0, 3, 7, 0 } );
-    check_entry( xref1->entries[ 4 ], { 331, 4, 0, 1 } );
-    check_entry( xref1->entries[ 5 ], { 409, 5, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 0, 65535 ) ], { 3, 0, 65535, 0 } );
+    check_entry( xref1->entries[ make_entry( 1, 0 ) ], { 17, 1, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 2, 0 ) ], { 81, 2, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 3, 7 ) ], { 0, 3, 7, 0 } );
+    check_entry( xref1->entries[ make_entry( 4, 0 ) ], { 331, 4, 0, 1 } );
+    check_entry( xref1->entries[ make_entry( 5, 0 ) ], { 409, 5, 0, 1 } );
     EXPECT_EQ( xref2->entries.size( ), 8 );
-    check_entry( xref2->entries[ 0 ], { 0, 0, 65535, 0 } );
-    check_entry( xref2->entries[ 1 ], { 18212, 1, 0, 1 } );
-    check_entry( xref2->entries[ 2 ], { 13, 2, 0, 0 } );
-    check_entry( xref2->entries[ 3 ], { 19212, 3, 0, 1 } );
-    check_entry( xref2->entries[ 4 ], { 0, 1, 8, 2 } );
-    check_entry( xref2->entries[ 5 ], { 1, 1, 9, 2 } );
-    check_entry( xref2->entries[ 6 ], { 2, 1, 10, 2 } );
-    check_entry( xref2->entries[ 7 ], { 3, 1, 11, 2 } );
+    check_entry( xref2->entries[ make_entry( 0, 65535 ) ], { 0, 0, 65535, 0 } );
+    check_entry( xref2->entries[ make_entry( 1, 0 ) ], { 18212, 1, 0, 1 } );
+    check_entry( xref2->entries[ make_entry( 2, 0 ) ], { 13, 2, 0, 0 } );
+    check_entry( xref2->entries[ make_entry( 3, 0 ) ], { 19212, 3, 0, 1 } );
+    check_entry( xref2->entries[ make_entry( 8, 0 ) ], { 1, 8, 0, 2 } );
+    check_entry( xref2->entries[ make_entry( 9, 0 ) ], { 1, 9, 1, 2 } );
+    check_entry( xref2->entries[ make_entry( 10, 0 ) ], { 1, 10, 2, 2 } );
+    check_entry( xref2->entries[ make_entry( 11, 0 ) ], { 1, 11, 3, 2 } );
 }

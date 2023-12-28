@@ -1,5 +1,3 @@
-import vrock.pdf.PDFDocument;
-
 #include <gtest/gtest.h>
 
 #include <iostream>
