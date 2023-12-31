@@ -17,6 +17,7 @@ namespace vrock::log
         }
 
         LogLevel level;
+        std::string_view logger_name;
         std::string_view message;
         std::source_location source_location;
         std::chrono::time_point<std::chrono::system_clock> time;

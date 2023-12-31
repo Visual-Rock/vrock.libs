@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Message.hpp"
+#include "PatternFormatter.hpp"
 
 namespace vrock::log
 {
@@ -10,6 +11,7 @@ namespace vrock::log
         explicit Sink( const bool use_ansi, const std::string_view pattern )
             : use_ansi_colors_( use_ansi ), pattern_( pattern )
         {
+            compiled_pattern = compile_pattern( pattern );
         }
         virtual ~Sink( ) = default;
 
@@ -23,6 +25,7 @@ namespace vrock::log
 
         bool use_ansi_colors_;
         std::string_view pattern_;
+        formatter_collection_t compiled_pattern;
     };
 
     template <typename T>

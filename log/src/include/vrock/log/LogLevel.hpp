@@ -34,7 +34,7 @@ namespace vrock::log
                static_cast<std::underlying_type_t<LogLevel>>( should_include );
     }
 
-    constexpr auto to_string( const LogLevel &level ) -> std::string
+    constexpr auto to_string( const LogLevel &level ) -> std::string_view
     {
         switch ( level )
         {

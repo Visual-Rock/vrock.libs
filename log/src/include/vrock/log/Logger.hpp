@@ -18,9 +18,7 @@ namespace vrock::log
     {
     public:
         Logger( ) = default;
-        Logger( std::string name, const LogLevel level ) : level_( level ), name_( std::move( name ) )
-        {
-        }
+        Logger( std::string name, const LogLevel level );
 
         template <Sinkable SinkType, typename... Args>
         auto add_sink( Args &&...params ) -> void
@@ -40,6 +38,7 @@ namespace vrock::log
                 auto msg = Message( );
                 msg.time = std::chrono::system_clock::now( );
                 msg.message = format( message.message, std::forward<Args>( params )... );
+                msg.logger_name = name_;
                 msg.execution_context = this_execution_context;
                 msg.level = level;
                 msg.source_location = message.source_location;

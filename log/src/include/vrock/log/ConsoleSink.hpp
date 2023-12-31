@@ -7,7 +7,11 @@ namespace vrock::log
     class ConsoleSink final : public Sink
     {
     public:
-        ConsoleSink( ) : Sink( true )
+        ConsoleSink( ) : Sink( true, "%v" )
+        {
+        }
+
+        explicit ConsoleSink( const std::string_view pattern ) : Sink( true, pattern )
         {
         }
         ~ConsoleSink( ) override = default;
