@@ -54,6 +54,10 @@ namespace vrock::log
                 }
                 case '$':
                     collection.push_back( std::make_unique<AnsiResetFormatter>( ) );
+                    break;
+                case '^':
+                    collection.push_back( std::make_unique<AnsiLogLevelColorFormatter>( ) );
+                    break;
                 }
             }
             else

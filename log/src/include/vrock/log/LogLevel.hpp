@@ -7,7 +7,7 @@ namespace vrock::log
 {
     enum class LogLevel : std::uint8_t
     {
-        All = ( 1 << 0 ),
+        Trace = ( 1 << 0 ),
         Debug = ( 1 << 1 ),
         Info = ( 1 << 2 ),
         Warning = ( 1 << 3 ),
@@ -48,8 +48,8 @@ namespace vrock::log
             return "error";
         case LogLevel::Critical:
             return "critical";
-        case LogLevel::All:
-            return "all";
+        case LogLevel::Trace:
+            return "trace";
         default:
             return "unknown";
         }

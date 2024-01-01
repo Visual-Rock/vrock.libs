@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 
+#include "AnsiColors.hpp"
 #include "Message.hpp"
 
 #include <unordered_map>
@@ -108,9 +109,7 @@ namespace vrock::log
     public:
         AnsiColorFormatter( char color, bool background )
         {
-            if ( !color_.contains( color ) )
-                throw std::runtime_error( std::format( "color {} not found or not supported", color ) );
-            auto c = color_[ color ];
+            std::uint8_t c = std::to_underlying( flag_to_color( color ) );
             if ( background )
                 c += 10;
             code_ = std::format( "\033[{}m", c );
@@ -123,17 +122,6 @@ namespace vrock::log
 
     private:
         std::string code_;
-        std::unordered_map<char, std::uint8_t> color_ = {
-            { 'k', 30 }, // Black
-            { 'r', 31 }, // Red
-            { 'g', 32 }, // Green
-            { 'y', 33 }, // Yellow
-            { 'b', 34 }, // Blue
-            { 'm', 35 }, // Magenta
-            { 'c', 36 }, // Cyan
-            { 'w', 37 }, // White
-            { 'd', 39 }  // Default
-        };
     };
 
     class AnsiResetFormatter : public FlagFormatter
@@ -144,6 +132,17 @@ namespace vrock::log
         void format( const Message &msg, buffer_t &buffer ) override
         {
             buffer.append( "\033[m" );
+        }
+    };
+
+    class AnsiLogLevelColorFormatter : public FlagFormatter
+    {
+    public:
+        AnsiLogLevelColorFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( get_loglevel_color( msg.level ).command_sequence );
         }
     };
 
