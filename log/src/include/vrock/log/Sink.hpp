@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "Message.hpp"
 #include "PatternFormatter.hpp"
 
@@ -20,7 +22,10 @@ namespace vrock::log
     protected:
         auto write( const Message &msg ) -> std::string
         {
-            return std::string( msg.message );
+            std::string formatted;
+            for ( const auto &i : compiled_pattern )
+                i->format( msg, formatted );
+            return formatted;
         }
 
         bool use_ansi_colors_;

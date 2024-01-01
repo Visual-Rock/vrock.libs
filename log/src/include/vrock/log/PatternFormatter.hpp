@@ -5,6 +5,8 @@
 
 #include "Message.hpp"
 
+#include <unordered_map>
+
 namespace vrock::log
 {
     using buffer_t = std::string;
@@ -15,7 +17,7 @@ namespace vrock::log
         FlagFormatter( ) = default;
         virtual ~FlagFormatter( ) = default;
 
-        virtual void format( const Message &msg, buffer_t buffer ) = 0;
+        virtual void format( const Message &msg, buffer_t &buffer ) = 0;
     };
 
     using formatter_collection_t = std::vector<std::unique_ptr<FlagFormatter>>;
@@ -27,9 +29,9 @@ namespace vrock::log
         {
         }
 
-        void format( const Message &msg, buffer_t buffer ) override
+        void format( const Message &msg, buffer_t &buffer ) override
         {
-            buffer.append( str_.data( ), buffer.size( ) + str_.data( ) );
+            buffer.append( str_ );
         }
 
     private:
@@ -41,11 +43,47 @@ namespace vrock::log
     public:
         LevelFormatter( ) = default;
 
-        void format( const Message &msg, buffer_t buffer ) override
+        void format( const Message &msg, buffer_t &buffer ) override
         {
             const auto &lvl = to_string( msg.level );
-            buffer.append( lvl.data( ), buffer.size( ) + lvl.data( ) );
+            buffer.append( lvl.data( ) );
         }
+    };
+
+    class LoggerNameFormatter : public FlagFormatter
+    {
+    public:
+        LoggerNameFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( msg.logger_name );
+        }
+    };
+
+    class MessageFormatter : public FlagFormatter
+    {
+    public:
+        MessageFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( msg.message.data( ) );
+        }
+    };
+
+    class ThreadIDFormatter : public FlagFormatter
+    {
+    public:
+        ThreadIDFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( msg.execution_context.thread_id );
+        }
+
+    private:
+        std::unordered_map<std::size_t, std::string> ids_;
     };
 
     auto compile_pattern( std::string_view pattern ) -> formatter_collection_t;
