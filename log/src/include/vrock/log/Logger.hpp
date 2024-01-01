@@ -6,6 +6,7 @@
 #include "Sink.hpp"
 
 #include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <format>
 #include <memory>
@@ -31,23 +32,29 @@ namespace vrock::log
         auto set_level( const LogLevel &level ) -> void;
 
         template <typename... Args>
-        auto log( const LogMessage &message, const LogLevel level, Args &&...params ) -> void
+        auto log( const LogMessage &message, const LogLevel level, Args &&...args ) -> void
         {
             if ( includes_level( level_, level ) )
             {
                 auto msg = Message( );
                 msg.time = std::chrono::system_clock::now( );
-                msg.message = format( message.message, std::forward<Args>( params )... );
+                fmt::basic_memory_buffer<char, 250> buf;
+                fmt::vformat_to( fmt::appender( buf ), message.message, fmt::make_format_args( args... ) );
+                msg.message = std::string_view( buf.data( ), buf.size( ) );
                 msg.logger_name = name_;
                 msg.execution_context = this_execution_context;
                 msg.level = level;
                 msg.source_location = message.source_location;
 
                 for ( const auto &sink : sinks_ )
-                {
                     sink->log( msg );
-                }
             }
+        }
+
+        template <typename... Args>
+        auto info( const LogMessage &message, Args &&...args ) -> void
+        {
+            log( message, vrock::log::LogLevel::Info, args... );
         }
 
     private:

@@ -13,7 +13,7 @@ namespace vrock::log
         explicit Sink( const bool use_ansi, const std::string_view pattern )
             : use_ansi_colors_( use_ansi ), pattern_( pattern )
         {
-            compiled_pattern = compile_pattern( pattern );
+            compiled_pattern = compile_pattern( pattern, use_ansi );
         }
         virtual ~Sink( ) = default;
 

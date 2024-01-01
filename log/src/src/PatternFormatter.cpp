@@ -2,7 +2,7 @@
 
 namespace vrock::log
 {
-    auto compile_pattern( const std::string_view pattern ) -> formatter_collection_t
+    auto compile_pattern( const std::string_view pattern, bool use_color ) -> formatter_collection_t
     {
         formatter_collection_t collection{ };
 
@@ -41,6 +41,19 @@ namespace vrock::log
                 case 'n':
                     collection.push_back( std::make_unique<LoggerNameFormatter>( ) );
                     break;
+                case 'P':
+                    collection.push_back( std::make_unique<ProcessIDFormatter>( ) );
+                    break;
+                // Ansi
+                case 'Q':
+                case 'q': {
+                    ++i;
+                    if ( use_color )
+                        collection.push_back( std::make_unique<AnsiColorFormatter>( pattern[ i ], flag == 'Q' ) );
+                    break;
+                }
+                case '$':
+                    collection.push_back( std::make_unique<AnsiResetFormatter>( ) );
                 }
             }
             else
