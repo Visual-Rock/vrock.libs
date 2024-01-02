@@ -1,4 +1,5 @@
 #pragma once
 
-#include "log/ConsoleSink.hpp"
+#include "log/Sinks/ConsoleSink.hpp"
+
 #include "log/Logger.hpp"

@@ -3,7 +3,7 @@
 #include "LogLevel.hpp"
 #include "LogMessage.hpp"
 #include "Message.hpp"
-#include "Sink.hpp"
+#include "Sinks/Sink.hpp"
 
 #include <fmt/core.h>
 #include <fmt/format.h>

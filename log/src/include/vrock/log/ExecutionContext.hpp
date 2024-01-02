@@ -5,7 +5,12 @@
 #include <thread>
 
 #ifdef VROCKLIBS_LOG_USE_PROCESS_ID
+#ifdef WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif // WIN32
+
 #endif
 
 namespace vrock::log

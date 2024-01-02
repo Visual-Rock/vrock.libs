@@ -18,7 +18,7 @@ int main( )
     // fmt::println( "level: {}",
     //               vrock::log::includes_level( vrock::log::LogLevel::Critical, vrock::log::LogLevel::Critical ) );
     auto logger = vrock::log::Logger( "EXAMPLE", vrock::log::LogLevel::Debug );
-    logger.add_sink<vrock::log::ConsoleSink>( "[ %t ] [ %n ] [ %l ] %v" );
-    logger.log( "test {}", vrock::log::LogLevel::Error, 123 );
+    logger.add_sink<vrock::log::ConsoleSink>( "[ %t ] %qm[ %n ]%qd %^[ %l ]%$ %v" );
+    logger.log( "test {}", vrock::log::LogLevel::Critical, 123 );
     return 0;
 }
