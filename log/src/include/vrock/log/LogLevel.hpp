@@ -10,7 +10,7 @@ namespace vrock::log
         Trace = ( 1 << 0 ),
         Debug = ( 1 << 1 ),
         Info = ( 1 << 2 ),
-        Warning = ( 1 << 3 ),
+        Warn = ( 1 << 3 ),
         Error = ( 1 << 4 ),
         Critical = ( 1 << 5 ),
         None = ( 1 << 6 )
@@ -42,8 +42,8 @@ namespace vrock::log
             return "debug";
         case LogLevel::Info:
             return "info";
-        case LogLevel::Warning:
-            return "warning";
+        case LogLevel::Warn:
+            return "warn";
         case LogLevel::Error:
             return "error";
         case LogLevel::Critical:

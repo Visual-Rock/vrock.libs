@@ -17,8 +17,15 @@ int main( )
     // fmt::println( "thread: {}, process: {}", tmp.thread_id, tmp.process_id );
     // fmt::println( "level: {}",
     //               vrock::log::includes_level( vrock::log::LogLevel::Critical, vrock::log::LogLevel::Critical ) );
-    auto logger = vrock::log::Logger( "EXAMPLE", vrock::log::LogLevel::Debug );
+    auto logger = vrock::log::Logger( "EXAMPLE", vrock::log::LogLevel::Trace );
     logger.add_sink<vrock::log::ConsoleSink>( "[ %t ] %qm[ %n ]%qd %^[ %l ]%$ %v" );
-    logger.log( "test {}", vrock::log::LogLevel::Critical, 123 );
+
+    logger.trace( "{}", "trace" );
+    logger.debug( "{}", "debug" );
+    logger.info( "{}", "info" );
+    logger.warn( "{}", "warn" );
+    logger.error( "{}", "error" );
+    logger.critical( "{}", "critical" );
+
     return 0;
 }

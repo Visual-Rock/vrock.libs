@@ -52,18 +52,42 @@ namespace vrock::log
         }
 
         template <typename... Args>
-        auto info( const LogMessage &message, Args &&...args ) -> void
+        auto inline trace( const LogMessage &message, Args &&...args ) -> void
+        {
+            log( message, vrock::log::LogLevel::Trace, args... );
+        }
+
+        template <typename... Args>
+        auto inline debug( const LogMessage &message, Args &&...args ) -> void
+        {
+            log( message, vrock::log::LogLevel::Debug, args... );
+        }
+
+        template <typename... Args>
+        auto inline info( const LogMessage &message, Args &&...args ) -> void
         {
             log( message, vrock::log::LogLevel::Info, args... );
         }
 
-    private:
         template <typename... Args>
-        std::string format( const std::string_view str, Args &&...args )
+        auto inline warn( const LogMessage &message, Args &&...args ) -> void
         {
-            return std::vformat( str, std::make_format_args( args... ) );
+            log( message, vrock::log::LogLevel::Warn, args... );
         }
 
+        template <typename... Args>
+        auto inline error( const LogMessage &message, Args &&...args ) -> void
+        {
+            log( message, vrock::log::LogLevel::Error, args... );
+        }
+
+        template <typename... Args>
+        auto inline critical( const LogMessage &message, Args &&...args ) -> void
+        {
+            log( message, vrock::log::LogLevel::Critical, args... );
+        }
+
+    private:
         LogLevel level_;
         std::string name_;
         std::vector<std::shared_ptr<Sink>> sinks_;

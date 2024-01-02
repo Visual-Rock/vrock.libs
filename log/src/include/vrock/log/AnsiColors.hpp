@@ -68,7 +68,7 @@ namespace vrock::log
     inline LogLevelColor TraceColor = LogLevelColor( AnsiColor::White, true );
     inline LogLevelColor DebugColor = LogLevelColor( AnsiColor::Cyan, true );
     inline LogLevelColor InfoColor = LogLevelColor( AnsiColor::Green, true );
-    inline LogLevelColor WarningColor = LogLevelColor( AnsiColor::Yellow, true );
+    inline LogLevelColor WarnColor = LogLevelColor( AnsiColor::Yellow, true );
     inline LogLevelColor ErrorColor = LogLevelColor( AnsiColor::Red, true );
     inline LogLevelColor CriticalColor = LogLevelColor( AnsiColor::White, true, false, AnsiColor::Red );
 

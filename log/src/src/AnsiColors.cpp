@@ -52,13 +52,13 @@ namespace vrock::log
             return DebugColor;
         case LogLevel::Info:
             return InfoColor;
-        case LogLevel::Warning:
-            return WarningColor;
+        case LogLevel::Warn:
+            return WarnColor;
         case LogLevel::Error:
             return ErrorColor;
         case LogLevel::Critical:
             return CriticalColor;
-        case LogLevel::None:
+        default:
             return LogLevelColor( AnsiColor::Default );
         }
     }
