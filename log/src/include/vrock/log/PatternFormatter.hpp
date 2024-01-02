@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <utility>
 
@@ -143,6 +144,81 @@ namespace vrock::log
         void format( const Message &msg, buffer_t &buffer ) override
         {
             buffer.append( get_loglevel_color( msg.level ).command_sequence );
+        }
+    };
+
+    class AnsiBoldFormatter : public FlagFormatter
+    {
+    public:
+        AnsiBoldFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( "\033[1m" );
+        }
+    };
+
+    class AnsiUnderlineFormatter : public FlagFormatter
+    {
+    public:
+        AnsiUnderlineFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( "\033[4m" );
+        }
+    };
+
+    // Source Formatter
+    template <bool FullPath>
+    class SourceFileFormatter : public FlagFormatter
+    {
+    public:
+        SourceFileFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            if ( FullPath )
+            {
+                buffer.append( msg.source_location.file_name( ) );
+            }
+            else
+            {
+                buffer.append( std::filesystem::path( msg.source_location.file_name( ) ).filename( ) );
+            }
+        }
+    };
+
+    class SourceLineFormatter : public FlagFormatter
+    {
+    public:
+        SourceLineFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( std::to_string( msg.source_location.line( ) ) );
+        }
+    };
+
+    class SourceColumnFormatter : public FlagFormatter
+    {
+    public:
+        SourceColumnFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( std::to_string( msg.source_location.column( ) ) );
+        }
+    };
+
+    class SourceFunctionFormatter : public FlagFormatter
+    {
+    public:
+        SourceFunctionFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override
+        {
+            buffer.append( msg.source_location.function_name( ) );
         }
     };
 

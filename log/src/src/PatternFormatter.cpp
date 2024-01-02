@@ -58,6 +58,28 @@ namespace vrock::log
                 case '^':
                     collection.push_back( std::make_unique<AnsiLogLevelColorFormatter>( ) );
                     break;
+                case '_':
+                    collection.push_back( std::make_unique<AnsiUnderlineFormatter>( ) );
+                    break;
+                case '*':
+                    collection.push_back( std::make_unique<AnsiBoldFormatter>( ) );
+                    break;
+                // Source
+                case 's':
+                    collection.push_back( std::make_unique<SourceFileFormatter<false>>( ) );
+                    break;
+                case 'g':
+                    collection.push_back( std::make_unique<SourceFileFormatter<true>>( ) );
+                    break;
+                case '#':
+                    collection.push_back( std::make_unique<SourceLineFormatter>( ) );
+                    break;
+                case '@':
+                    collection.push_back( std::make_unique<SourceColumnFormatter>( ) );
+                    break;
+                case '!':
+                    collection.push_back( std::make_unique<SourceFunctionFormatter>( ) );
+                    break;
                 }
             }
             else
