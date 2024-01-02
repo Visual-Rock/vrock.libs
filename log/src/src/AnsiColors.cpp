@@ -29,21 +29,10 @@ namespace vrock::log
         }
     }
 
-    constexpr LogLevelColor::LogLevelColor( AnsiColor color, bool bold, bool underlined, AnsiColor background )
-        : color( color ), bold( bold ), underlined( underlined ), background( background )
-    {
-        if ( background != AnsiColor::Default )
-            command_sequence.append( std::format( "\033[{}m", std::underlying_type_t<AnsiColor>( background ) + 10 ) );
-        if ( color != AnsiColor::Default )
-            command_sequence.append( std::format( "\033[{}m", std::underlying_type_t<AnsiColor>( color ) ) );
-        if ( bold )
-            command_sequence.append( "\033[1m" );
-        if ( underlined )
-            command_sequence.append( "\033[4m" );
-    }
-
     auto get_loglevel_color( const LogLevel &level ) -> const LogLevelColor &
     {
+        static auto default_ = LogLevelColor( AnsiColor::Default );
+
         switch ( level )
         {
         case LogLevel::Trace:
@@ -59,7 +48,7 @@ namespace vrock::log
         case LogLevel::Critical:
             return CriticalColor;
         default:
-            return LogLevelColor( AnsiColor::Default );
+            return default_;
         }
     }
 } // namespace vrock::log

@@ -56,7 +56,20 @@ namespace vrock::log
     {
     public:
         constexpr explicit LogLevelColor( AnsiColor color, bool bold = false, bool underlined = false,
-                                          AnsiColor background = AnsiColor::Default );
+                                          AnsiColor background = AnsiColor::Default )
+            : color( color ), bold( bold ), underlined( underlined ), background( background )
+        {
+            if ( background != AnsiColor::Default )
+                command_sequence.append(
+                    std::format( "\033[{}m", static_cast<std::underlying_type_t<AnsiColor>>( background ) + 10 ) );
+            if ( color != AnsiColor::Default )
+                command_sequence.append(
+                    std::format( "\033[{}m", static_cast<std::underlying_type_t<AnsiColor>>( color ) ) );
+            if ( bold )
+                command_sequence.append( "\033[1m" );
+            if ( underlined )
+                command_sequence.append( "\033[4m" );
+        }
 
         AnsiColor color;
         bool bold, underlined;
