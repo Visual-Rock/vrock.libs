@@ -107,6 +107,12 @@ namespace vrock::log
                 case 'Y':
                     collection.push_back( std::make_unique<ShortYearFormatter>( ) );
                     break;
+                case 'D':
+                    collection.push_back( std::make_unique<ShortDateFormatter>( ) );
+                    break;
+                case 'x':
+                    collection.push_back( std::make_unique<LocalDateFormatter>( ) );
+                    break;
                 default:
                     break;
                 }

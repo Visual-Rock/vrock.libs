@@ -61,4 +61,20 @@ namespace vrock::log
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
+
+    class ShortDateFormatter : public FlagFormatter
+    {
+    public:
+        ShortDateFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class LocalDateFormatter : public FlagFormatter
+    {
+    public:
+        LocalDateFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
 } // namespace vrock::log

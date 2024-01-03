@@ -40,4 +40,14 @@ namespace vrock::log
     {
         buffer.append( std::format( "{0:%y}", msg.time ) );
     }
+
+    void ShortDateFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%D}", msg.time ) );
+    }
+
+    void LocalDateFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%x}", msg.time ) );
+    }
 } // namespace vrock::log
