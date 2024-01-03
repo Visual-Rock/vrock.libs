@@ -77,4 +77,76 @@ namespace vrock::log
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
+
+    class MonthFormatter : public FlagFormatter
+    {
+    public:
+        MonthFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class DayFormatter : public FlagFormatter
+    {
+    public:
+        DayFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class Hour24Formatter : public FlagFormatter
+    {
+    public:
+        Hour24Formatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class Hour12Formatter : public FlagFormatter
+    {
+    public:
+        Hour12Formatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class MinuteFormatter : public FlagFormatter
+    {
+    public:
+        MinuteFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class SecondFormatter : public FlagFormatter
+    {
+    public:
+        SecondFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class MillisecondFormatter : public FlagFormatter
+    {
+    public:
+        MillisecondFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class MicrosecondFormatter : public FlagFormatter
+    {
+    public:
+        MicrosecondFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class NanosecondFormatter : public FlagFormatter
+    {
+    public:
+        NanosecondFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
 } // namespace vrock::log

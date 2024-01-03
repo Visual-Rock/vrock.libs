@@ -50,4 +50,49 @@ namespace vrock::log
     {
         buffer.append( std::format( "{0:%x}", msg.time ) );
     }
+
+    void MonthFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%m}", msg.time ) );
+    }
+
+    void DayFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%d}", msg.time ) );
+    }
+
+    void Hour24Formatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%H}", msg.time ) );
+    }
+
+    void Hour12Formatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%I}", msg.time ) );
+    }
+
+    void MinuteFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%M}", msg.time ) );
+    }
+
+    void SecondFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::seconds>( msg.time ) ) );
+    }
+
+    void MillisecondFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::milliseconds>( msg.time ) ) );
+    }
+
+    void MicrosecondFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::microseconds>( msg.time ) ) );
+    }
+
+    void NanosecondFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::nanoseconds>( msg.time ) ) );
+    }
 } // namespace vrock::log

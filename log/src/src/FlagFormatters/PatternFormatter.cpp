@@ -102,16 +102,43 @@ namespace vrock::log
                     collection.push_back( std::make_unique<DateTimeFormatter>( ) );
                     break;
                 case 'C':
-                    collection.push_back( std::make_unique<YearFormatter>( ) );
+                    collection.push_back( std::make_unique<ShortYearFormatter>( ) );
                     break;
                 case 'Y':
-                    collection.push_back( std::make_unique<ShortYearFormatter>( ) );
+                    collection.push_back( std::make_unique<YearFormatter>( ) );
                     break;
                 case 'D':
                     collection.push_back( std::make_unique<ShortDateFormatter>( ) );
                     break;
                 case 'x':
                     collection.push_back( std::make_unique<LocalDateFormatter>( ) );
+                    break;
+                case 'm':
+                    collection.push_back( std::make_unique<MonthFormatter>( ) );
+                    break;
+                case 'd':
+                    collection.push_back( std::make_unique<DayFormatter>( ) );
+                    break;
+                case 'H':
+                    collection.push_back( std::make_unique<Hour24Formatter>( ) );
+                    break;
+                case 'I':
+                    collection.push_back( std::make_unique<Hour12Formatter>( ) );
+                    break;
+                case 'M':
+                    collection.push_back( std::make_unique<MinuteFormatter>( ) );
+                    break;
+                case 'S':
+                    collection.push_back( std::make_unique<SecondFormatter>( ) );
+                    break;
+                case 'e':
+                    collection.push_back( std::make_unique<MillisecondFormatter>( ) );
+                    break;
+                case 'f':
+                    collection.push_back( std::make_unique<MicrosecondFormatter>( ) );
+                    break;
+                case 'F':
+                    collection.push_back( std::make_unique<NanosecondFormatter>( ) );
                     break;
                 default:
                     break;
