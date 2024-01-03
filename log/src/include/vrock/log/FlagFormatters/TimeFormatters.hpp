@@ -37,4 +37,28 @@ namespace vrock::log
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
+
+    class DateTimeFormatter : public FlagFormatter
+    {
+    public:
+        DateTimeFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class YearFormatter : public FlagFormatter
+    {
+    public:
+        YearFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class ShortYearFormatter : public FlagFormatter
+    {
+    public:
+        ShortYearFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
 } // namespace vrock::log

@@ -98,6 +98,15 @@ namespace vrock::log
                 case 'b':
                     collection.push_back( std::make_unique<MonthShortNameFormatter>( ) );
                     break;
+                case 'c':
+                    collection.push_back( std::make_unique<DateTimeFormatter>( ) );
+                    break;
+                case 'C':
+                    collection.push_back( std::make_unique<YearFormatter>( ) );
+                    break;
+                case 'Y':
+                    collection.push_back( std::make_unique<ShortYearFormatter>( ) );
+                    break;
                 default:
                     break;
                 }
