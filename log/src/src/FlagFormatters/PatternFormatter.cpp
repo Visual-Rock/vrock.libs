@@ -150,10 +150,13 @@ namespace vrock::log
                     collection.push_back( std::make_unique<Time24Formatter>( ) );
                     break;
                 case 'T':
-                    collection.push_back( std::make_unique<ISO8601TimeFromatter>( ) );
+                    collection.push_back( std::make_unique<ISO8601TimeFormatter>( ) );
                     break;
                 case 'z':
-                    collection.push_back( std::make_unique<ISO8601TimezoneFromatter>( ) );
+                    collection.push_back( std::make_unique<ISO8601TimezoneFormatter>( ) );
+                    break;
+                case 'E':
+                    collection.push_back( std::make_unique<TimeSinceEpochFormatter>( ) );
                     break;
                 default:
                     break;

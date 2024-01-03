@@ -78,22 +78,22 @@ namespace vrock::log
 
     void SecondFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::seconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%S}", time_point_cast<seconds>( msg.time ) ) );
     }
 
     void MillisecondFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::milliseconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%S}", time_point_cast<milliseconds>( msg.time ) ) );
     }
 
     void MicrosecondFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::microseconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%S}", time_point_cast<microseconds>( msg.time ) ) );
     }
 
     void NanosecondFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%S}", std::chrono::time_point_cast<std::chrono::nanoseconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%S}", time_point_cast<nanoseconds>( msg.time ) ) );
     }
 
     void AmPmFormatter::format( const Message &msg, buffer_t &buffer )
@@ -103,8 +103,7 @@ namespace vrock::log
 
     void Time12Formatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append(
-            std::format( "{0:%I:%M:%S %p}", std::chrono::time_point_cast<std::chrono::seconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%I:%M:%S %p}", time_point_cast<seconds>( msg.time ) ) );
     }
 
     void Time24Formatter::format( const Message &msg, buffer_t &buffer )
@@ -112,13 +111,18 @@ namespace vrock::log
         buffer.append( std::format( "{0:%R}", msg.time ) );
     }
 
-    void ISO8601TimeFromatter::format( const Message &msg, buffer_t &buffer )
+    void ISO8601TimeFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%T}", std::chrono::time_point_cast<std::chrono::seconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%T}", time_point_cast<seconds>( msg.time ) ) );
     }
 
-    void ISO8601TimezoneFromatter::format( const Message &msg, buffer_t &buffer )
+    void ISO8601TimezoneFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::format( "{0:%z}", std::chrono::time_point_cast<std::chrono::seconds>( msg.time ) ) );
+        buffer.append( std::format( "{0:%z}", time_point_cast<seconds>( msg.time ) ) );
+    }
+
+    void TimeSinceEpochFormatter::format( const Message &msg, buffer_t &buffer )
+    {
+        buffer.append( std::format( "{}", duration_cast<seconds>( msg.time.time_since_epoch( ) ).count( ) ) );
     }
 } // namespace vrock::log

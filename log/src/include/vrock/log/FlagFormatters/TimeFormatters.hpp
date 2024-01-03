@@ -174,18 +174,26 @@ namespace vrock::log
         void format( const Message &msg, buffer_t &buffer ) override;
     };
 
-    class ISO8601TimeFromatter : public FlagFormatter
+    class ISO8601TimeFormatter : public FlagFormatter
     {
     public:
-        ISO8601TimeFromatter( ) = default;
+        ISO8601TimeFormatter( ) = default;
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
 
-    class ISO8601TimezoneFromatter : public FlagFormatter
+    class ISO8601TimezoneFormatter : public FlagFormatter
     {
     public:
-        ISO8601TimezoneFromatter( ) = default;
+        ISO8601TimezoneFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class TimeSinceEpochFormatter : public FlagFormatter
+    {
+    public:
+        TimeSinceEpochFormatter( ) = default;
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
