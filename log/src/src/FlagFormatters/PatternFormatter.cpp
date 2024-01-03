@@ -1,4 +1,9 @@
-#include "vrock/log/PatternFormatter.hpp"
+#include "vrock/log/FlagFormatters/PatternFormatter.hpp"
+
+#include "vrock/log/FlagFormatters/AnsiFormatters.hpp"
+#include "vrock/log/FlagFormatters/GeneralFormatters.hpp"
+#include "vrock/log/FlagFormatters/SourceFormatters.hpp"
+#include "vrock/log/FlagFormatters/TimeFormatters.hpp"
 
 namespace vrock::log
 {
@@ -80,6 +85,21 @@ namespace vrock::log
                 case '!':
                     collection.push_back( std::make_unique<SourceFunctionFormatter>( ) );
                     break;
+                // Time
+                case 'A':
+                    collection.push_back( std::make_unique<WeekdayNameFormatter>( ) );
+                    break;
+                case 'a':
+                    collection.push_back( std::make_unique<WeekdayShortNameFormatter>( ) );
+                    break;
+                case 'B':
+                    collection.push_back( std::make_unique<MonthNameFormatter>( ) );
+                    break;
+                case 'b':
+                    collection.push_back( std::make_unique<MonthShortNameFormatter>( ) );
+                    break;
+                default:
+                    break;
                 }
             }
             else
@@ -91,4 +111,5 @@ namespace vrock::log
 
         return collection;
     }
+
 } // namespace vrock::log

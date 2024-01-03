@@ -5,7 +5,12 @@ target_include_directories(vrocklog PUBLIC ./include/)
 target_sources(vrocklog PRIVATE
         src/AnsiColors.cpp
         src/Logger.cpp
-        src/PatternFormatter.cpp
+
+        src/FlagFormatters/PatternFormatter.cpp
+        src/FlagFormatters/AnsiFormatter.cpp
+        src/FlagFormatters/SourceFormatter.cpp
+        src/FlagFormatters/TimeFormatters.cpp
+        src/FlagFormatters/GeneralFormatter.cpp
 )
 
 target_link_libraries(vrocklog PUBLIC fmt::fmt)

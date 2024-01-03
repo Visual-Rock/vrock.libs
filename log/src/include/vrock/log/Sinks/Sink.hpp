@@ -2,8 +2,8 @@
 
 #include <string>
 
+#include "vrock/log/FlagFormatters/PatternFormatter.hpp"
 #include "vrock/log/Message.hpp"
-#include "vrock/log/PatternFormatter.hpp"
 
 namespace vrock::log
 {
