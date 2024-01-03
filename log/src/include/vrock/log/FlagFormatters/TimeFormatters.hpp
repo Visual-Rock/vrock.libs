@@ -149,4 +149,44 @@ namespace vrock::log
 
         void format( const Message &msg, buffer_t &buffer ) override;
     };
+
+    class AmPmFormatter : public FlagFormatter
+    {
+    public:
+        AmPmFormatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class Time12Formatter : public FlagFormatter
+    {
+    public:
+        Time12Formatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class Time24Formatter : public FlagFormatter
+    {
+    public:
+        Time24Formatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class ISO8601TimeFromatter : public FlagFormatter
+    {
+    public:
+        ISO8601TimeFromatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
+
+    class ISO8601TimezoneFromatter : public FlagFormatter
+    {
+    public:
+        ISO8601TimezoneFromatter( ) = default;
+
+        void format( const Message &msg, buffer_t &buffer ) override;
+    };
 } // namespace vrock::log

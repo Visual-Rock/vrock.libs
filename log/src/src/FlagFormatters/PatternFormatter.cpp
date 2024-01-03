@@ -140,6 +140,21 @@ namespace vrock::log
                 case 'F':
                     collection.push_back( std::make_unique<NanosecondFormatter>( ) );
                     break;
+                case 'p':
+                    collection.push_back( std::make_unique<AmPmFormatter>( ) );
+                    break;
+                case 'r':
+                    collection.push_back( std::make_unique<Time12Formatter>( ) );
+                    break;
+                case 'R':
+                    collection.push_back( std::make_unique<Time24Formatter>( ) );
+                    break;
+                case 'T':
+                    collection.push_back( std::make_unique<ISO8601TimeFromatter>( ) );
+                    break;
+                case 'z':
+                    collection.push_back( std::make_unique<ISO8601TimezoneFromatter>( ) );
+                    break;
                 default:
                     break;
                 }
