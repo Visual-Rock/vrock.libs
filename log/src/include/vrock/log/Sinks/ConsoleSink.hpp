@@ -2,6 +2,8 @@
 
 #include "Sink.hpp"
 
+#include <fmt/core.h>
+
 namespace vrock::log
 {
     class ConsoleSink final : public Sink

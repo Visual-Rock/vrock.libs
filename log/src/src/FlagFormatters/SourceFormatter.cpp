@@ -11,7 +11,7 @@ namespace vrock::log
     template <>
     void SourceFileFormatter<false>::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( std::filesystem::path( msg.source_location.file_name( ) ).filename( ) );
+        buffer.append( std::filesystem::path( msg.source_location.file_name( ) ).filename( ).string( ) );
     }
 
     void SourceLineFormatter::format( const Message &msg, buffer_t &buffer )
@@ -23,7 +23,7 @@ namespace vrock::log
     {
         buffer.append( std::to_string( msg.source_location.column( ) ) );
     }
-    
+
     void SourceFunctionFormatter::format( const Message &msg, buffer_t &buffer )
     {
         buffer.append( msg.source_location.function_name( ) );
