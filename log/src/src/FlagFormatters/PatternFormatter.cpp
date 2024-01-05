@@ -94,7 +94,7 @@ namespace vrock::log
                 case '$':
                     formatter = std::make_unique<AnsiResetFormatter>( );
                     break;
-                case '^':
+                case '@':
                     formatter = std::make_unique<AnsiLogLevelColorFormatter>( );
                     break;
                 case '_':
@@ -113,7 +113,7 @@ namespace vrock::log
                 case '#':
                     formatter = std::make_unique<SourceLineFormatter>( );
                     break;
-                case '@':
+                case '+':
                     formatter = std::make_unique<SourceColumnFormatter>( );
                     break;
                 case '!':
