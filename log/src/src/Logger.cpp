@@ -2,7 +2,7 @@
 
 namespace vrock::log
 {
-    Logger::Logger( std::string name, LogLevel level ) : level_( level ), name_( std::move( name ) )
+    Logger::Logger( LogLevel level, std::string name ) : level_( level ), name_( std::move( name ) )
     {
     }
 

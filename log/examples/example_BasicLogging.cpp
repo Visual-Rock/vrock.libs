@@ -9,9 +9,9 @@ constexpr int iterations = 100000;
 
 int main( )
 {
-    auto logger = Logger( "EXAMPLE", LogLevel::Trace );
-    logger.set_pattern( "[ %E ] [ %n ] %@[ %l ]%$ %v" );
-    logger.add_sink<StandardOutSink>( "[ %E ] [ %n ] %@[ %l ]%$ %v", false );
+    auto logger = Logger( LogLevel::Trace, "EXAMPLE" );
+    logger.set_pattern( "[ %x %T ] %v" );
+    logger.add_sink<StandardOutSink>( );
 
     //    {
     //        vrock::utils::ScopedTimer<nanoseconds> timer(

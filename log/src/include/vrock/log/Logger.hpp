@@ -16,7 +16,7 @@ namespace vrock::log
     {
     public:
         Logger( ) = default;
-        Logger( std::string name, LogLevel level );
+        Logger( LogLevel level, std::string name = "%v" );
 
         template <Sinkable SinkType, typename... Args>
         auto add_sink( Args &&...params ) -> std::shared_ptr<SinkType>

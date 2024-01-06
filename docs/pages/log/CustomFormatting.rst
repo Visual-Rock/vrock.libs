@@ -12,8 +12,65 @@
 Custom formatting
 =================
 
+Log patterns are templates or blueprints that define how log messages should be formatted.
+They allow developers to customize the appearance of log output by including specific information such as timestamps,
+log levels, source details, and more. They have the capability to be configured both at the logger level and the sink level.
+
+How to Use
+^^^^^^^^^^
+
+Here are some simple examples.
+
+1. Basic Usage:
+---------------
+
+The simplest log pattern might include only the log message itself.
+
+.. code-block:: c++
+    :caption: Basic Example
+
+    logger.set_pattern("%v");
+    logger.info("This is a log message");
+
+.. code-block:: console
+    :caption: output
+
+    This is a log message
+
+2. with Timestamp:
+------------------
+
+Including timestamps in log messages is a common practice. You can use %c to represent the date and time in a specific format.
+
+.. code-block:: c++
+    :caption: with Timestamp
+
+    logger.set_pattern("[ %x %T ] %v");
+    logger.info("Logging with timestamps");
+
+.. code-block:: console
+    :caption: output
+
+    [ 01/06/24 14:41:09 ] Logging with timestamps
+
+3. Log Levels:
+--------------
+
+Log patterns often include the log level for better categorization. Use %l to represent the log level.
+
+.. code-block:: c++
+    :caption: with Timestamp
+
+    logger.set_pattern("[ %l ] %v");
+    logger.info("A warning message");
+
+.. code-block:: console
+    :caption: output
+
+    [ warn ] A warning message
+
 Flags
------
+^^^^^
 
 The following table outlines the formatting flags that can be used, along with their corresponding descriptions and examples.
 They allows customization of log message formatting. Each formatting flag represents a specific aspect of a log entry, such as log level, timestamp, source file information, and more.
@@ -90,7 +147,7 @@ Flags in the pattern are represented as ´%flag´.
      - Jan
    * - 'c'
      - Date and time
-     - 01/05/2022 13:45:30
+     - Sat Jan  6 14:39:35 2024
    * - 'C'
      - Short year
      - 22
@@ -153,7 +210,7 @@ Flags in the pattern are represented as ´%flag´.
     Please note that ANSI escape codes are used for certain formatting flags to represent colors and styles, and these might not render correctly in all environments.
 
 Colors
-------
+^^^^^^
 
 The table below provides a quick reference for ANSI colors, their associated escape codes, and corresponding color flag letters.
 
