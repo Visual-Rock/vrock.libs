@@ -92,16 +92,20 @@ namespace vrock::log
                     break;
                 }
                 case '$':
-                    formatter = std::make_unique<AnsiResetFormatter>( );
+                    if ( use_color )
+                        formatter = std::make_unique<AnsiResetFormatter>( );
                     break;
                 case '@':
-                    formatter = std::make_unique<AnsiLogLevelColorFormatter>( );
+                    if ( use_color )
+                        formatter = std::make_unique<AnsiLogLevelColorFormatter>( );
                     break;
                 case '_':
-                    formatter = std::make_unique<AnsiUnderlineFormatter>( );
+                    if ( use_color )
+                        formatter = std::make_unique<AnsiUnderlineFormatter>( );
                     break;
                 case '*':
-                    formatter = std::make_unique<AnsiBoldFormatter>( );
+                    if ( use_color )
+                        formatter = std::make_unique<AnsiBoldFormatter>( );
                     break;
                     // Source
                 case 's':
@@ -203,7 +207,8 @@ namespace vrock::log
                 }
                 else
                 {
-                    collection.push_back( std::move( formatter ) );
+                    if ( formatter != nullptr )
+                        collection.push_back( std::move( formatter ) );
                 }
             }
             else

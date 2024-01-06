@@ -5,9 +5,6 @@
 #include "Message.hpp"
 #include "Sinks/Sink.hpp"
 
-#include <fmt/core.h>
-#include <fmt/format.h>
-
 #include <format>
 #include <memory>
 #include <utility>
@@ -19,15 +16,18 @@ namespace vrock::log
     {
     public:
         Logger( ) = default;
-        Logger( std::string name, const LogLevel level );
+        Logger( std::string name, LogLevel level );
 
         template <Sinkable SinkType, typename... Args>
-        auto add_sink( Args &&...params ) -> void
+        auto add_sink( Args &&...params ) -> std::shared_ptr<SinkType>
         {
-            sinks_.push_back( std::make_shared<SinkType>( std::forward<Args>( params )... ) );
+            auto sink = std::make_shared<SinkType>( params... );
+            sink->set_pattern( pattern_ );
+            sinks_.push_back( sink );
+            return sink;
         }
 
-        constexpr auto set_pattern( std::string_view pattern ) -> void;
+        auto set_pattern( std::string_view pattern, bool change_on_sinks = true ) -> void;
 
         auto set_level( const LogLevel &level ) -> void;
 
@@ -38,8 +38,9 @@ namespace vrock::log
             {
                 auto msg = Message( );
                 msg.time = std::chrono::system_clock::now( );
-                fmt::basic_memory_buffer<char, 250> buf;
-                fmt::vformat_to( fmt::appender( buf ), message.message, fmt::make_format_args( args... ) );
+                std::string buf;
+                buf.reserve( 250 );
+                std::vformat_to( std::back_inserter( buf ), message.message, std::make_format_args( args... ) );
                 msg.message = std::string_view( buf.data( ), buf.size( ) );
                 msg.logger_name = name_;
                 msg.execution_context = this_execution_context;
@@ -88,12 +89,9 @@ namespace vrock::log
         }
 
     private:
-        LogLevel level_;
+        LogLevel level_ = LogLevel::Info;
         std::string name_;
+        std::string_view pattern_;
         std::vector<std::shared_ptr<Sink>> sinks_;
     };
-
-    constexpr auto Logger::set_pattern( std::string_view pattern ) -> void
-    {
-    }
 } // namespace vrock::log

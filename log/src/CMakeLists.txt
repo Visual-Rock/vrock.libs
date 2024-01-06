@@ -1,5 +1,3 @@
-find_package(fmt CONFIG REQUIRED)
-
 add_library(vrocklog)
 target_include_directories(vrocklog PUBLIC ./include/)
 target_sources(vrocklog PRIVATE
@@ -12,6 +10,7 @@ target_sources(vrocklog PRIVATE
         src/FlagFormatters/SourceFormatter.cpp
         src/FlagFormatters/TimeFormatters.cpp
         src/FlagFormatters/GeneralFormatter.cpp
-)
 
-target_link_libraries(vrocklog PUBLIC fmt::fmt)
+        src/Sinks/ConsoleSinks.cpp
+        src/Sinks/Sink.cpp
+)

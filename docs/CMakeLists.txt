@@ -3,6 +3,7 @@ find_package(Sphinx REQUIRED)
 
 set(FILES ${PROJECT_SOURCE_DIR}/utils/src/)
 string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/security/src/)
+string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/log/src/)
 string(CONCAT FILES ${FILES} " " ${PROJECT_SOURCE_DIR}/pdf/src/)
 
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/_build)

@@ -45,7 +45,7 @@ Flags in the pattern are represented as ´%flag´.
      - 5678
    * - 'Q<c>'
      - ANSI color (foreground) where <c> is a letter from :ref:`this table<ansi-colors-table>`
-     - %Qc: :red:`error`
+     - %Qr: :red:`error`
    * - 'q<c>'
      - ANSI color (background) where <c> is a letter from :ref:`this table<ansi-colors-table>`
      - %qr: :red-background:`critical`
