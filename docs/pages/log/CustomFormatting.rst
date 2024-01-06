@@ -222,7 +222,7 @@ The table below provides a quick reference for ANSI colors, their associated esc
 
    * - Color
      - Code
-     - Letter
+     - Color flag
    * - Black
      - 30/40
      - k
@@ -247,5 +247,33 @@ The table below provides a quick reference for ANSI colors, their associated esc
    * - White
      - 37/47
      - w
+
+Alignment Formatters
+^^^^^^^^^^^^^^^^^^^^
+
+Alignment formatters in logging patterns provide a way to control the alignment of the logged content within a specified width.
+The alignment formatters available are Left Align, Center Align and Right Align.
+
+.. list-table:: Alignment flags
+   :widths: 10 45 45
+   :header-rows: 1
+
+   * - Flag
+     - Description
+     - Example
+   * - '<'
+     - Left Align
+     - `%<8v` -> "Aligned "
+   * - '^'
+     - Center Align
+     - `%^16v` -> " Center Aligned "
+   * - '>'
+     - Right Align
+     - `%>14v` -> " Right Aligned"
+   * - '!'
+     - Truncate
+     - `%^6!v` -> "Trunca"
+
+Additionally, you can use the ! flag after the width to truncate the content if it exceeds the specified width.
 
 
