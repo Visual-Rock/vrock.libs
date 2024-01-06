@@ -25,6 +25,7 @@ namespace vrock::log
 
     auto StandardOutSink::log( const Message &message ) -> void
     {
+        // TODO: Use std::print when compiler support is available
         std::cout << write( message ) << std::endl;
     }
 } // namespace vrock::log
