@@ -1,5 +1,7 @@
 #include "vrock/log/Sinks/ConsoleSinks.hpp"
 
+#include <iostream>
+
 #ifdef WIN32
 #include "Windows.h"
 #endif
@@ -32,5 +34,23 @@ namespace vrock::log
     auto StandardOutSink::flush( ) -> void
     {
         std::cout << std::flush;
+    }
+
+    StandardErrSink::StandardErrSink( std::string_view pattern, LogLevel level, bool use_ansi )
+        : Sink( pattern, use_ansi ), level_( level )
+    {
+    }
+
+    auto StandardErrSink::log( const Message &message ) -> void
+    {
+        if ( includes_level( level_, message.level ) )
+        {
+            std::cerr << write( message ) << std::endl;
+        }
+    }
+
+    auto StandardErrSink::flush( ) -> void
+    {
+        std::cerr << std::flush;
     }
 } // namespace vrock::log

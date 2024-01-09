@@ -18,13 +18,12 @@ namespace vrock::log
         Logger( ) = default;
         Logger( LogLevel level, std::string name = "%v" );
 
-        template <Sinkable SinkType, typename... Args>
-        auto add_sink( Args &&...params ) -> std::shared_ptr<SinkType>
+        template <Sinkable SinkType>
+        auto add_sink( std::shared_ptr<SinkType> sink, const bool set_pattern = true )
         {
-            auto sink = std::make_shared<SinkType>( params... );
-            sink->set_pattern( pattern_ );
+            if ( set_pattern )
+                sink->set_pattern( pattern_ );
             sinks_.push_back( sink );
-            return sink;
         }
 
         auto set_pattern( std::string_view pattern, bool change_on_sinks = true ) -> void;

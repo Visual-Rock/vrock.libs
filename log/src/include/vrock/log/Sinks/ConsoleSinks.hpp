@@ -2,8 +2,6 @@
 
 #include "Sink.hpp"
 
-#include <iostream>
-
 namespace vrock::log
 {
     /**
@@ -47,10 +45,7 @@ namespace vrock::log
      * This class is derived from the Sink base class and overrides the log function to handle log messages
      * by printing them to the standard error. It includes a level filter, printing messages with the specified
      * LogLevel or higher to standard error.
-     *
-     * @tparam Level The minimum LogLevel for messages to be printed to standard error.
      */
-    template <LogLevel Level = LogLevel::Error>
     class StandardErrSink final : public Sink
     {
     public:
@@ -58,11 +53,11 @@ namespace vrock::log
          * @brief Constructor for the StandardErrSink class.
          *
          * @param pattern A string_view representing the custom log message pattern.
+         * @param level The minimum log level for messages to be printed to standard error.
          * @param use_ansi A boolean indicating whether ANSI colors should be used.
          */
-        explicit StandardErrSink( std::string_view pattern = "", bool use_ansi = false ) : Sink( pattern, use_ansi )
-        {
-        }
+        explicit StandardErrSink( std::string_view pattern = "", LogLevel level = LogLevel::Error,
+                                  bool use_ansi = false );
 
         /**
          * @brief Destructor for the StandardErrSink class.
@@ -74,20 +69,14 @@ namespace vrock::log
          *
          * @param message The log message to be processed.
          */
-        auto log( const Message &message ) -> void override
-        {
-            if ( includes_level( Level, message.level ) )
-            {
-                std::cerr << write( message ) << std::endl;
-            }
-        }
+        auto log( const Message &message ) -> void override;
 
         /**
          * @brief Overrides the flush method to flush std::cerr.
          */
-        auto flush( ) -> void override
-        {
-            std::cerr << std::flush;
-        }
+        auto flush( ) -> void override;
+
+    private:
+        LogLevel level_;
     };
 } // namespace vrock::log

@@ -12,5 +12,6 @@ target_sources(vrocklog PRIVATE
         src/FlagFormatters/GeneralFormatter.cpp
 
         src/Sinks/ConsoleSinks.cpp
+        src/Sinks/FileSinks.cpp
         src/Sinks/Sink.cpp
 )
