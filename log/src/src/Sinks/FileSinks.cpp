@@ -2,7 +2,7 @@
 
 namespace vrock::log
 {
-    FileSink::FileSink( std::filesystem::path path ) : Sink( "%v", false )
+    FileSink::FileSink( const std::filesystem::path &path, std::string_view pattern ) : Sink( pattern, false )
     {
         file_ = std::ofstream( path );
     }

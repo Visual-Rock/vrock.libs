@@ -19,7 +19,7 @@ namespace vrock::log
          * @param pattern A string_view representing the custom log message pattern.
          * @param use_ansi A boolean indicating whether ANSI colors should be used.
          */
-        explicit StandardOutSink( std::string_view pattern = "", bool use_ansi = true );
+        explicit StandardOutSink( std::string_view pattern = get_global_pattern( ), bool use_ansi = true );
 
         /**
          * @brief Destructor for the StandardOutSink class.
@@ -56,7 +56,7 @@ namespace vrock::log
          * @param level The minimum log level for messages to be printed to standard error.
          * @param use_ansi A boolean indicating whether ANSI colors should be used.
          */
-        explicit StandardErrSink( std::string_view pattern = "", LogLevel level = LogLevel::Error,
+        explicit StandardErrSink( std::string_view pattern = get_global_pattern( ), LogLevel level = LogLevel::Error,
                                   bool use_ansi = false );
 
         /**

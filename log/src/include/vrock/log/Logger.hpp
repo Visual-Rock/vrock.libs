@@ -16,10 +16,11 @@ namespace vrock::log
     {
     public:
         Logger( ) = default;
-        Logger( LogLevel level, std::string name = "%v" );
+        explicit Logger( std::string name, LogLevel level = LogLevel::Info,
+                         std::string_view pattern = get_global_pattern( ) );
 
         template <Sinkable SinkType>
-        auto add_sink( std::shared_ptr<SinkType> sink, const bool set_pattern = true )
+        auto add_sink( std::shared_ptr<SinkType> sink, const bool set_pattern = true ) -> void
         {
             if ( set_pattern )
                 sink->set_pattern( pattern_ );
@@ -52,39 +53,39 @@ namespace vrock::log
         }
 
         template <typename... Args>
-        auto inline trace( const LogMessage &message, Args &&...args ) -> void
+        auto trace( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Trace, args... );
+            log( message, LogLevel::Trace, args... );
         }
 
         template <typename... Args>
-        auto inline debug( const LogMessage &message, Args &&...args ) -> void
+        auto debug( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Debug, args... );
+            log( message, LogLevel::Debug, args... );
         }
 
         template <typename... Args>
-        auto inline info( const LogMessage &message, Args &&...args ) -> void
+        auto info( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Info, args... );
+            log( message, LogLevel::Info, args... );
         }
 
         template <typename... Args>
-        auto inline warn( const LogMessage &message, Args &&...args ) -> void
+        auto warn( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Warn, args... );
+            log( message, LogLevel::Warn, args... );
         }
 
         template <typename... Args>
-        auto inline error( const LogMessage &message, Args &&...args ) -> void
+        auto error( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Error, args... );
+            log( message, LogLevel::Error, args... );
         }
 
         template <typename... Args>
-        auto inline critical( const LogMessage &message, Args &&...args ) -> void
+        auto critical( const LogMessage &message, Args &&...args ) -> void
         {
-            log( message, vrock::log::LogLevel::Critical, args... );
+            log( message, LogLevel::Critical, args... );
         }
 
         /**
@@ -94,7 +95,7 @@ namespace vrock::log
          * buffered log entries are immediately processed or written to their intended
          * destinations. This method can be used to enforce timely flushing of log data.
          */
-        auto flush( ) -> void;
+        auto flush( ) const -> void;
 
     private:
         LogLevel level_ = LogLevel::Info;

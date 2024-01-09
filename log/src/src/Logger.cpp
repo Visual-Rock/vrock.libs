@@ -2,7 +2,8 @@
 
 namespace vrock::log
 {
-    Logger::Logger( LogLevel level, std::string name ) : level_( level ), name_( std::move( name ) )
+    Logger::Logger( std::string name, const LogLevel level, const std::string_view pattern )
+        : level_( level ), name_( std::move( name ) ), pattern_( pattern )
     {
     }
 
@@ -21,7 +22,7 @@ namespace vrock::log
         }
     }
 
-    auto Logger::flush( ) -> void
+    auto Logger::flush( ) const -> void
     {
         for ( const auto &sink : sinks_ )
             sink->flush( );

@@ -3,9 +3,8 @@ using namespace vrock::log;
 
 int main( )
 {
-    auto logger = Logger( LogLevel::Trace, "EXAMPLE" );
-    logger.set_pattern( "[ %x %T ] %v" );
-    logger.add_sink<StandardOutSink>( );
+    auto logger = Logger( "EXAMPLE", LogLevel::Trace );
+    logger.add_sink( std::make_shared<StandardOutSink>( ) );
 
     logger.trace( "trace" );
     logger.debug( "debug" );

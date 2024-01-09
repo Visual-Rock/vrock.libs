@@ -10,7 +10,7 @@ namespace vrock::log
     class FileSink final : public Sink
     {
     public:
-        FileSink( std::filesystem::path path );
+        explicit FileSink( const std::filesystem::path &path, std::string_view pattern = get_global_pattern( ) );
         ~FileSink( ) override;
 
         void log( const Message &message ) override;

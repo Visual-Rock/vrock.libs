@@ -8,6 +8,18 @@
 
 namespace vrock::log
 {
+    std::string_view global_pattern = "[ %x %T ] [ %n ] %@[ %<5l ]%$ %v";
+
+    auto set_global_pattern( std::string_view pattern ) -> void
+    {
+        global_pattern = pattern;
+    }
+
+    auto get_global_pattern( ) -> std::string_view
+    {
+        return global_pattern;
+    }
+
     auto compile_pattern( const std::string_view pattern, bool use_color ) -> formatter_collection_t
     {
         formatter_collection_t collection{ };
