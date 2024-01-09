@@ -28,4 +28,9 @@ namespace vrock::log
         // TODO: Use std::print when compiler support is available
         std::cout << write( message ) << std::endl;
     }
+
+    auto StandardOutSink::flush( ) -> void
+    {
+        std::cout << std::flush;
+    }
 } // namespace vrock::log

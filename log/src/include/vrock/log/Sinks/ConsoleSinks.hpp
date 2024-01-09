@@ -34,6 +34,11 @@ namespace vrock::log
          * @param message The log message to be processed.
          */
         auto log( const Message &message ) -> void override;
+
+        /**
+         * @brief Overrides the flush method to flush std::cout.
+         */
+        auto flush( ) -> void override;
     };
 
     /**
@@ -75,6 +80,14 @@ namespace vrock::log
             {
                 std::cerr << write( message ) << std::endl;
             }
+        }
+
+        /**
+         * @brief Overrides the flush method to flush std::cerr.
+         */
+        auto flush( ) -> void override
+        {
+            std::cerr << std::flush;
         }
     };
 } // namespace vrock::log

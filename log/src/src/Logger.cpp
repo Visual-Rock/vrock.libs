@@ -20,4 +20,10 @@ namespace vrock::log
                 sink->set_pattern( pattern );
         }
     }
+
+    auto Logger::flush( ) -> void
+    {
+        for ( const auto &sink : sinks_ )
+            sink->flush( );
+    }
 } // namespace vrock::log

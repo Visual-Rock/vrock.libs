@@ -45,6 +45,15 @@ namespace vrock::log
          */
         virtual void log( const Message &message ) = 0;
 
+        /**
+         * @brief Pure virtual method to flush any buffered log entries.
+         *
+         * This method should be implemented by concrete classes derived from Sink.
+         * It is responsible for ensuring that any buffered log entries are written
+         * or processed to their intended destination.
+         */
+        virtual void flush( ) = 0;
+
     protected:
         /**
          * @brief Generates a formatted log message based on the sink's configured pattern.

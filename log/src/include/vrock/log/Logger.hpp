@@ -88,6 +88,15 @@ namespace vrock::log
             log( message, vrock::log::LogLevel::Critical, args... );
         }
 
+        /**
+         * @brief Flushes any buffered log entries in the Logger.
+         *
+         * The flush method in the Logger class is responsible for ensuring that any
+         * buffered log entries are immediately processed or written to their intended
+         * destinations. This method can be used to enforce timely flushing of log data.
+         */
+        auto flush( ) -> void;
+
     private:
         LogLevel level_ = LogLevel::Info;
         std::string name_;
