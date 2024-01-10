@@ -53,6 +53,9 @@ namespace vrock::log
         DailyFileSink( std::string_view path, std::chrono::hours hour, std::chrono::minutes minutes,
                        std::uint16_t max_files = 0, bool truncate = false, std::string_view = get_global_pattern( ) );
 
+        void log( const Message &message ) override;
+        void flush( ) override;
+
     private:
         std::string_view filename_format;
         formatter_collection_t filename_formatters_;
