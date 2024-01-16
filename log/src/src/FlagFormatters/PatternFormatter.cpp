@@ -20,7 +20,7 @@ namespace vrock::log
         return global_pattern;
     }
 
-    auto compile_pattern( const std::string_view pattern, bool use_color ) -> formatter_collection_t
+    auto compile_pattern( const std::string_view pattern, bool use_color, bool is_file ) -> formatter_collection_t
     {
         formatter_collection_t collection{ };
 
@@ -81,19 +81,24 @@ namespace vrock::log
                 switch ( flag )
                 {
                 case 'l':
-                    formatter = std::make_unique<LevelFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<LevelFormatter>( );
                     break;
                 case 'v':
-                    formatter = std::make_unique<MessageFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<MessageFormatter>( );
                     break;
                 case 't':
-                    formatter = std::make_unique<ThreadIDFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<ThreadIDFormatter>( );
                     break;
                 case 'n':
-                    formatter = std::make_unique<LoggerNameFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<LoggerNameFormatter>( );
                     break;
                 case 'P':
-                    formatter = std::make_unique<ProcessIDFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<ProcessIDFormatter>( );
                     break;
                     // Ansi
                 case 'Q':
@@ -121,19 +126,24 @@ namespace vrock::log
                     break;
                     // Source
                 case 's':
-                    formatter = std::make_unique<SourceFileFormatter<false>>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<SourceFileFormatter<false>>( );
                     break;
                 case 'g':
-                    formatter = std::make_unique<SourceFileFormatter<true>>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<SourceFileFormatter<true>>( );
                     break;
                 case '#':
-                    formatter = std::make_unique<SourceLineFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<SourceLineFormatter>( );
                     break;
                 case '+':
-                    formatter = std::make_unique<SourceColumnFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<SourceColumnFormatter>( );
                     break;
                 case '!':
-                    formatter = std::make_unique<SourceFunctionFormatter>( );
+                    if ( !is_file )
+                        formatter = std::make_unique<SourceFunctionFormatter>( );
                     break;
                 // Time
                 case 'A':
@@ -231,6 +241,11 @@ namespace vrock::log
             collection.push_back( std::make_unique<UserCharactersFormatter>( user_string ) );
 
         return collection;
+    }
+    
+    auto compile_file_pattern( std::string_view pattern ) -> formatter_collection_t
+    {
+        return compile_pattern( pattern, false, true );
     }
 
 } // namespace vrock::log
