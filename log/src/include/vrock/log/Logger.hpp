@@ -4,6 +4,7 @@
 #include "LogMessage.hpp"
 #include "Message.hpp"
 #include "Sinks/Sink.hpp"
+#include "ThreadingPolicy.hpp"
 
 #include <format>
 #include <memory>
@@ -12,12 +13,16 @@
 
 namespace vrock::log
 {
+    template <typename ThreadingPolicy = SingleThreadedPolicy>
     class Logger
     {
     public:
         Logger( ) = default;
-        explicit Logger( std::string name, LogLevel level = LogLevel::Info,
-                         std::string_view pattern = get_global_pattern( ) );
+        explicit Logger( std::string name, const LogLevel level,
+                         const std::string_view pattern = get_global_pattern( ) )
+            : level_( level ), name_( std::move( name ) ), pattern_( pattern )
+        {
+        }
 
         template <Sinkable SinkType>
         auto add_sink( std::shared_ptr<SinkType> sink, const bool set_pattern = true ) -> void
@@ -27,9 +32,20 @@ namespace vrock::log
             sinks_.push_back( sink );
         }
 
-        auto set_pattern( std::string_view pattern, bool change_on_sinks = true ) -> void;
+        auto set_pattern( std::string_view pattern, bool change_on_sinks = true ) -> void
+        {
+            pattern_ = pattern;
+            if ( change_on_sinks )
+            {
+                for ( const auto &sink : sinks_ )
+                    sink->set_pattern( pattern );
+            }
+        }
 
-        auto set_level( const LogLevel &level ) -> void;
+        auto set_level( const LogLevel &level ) -> void
+        {
+            level_ = level;
+        }
 
         template <typename... Args>
         auto log( const LogMessage &message, const LogLevel level, Args &&...args ) -> void
@@ -47,6 +63,7 @@ namespace vrock::log
                 msg.level = level;
                 msg.source_location = message.source_location;
 
+                const typename ThreadingPolicy::lock lock( mutex_ );
                 for ( const auto &sink : sinks_ )
                     sink->log( msg );
             }
@@ -102,5 +119,8 @@ namespace vrock::log
         std::string name_;
         std::string_view pattern_;
         std::vector<std::shared_ptr<Sink>> sinks_;
+        typename ThreadingPolicy::mutex_t mutex_;
     };
+
+    using MTLogger = Logger<MultiThreadedPolicy>;
 } // namespace vrock::log

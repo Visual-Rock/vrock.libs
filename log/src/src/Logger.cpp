@@ -2,17 +2,20 @@
 
 namespace vrock::log
 {
-    Logger::Logger( std::string name, const LogLevel level, const std::string_view pattern )
+    template <typename ThreadingPolicy>
+    Logger<ThreadingPolicy>::Logger( std::string name, const LogLevel level, const std::string_view pattern )
         : level_( level ), name_( std::move( name ) ), pattern_( pattern )
     {
     }
 
-    auto Logger::set_level( const LogLevel &level ) -> void
+    template <typename ThreadingPolicy>
+    auto Logger<ThreadingPolicy>::set_level( const LogLevel &level ) -> void
     {
         level_ = level;
     }
 
-    auto Logger::set_pattern( std::string_view pattern, bool change_on_sinks ) -> void
+    template <typename ThreadingPolicy>
+    auto Logger<ThreadingPolicy>::set_pattern( std::string_view pattern, bool change_on_sinks ) -> void
     {
         pattern_ = pattern;
         if ( change_on_sinks )
@@ -22,7 +25,8 @@ namespace vrock::log
         }
     }
 
-    auto Logger::flush( ) const -> void
+    template <typename ThreadingPolicy>
+    auto Logger<ThreadingPolicy>::flush( ) const -> void
     {
         for ( const auto &sink : sinks_ )
             sink->flush( );

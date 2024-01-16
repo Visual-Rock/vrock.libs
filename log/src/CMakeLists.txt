@@ -2,7 +2,6 @@ add_library(vrocklog)
 target_include_directories(vrocklog PUBLIC ./include/)
 target_sources(vrocklog PRIVATE
         src/AnsiColors.cpp
-        src/Logger.cpp
 
         src/FlagFormatters/AlignFormatter.cpp
         src/FlagFormatters/PatternFormatter.cpp
