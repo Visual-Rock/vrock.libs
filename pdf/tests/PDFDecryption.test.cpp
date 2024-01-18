@@ -92,7 +92,7 @@ TEST( DecryptUserOwner, BasicAssertions )
 
 TEST( DecryptUeserOewner, BasicAssertions )
 {
-    auto doc = PDFDocument( "pdfs/Encrypted/ueser_oewner.pdf" );
+    auto doc = PDFDocument( u8"pdfs/Encrypted/ueser_oewner.pdf" );
     auto sec = doc.decryption_handler->to<PDFStandardSecurityHandler>( );
     EXPECT_NE( sec, nullptr );
     if ( sec )
