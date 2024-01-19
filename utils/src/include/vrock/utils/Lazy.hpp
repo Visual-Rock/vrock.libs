@@ -8,7 +8,7 @@ namespace vrock::utils
      * @brief A class template for lazy evaluation of a function.
      * @tparam T The type of the value to be lazily evaluated.
      *
-     * @attention if the is not loaded but assigned to it is marked as loaded
+     * @attention if the Lazy is not loaded but assigned to it is marked as loaded
      */
     template <typename T>
     class Lazy

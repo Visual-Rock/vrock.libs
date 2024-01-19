@@ -3,12 +3,16 @@
 #include <memory>
 #include <vrock/utils/ByteArray.hpp>
 
+#include "typedefs.hpp"
+
 namespace vrock::security
 {
-    /// @brief hashes the data using the MD5 algorithm
-    /// @param data data to hash
-    /// @return hash of the data
-    auto md5( const utils::ByteArray<> &data ) -> utils::ByteArray<>;
+    /**
+     * \brief hashes the data using the MD5 algorithm
+     * \param data data to hash
+     * \return hash of the data
+     */
+    auto md5( byte_span_t data ) -> return_t;
 
     /// @brief hashes the data using the sha-224 algorithm
     /// @param data data to hash

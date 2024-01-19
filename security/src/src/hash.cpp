@@ -6,13 +6,14 @@
 
 namespace vrock::security
 {
-    auto md5( const utils::ByteArray<> &data ) -> utils::ByteArray<>
+    auto md5( byte_span_t data ) -> return_t
     {
         CryptoPP::Weak::MD5 hash;
-        auto hashed = utils::ByteArray<>( hash.DigestSize( ) );
-        hash.Update( data.data( ), data.size( ) );
-        hash.Final( hashed.data( ) );
-        return hashed;
+        return_t return_{ };
+        return_.reserve( hash.DigestSize( ) );
+        hash.Update( data.data( ), hash.DigestSize( ) );
+        hash.Final( return_.data( ) );
+        return return_;
     }
 
     auto sha224( const utils::ByteArray<> &data ) -> utils::ByteArray<>

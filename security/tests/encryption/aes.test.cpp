@@ -7,10 +7,10 @@ TEST( AESECBEncryptTest, BasicAssertion )
     auto data = vrock::utils::ByteArray( "Plaintext" );
     auto key = vrock::utils::ByteArray( "KeyKeyKeyKeyKeyK" );
 
-    auto encrypted = vrock::security::encrypt_aes_ecb( data, key, vrock::security::Padding::PKCS_PADDING );
+    auto encrypted = vrock::security::encrypt_aes_ecb( data, key, vrock::security::Padding::PkcsPadding );
     EXPECT_EQ( encrypted.to_string( ),
                vrock::utils::from_hex_string( "c9aed1347dc38bfe3345cc5b33391487" ).to_string( ) );
-    EXPECT_EQ( vrock::security::decrypt_aes_ecb( encrypted, key, vrock::security::Padding::PKCS_PADDING ).to_string( ),
+    EXPECT_EQ( vrock::security::decrypt_aes_ecb( encrypted, key, vrock::security::Padding::PkcsPadding ).to_string( ),
                "Plaintext" );
 }
 
@@ -20,11 +20,11 @@ TEST( AESCBCEncryptTest, BasicAssertion )
     auto key = vrock::utils::from_hex_string( "B10851065A82E228EE29CF3A8322DB6A" );
     auto iv = vrock::utils::from_hex_string( "AC0EF343B92D165D8E75703C7B3E0770" );
 
-    auto encrypted = vrock::security::encrypt_aes_cbc( data, key, iv, vrock::security::Padding::PKCS_PADDING );
+    auto encrypted = vrock::security::encrypt_aes_cbc( data, key, iv, vrock::security::Padding::PkcsPadding );
     EXPECT_EQ( encrypted.to_string( ),
                vrock::utils::from_hex_string( "78f293772a958631d43de02e31b84673" ).to_string( ) );
     EXPECT_EQ(
-        vrock::security::decrypt_aes_cbc( encrypted, key, iv, vrock::security::Padding::PKCS_PADDING ).to_string( ),
+        vrock::security::decrypt_aes_cbc( encrypted, key, iv, vrock::security::Padding::PkcsPadding ).to_string( ),
         "Test" );
 }
 
