@@ -9,20 +9,27 @@
 
 namespace vrock::utils
 {
-    inline auto to_string( std::span<std::uint8_t> data ) -> std::string
+    inline auto to_string( const std::span<std::uint8_t> data ) -> std::string
     {
         std::stringstream stream;
-        for ( const char c : data )
+        for ( const unsigned char c : data )
             stream << c;
         return stream.str( );
     }
 
-    auto to_hex_string( std::span<std::uint8_t> data ) -> std::string
+    inline auto to_hex_string( const std::span<std::uint8_t> data ) -> std::string
     {
         std::stringstream stream;
-        stream << std::hex << std::setfill( '0' );
-        for ( const int c : data )
-            stream << std::hex << std::setw( 2 ) << c;
+        for ( const std::uint8_t c : data )
+            stream << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<unsigned int>( c );
+        return stream.str( );
+    }
+
+    inline auto to_hex_string( const std::string_view data ) -> std::string
+    {
+        std::stringstream stream;
+        for ( const std::uint8_t c : data )
+            stream << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<unsigned int>( c );
         return stream.str( );
     }
 } // namespace vrock::utils

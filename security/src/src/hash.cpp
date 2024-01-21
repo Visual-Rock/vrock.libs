@@ -16,84 +16,93 @@ namespace vrock::security
         return return_;
     }
 
-    auto sha224( const utils::ByteArray<> &data ) -> utils::ByteArray<>
+    auto sha224( byte_span_t data ) -> return_t
     {
         CryptoPP::SHA224 hash;
-        auto hashed = utils::ByteArray<>( hash.DigestSize( ) );
+        return_t hashed{ };
+        hashed.resize( hash.DigestSize( ) );
         hash.Update( data.data( ), data.size( ) );
         hash.Final( hashed.data( ) );
         return hashed;
     }
 
-    auto sha256( const utils::ByteArray<> &data ) -> utils::ByteArray<>
+    auto sha256( byte_span_t data ) -> return_t
     {
         CryptoPP::SHA256 hash;
-        auto hashed = utils::ByteArray<>( hash.DigestSize( ) );
+        return_t hashed{ };
+        hashed.resize( hash.DigestSize( ) );
         hash.Update( data.data( ), data.size( ) );
         hash.Final( hashed.data( ) );
         return hashed;
     }
 
-    auto sha384( const utils::ByteArray<> &data ) -> utils::ByteArray<>
+    auto sha384( byte_span_t data ) -> return_t
     {
         CryptoPP::SHA384 hash;
-        auto hashed = utils::ByteArray<>( hash.DigestSize( ) );
+        return_t hashed{ };
+        hashed.resize( hash.DigestSize( ) );
         hash.Update( data.data( ), data.size( ) );
         hash.Final( hashed.data( ) );
         return hashed;
     }
 
-    auto sha512( const utils::ByteArray<> &data ) -> utils::ByteArray<>
+    auto sha512( byte_span_t data ) -> return_t
     {
         CryptoPP::SHA512 hash;
-        auto hashed = utils::ByteArray<>( hash.DigestSize( ) );
+        return_t hashed{ };
+        hashed.resize( hash.DigestSize( ) );
         hash.Update( data.data( ), data.size( ) );
         hash.Final( hashed.data( ) );
         return hashed;
     }
 
-    auto md5( const std::shared_ptr<utils::ByteArray<>> &data ) -> std::shared_ptr<utils::ByteArray<>>
+    auto md5( string_view_t data ) -> return_string_t
     {
         CryptoPP::Weak::MD5 hash;
-        auto hashed = std::make_shared<utils::ByteArray<>>( hash.DigestSize( ) );
-        hash.Update( data->data( ), data->size( ) );
-        hash.Final( hashed->data( ) );
+        std::string hashed;
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( (CryptoPP::byte *)data.data( ), data.size( ) );
+        hash.Final( reinterpret_cast<CryptoPP::byte *>( hashed.data( ) ) );
         return hashed;
     }
 
-    auto sha224( const std::shared_ptr<utils::ByteArray<>> &data ) -> std::shared_ptr<utils::ByteArray<>>
+    auto sha224( string_view_t data ) -> return_string_t
     {
         CryptoPP::SHA224 hash;
-        auto hashed = std::make_shared<utils::ByteArray<>>( hash.DigestSize( ) );
-        hash.Update( data->data( ), data->size( ) );
-        hash.Final( hashed->data( ) );
+        std::string hashed;
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( (CryptoPP::byte *)data.data( ), data.size( ) );
+        hash.Final( reinterpret_cast<CryptoPP::byte *>( hashed.data( ) ) );
         return hashed;
     }
 
-    auto sha256( const std::shared_ptr<utils::ByteArray<>> &data ) -> std::shared_ptr<utils::ByteArray<>>
+    auto sha256( string_view_t data ) -> return_string_t
     {
         CryptoPP::SHA256 hash;
-        auto hashed = std::make_shared<utils::ByteArray<>>( hash.DigestSize( ) );
-        hash.Update( data->data( ), data->size( ) );
-        hash.Final( hashed->data( ) );
+        std::string hashed;
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( (CryptoPP::byte *)data.data( ), data.size( ) );
+        hash.Final( reinterpret_cast<CryptoPP::byte *>( hashed.data( ) ) );
         return hashed;
     }
 
-    auto sha384( const std::shared_ptr<utils::ByteArray<>> &data ) -> std::shared_ptr<utils::ByteArray<>>
+    auto sha384( string_view_t data ) -> return_string_t
     {
         CryptoPP::SHA384 hash;
-        auto hashed = std::make_shared<utils::ByteArray<>>( hash.DigestSize( ) );
-        hash.Update( data->data( ), data->size( ) );
-        hash.Final( hashed->data( ) );
+        std::string hashed;
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( (CryptoPP::byte *)data.data( ), data.size( ) );
+        hash.Final( reinterpret_cast<CryptoPP::byte *>( hashed.data( ) ) );
         return hashed;
     }
 
-    auto sha512( const std::shared_ptr<utils::ByteArray<>> &data ) -> std::shared_ptr<utils::ByteArray<>>
+    auto sha512( string_view_t data ) -> return_string_t
     {
         CryptoPP::SHA512 hash;
-        auto hashed = std::make_shared<utils::ByteArray<>>( hash.DigestSize( ) );
-        hash.Update( data->data( ), data->size( ) );
-        hash.Final( hashed->data( ) );
+        std::string hashed;
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( (CryptoPP::byte *)data.data( ), data.size( ) );
+        hash.Final( reinterpret_cast<CryptoPP::byte *>( hashed.data( ) ) );
         return hashed;
     }
 } // namespace vrock::security

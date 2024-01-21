@@ -3,6 +3,7 @@
 #include "utils/ByteArray.hpp"
 #include "utils/FutureHelper.hpp"
 #include "utils/List.hpp"
+#include "utils/SpanHelpers.hpp"
 #include "utils/Timer.hpp"
 
 #include "utils/CoroutineHelpers.hpp"
