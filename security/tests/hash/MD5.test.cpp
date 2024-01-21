@@ -2,8 +2,13 @@
 
 #include <gtest/gtest.h>
 
+#include <vrock/utils/SpanHelpers.hpp>
+
+using namespace vrock::utils;
+using namespace vrock::security;
+
 TEST( MD5Test, BasicAssertion )
 {
-    auto data = vrock::utils::ByteArray( "Test" );
-    EXPECT_EQ( vrock::security::md5( data ).to_hex_string( ), "0cbc6611f5540bd0809a388dc95a615b" );
+    const auto data = "Test";
+    EXPECT_EQ( to_hex_string( md5( data ) ), "0cbc6611f5540bd0809a388dc95a615b" );
 }
