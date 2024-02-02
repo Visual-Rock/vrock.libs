@@ -3,15 +3,6 @@
 Logger
 ======
 
-Threading Policy
-^^^^^^^^^^^^^^^^
-
-.. doxygenstruct:: vrock::log::SingleThreadedPolicy
-    :project: vrock.libs
-
-.. doxygenstruct:: vrock::log::MultiThreadedPolicy
-    :project: vrock.libs
-
 Logger class
 ^^^^^^^^^^^^
 

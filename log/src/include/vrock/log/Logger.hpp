@@ -3,7 +3,6 @@
 #include "LogLevel.hpp"
 #include "LogMessage.hpp"
 #include "Sinks/Sink.hpp"
-#include "ThreadingPolicy.hpp"
 
 #include <memory>
 #include <utility>
@@ -15,12 +14,8 @@ namespace vrock::log
      * @brief The Logger class provides a flexible logging framework.
      *
      * The Logger class allows for easy configuration of log levels, log message patterns, and sinks
-     * to control where log messages are sent. It supports different threading policies to handle
-     * multi-threaded logging scenarios.
-     *
-     * @tparam ThreadingPolicy The threading policy for the Logger (default is SingleThreadedPolicy).
+     * to control where log messages are sent.
      */
-    template <typename ThreadingPolicy = SingleThreadedPolicy>
     class Logger
     {
     public:
@@ -34,11 +29,12 @@ namespace vrock::log
          *
          * @param name The name of the logger.
          * @param level The initial log level for the logger.
+         * @param multi_threaded Flag indicating whether the logger is multi-threaded.
          * @param pattern The log message pattern (defaults to the global pattern).
          */
-        explicit Logger( std::string name, const LogLevel level,
+        explicit Logger( std::string name, const LogLevel level, const bool multi_threaded = false,
                          const std::string_view pattern = get_global_pattern( ) )
-            : level_( level ), name_( std::move( name ) ), pattern_( pattern )
+            : level_( level ), multi_threaded_( multi_threaded ), name_( std::move( name ) ), pattern_( pattern )
         {
         }
 
@@ -107,9 +103,17 @@ namespace vrock::log
                 msg.level = level;
                 msg.source_location = message.source_location;
 
-                const typename ThreadingPolicy::lock lock( mutex_ );
-                for ( const auto &sink : sinks_ )
-                    sink->log( msg );
+                if ( multi_threaded_ )
+                {
+                    std::lock_guard _lock( mutex_ );
+                    for ( const auto &sink : sinks_ )
+                        sink->log( msg );
+                }
+                else
+                {
+                    for ( const auto &sink : sinks_ )
+                        sink->log( msg );
+                }
             }
         }
 
@@ -206,14 +210,10 @@ namespace vrock::log
 
     private:
         LogLevel level_ = LogLevel::Info;          /**< The current log level for the logger. */
+        const bool multi_threaded_ = false;        /**< Flag indicating whether the logger is multi-threaded. */
+        std::mutex mutex_;                         /**< Mutex for thread synchronization in multi-threaded logging. */
         std::string name_;                         /**< The name of the logger. */
         std::string_view pattern_;                 /**< The log message pattern for the logger. */
         std::vector<std::shared_ptr<Sink>> sinks_; /**< Vector of sinks attached to the logger. */
-        typename ThreadingPolicy::mutex_t mutex_;  /**< Mutex for thread-safe log operations. */
     };
-
-    /**
-     * @brief Alias for a multi-threaded logger using the MultiThreadedPolicy.
-     */
-    using MTLogger = Logger<MultiThreadedPolicy>;
 } // namespace vrock::log
