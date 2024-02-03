@@ -78,6 +78,9 @@ namespace vrock::log
         std::string command_sequence;
     };
 
+    auto get_global_log_level() -> LogLevel;
+    auto set_global_log_level( LogLevel level ) -> void;
+
     inline LogLevelColor TraceColor = LogLevelColor( AnsiColor::White, true );
     inline LogLevelColor DebugColor = LogLevelColor( AnsiColor::Cyan, true );
     inline LogLevelColor InfoColor = LogLevelColor( AnsiColor::Green, true );
@@ -85,5 +88,5 @@ namespace vrock::log
     inline LogLevelColor ErrorColor = LogLevelColor( AnsiColor::Red, true );
     inline LogLevelColor CriticalColor = LogLevelColor( AnsiColor::White, true, false, AnsiColor::Red );
 
-    auto get_loglevel_color( const LogLevel &level ) -> const LogLevelColor &;
+    auto get_log_level_color( const LogLevel &level ) -> const LogLevelColor &;
 } // namespace vrock::log

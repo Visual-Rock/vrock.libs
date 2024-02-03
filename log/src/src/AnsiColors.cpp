@@ -2,6 +2,8 @@
 
 namespace vrock::log
 {
+    LogLevel global_log_level_ = LogLevel::Info;
+
     auto flag_to_color( char f ) -> AnsiColor
     {
         switch ( f )
@@ -29,7 +31,17 @@ namespace vrock::log
         }
     }
 
-    auto get_loglevel_color( const LogLevel &level ) -> const LogLevelColor &
+    auto get_global_log_level( ) -> LogLevel
+    {
+        return global_log_level_;
+    }
+
+    auto set_global_log_level( LogLevel level ) -> void
+    {
+        global_log_level_ = level;
+    }
+
+    auto get_log_level_color( const LogLevel &level ) -> const LogLevelColor &
     {
         static auto default_ = LogLevelColor( AnsiColor::Default );
 

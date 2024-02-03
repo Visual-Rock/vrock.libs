@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AnsiColors.hpp"
 #include "LogLevel.hpp"
 #include "LogMessage.hpp"
 #include "Sinks/Sink.hpp"
@@ -10,6 +11,9 @@
 
 namespace vrock::log
 {
+    class Logger;
+    using logger_t = std::shared_ptr<Logger>;
+
     /**
      * @brief The Logger class provides a flexible logging framework.
      *
@@ -18,7 +22,6 @@ namespace vrock::log
      */
     class Logger
     {
-    public:
         /**
          * @brief Default constructor for the Logger class.
          */
@@ -32,12 +35,15 @@ namespace vrock::log
          * @param multi_threaded Flag indicating whether the logger is multi-threaded.
          * @param pattern The log message pattern (defaults to the global pattern).
          */
-        explicit Logger( std::string name, const LogLevel level, const bool multi_threaded = false,
-                         const std::string_view pattern = get_global_pattern( ) )
-            : level_( level ), multi_threaded_( multi_threaded ), name_( std::move( name ) ), pattern_( pattern )
+        explicit Logger( std::string_view name, const LogLevel level = get_global_log_level( ),
+                         const bool multi_threaded = false, const std::string_view pattern = get_global_pattern( ) )
+            : level_( level ), multi_threaded_( multi_threaded ), name_( name ), pattern_( pattern )
         {
         }
 
+        friend auto make_logger( std::string_view, LogLevel, bool, std::string_view ) -> logger_t;
+
+    public:
         /**
          * @brief Adds a sink to the logger.
          *
@@ -212,7 +218,7 @@ namespace vrock::log
         LogLevel level_ = LogLevel::Info;          /**< The current log level for the logger. */
         const bool multi_threaded_ = false;        /**< Flag indicating whether the logger is multi-threaded. */
         std::mutex mutex_;                         /**< Mutex for thread synchronization in multi-threaded logging. */
-        std::string name_;                         /**< The name of the logger. */
+        std::string_view name_;                    /**< The name of the logger. */
         std::string_view pattern_;                 /**< The log message pattern for the logger. */
         std::vector<std::shared_ptr<Sink>> sinks_; /**< Vector of sinks attached to the logger. */
     };

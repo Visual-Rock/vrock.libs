@@ -26,7 +26,7 @@ namespace vrock::log
 
     void AnsiLogLevelColorFormatter::format( const Message &msg, buffer_t &buffer )
     {
-        buffer.append( get_loglevel_color( msg.level ).command_sequence );
+        buffer.append( get_log_level_color( msg.level ).command_sequence );
     }
 
     void AnsiBoldFormatter::format( const Message &msg, buffer_t &buffer )

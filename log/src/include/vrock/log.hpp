@@ -4,3 +4,4 @@
 #include "log/Sinks/FileSinks.hpp"
 
 #include "log/Logger.hpp"
+#include "log/LoggerStorage.hpp"
