@@ -2,7 +2,7 @@
 
 [![CMake Tests](https://github.com/Visual-Rock/vrock.libs/actions/workflows/CMake-Tests.yml/badge.svg)](https://github.com/Visual-Rock/vrock.libs/actions/workflows/CMake-Tests.yml)
 
-A collection of librarys for C++
+A collection of libraries for C++ projects.
 
 ## 🧐 Features
 
@@ -17,6 +17,10 @@ Here're some of the project's best features:
     * facilities for AES encryption and decryption
     * facilities for SHA2 and md5 hashes
     * random number generation
+- log:
+    * a simple logging facility
+    * customizable logging patterns
+    * multithreading support
 
 ## 🚀 Getting Started
 
@@ -25,10 +29,14 @@ Here're some of the project's best features:
 You need to install the following software:
 
 * cmake
-* a c++ compiler (gcc, clang, MSVC)
+* a recent c++ compiler (gcc, clang, MSVC)
 * vcpkg
+* docs (optional)
+    * Doxygen
+    * [Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) + sphinx-sitemap and sphinx-rtd-theme
+    * [Breathe](https://breathe.readthedocs.io/en/latest/installation.html)
 
-### Installation
+### How to build
 
 1. Clone the repo
    ```sh
@@ -46,10 +54,21 @@ You need to install the following software:
    | Name     | Description                                   |
    |----------|-----------------------------------------------|
    | SECURITY | includes the security module                  |
+   | LOG      | includes the log module                       |
    | PDF      | includes the pdf module                       |
    | DOCS     | builds the documentation for all modules      |
    | EXAMPLES | includes all examples of the selected modules |
    | TESTS    | builds the tests for all selected modules     |
+
+3. Build
+   ```sh
+   cmake --build <build-dir>
+   ```
+
+4. Build the Docs
+   ```sh
+   cmake --build <build-dir> --target Docs
+   ```
 
 ## 💻 Built with
 
