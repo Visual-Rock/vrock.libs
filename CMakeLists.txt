@@ -13,6 +13,9 @@ option(VROCKLIBS_PDF "Build the pdf module of vrock.lib" OFF)
 
 add_subdirectory(external)
 
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
 if (${VROCKLIBS_TESTS})
     include(CTest)
     include(FetchContent)
@@ -26,6 +29,10 @@ if (${VROCKLIBS_TESTS})
 endif ()
 
 add_subdirectory(utils) # utils is always included
+
+if (${VROCKLIBS_LOG})
+    add_subdirectory(log)
+endif ()
 
 if (${VROCKLIBS_SECURITY})
     add_subdirectory(security)
