@@ -20,7 +20,7 @@ namespace vrock::log
         std::string_view logger_name;
         std::string_view message;
         std::source_location source_location;
-        std::chrono::time_point<std::chrono::system_clock> time;
+        std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time;
         ExecutionContext execution_context;
     };
 } // namespace vrock::log
