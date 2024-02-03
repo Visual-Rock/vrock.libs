@@ -1,0 +1,12 @@
+.underline {
+    text-decoration: underline;
+}
+
+.red {
+    color: red;
+}
+
+.red-background {
+    background-color: red;
+    color: white;
+}
