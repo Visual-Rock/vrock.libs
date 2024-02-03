@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <exception>
+#include <stdexcept>
 
 #ifdef WIN32
 #include "Windows.h"
