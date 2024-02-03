@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "vrock/log/FlagFormatters/AlignFormatter.hpp"
+#include "vrock/log/FlagFormatters/AlignFormatters.hpp"
 #include "vrock/log/FlagFormatters/GeneralFormatters.hpp"
 
 using namespace vrock::log;

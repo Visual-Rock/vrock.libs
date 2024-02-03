@@ -4,12 +4,12 @@ target_sources(vrocklog PRIVATE
         src/AnsiColors.cpp
         src/LoggerStorage.cpp
 
-        src/FlagFormatters/AlignFormatter.cpp
-        src/FlagFormatters/PatternFormatter.cpp
-        src/FlagFormatters/AnsiFormatter.cpp
-        src/FlagFormatters/SourceFormatter.cpp
+        src/FlagFormatters/AlignFormatters.cpp
+        src/FlagFormatters/PatternFormatters.cpp
+        src/FlagFormatters/AnsiFormatters.cpp
+        src/FlagFormatters/SourceFormatters.cpp
         src/FlagFormatters/TimeFormatters.cpp
-        src/FlagFormatters/GeneralFormatter.cpp
+        src/FlagFormatters/GeneralFormatters.cpp
 
         src/Sinks/ConsoleSinks.cpp
         src/Sinks/FileSinks.cpp

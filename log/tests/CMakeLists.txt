@@ -1,7 +1,7 @@
 enable_testing()
 
 add_executable(log_tests
-        FlagFormatters/AlignFormatter.test.cpp
+        FlagFormatters/AlignFormatters.test.cpp
         FlagFormatters/GeneralFormatters.test.cpp
         FlagFormatters/AnsiColorFormatters.test.cpp
         FlagFormatters/SourceFormatters.test.cpp

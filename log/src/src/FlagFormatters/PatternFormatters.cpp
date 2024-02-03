@@ -1,6 +1,6 @@
 #include "vrock/log/FlagFormatters/PatternFormatter.hpp"
 
-#include "vrock/log/FlagFormatters/AlignFormatter.hpp"
+#include "vrock/log/FlagFormatters/AlignFormatters.hpp"
 #include "vrock/log/FlagFormatters/AnsiFormatters.hpp"
 #include "vrock/log/FlagFormatters/GeneralFormatters.hpp"
 #include "vrock/log/FlagFormatters/SourceFormatters.hpp"
@@ -242,7 +242,7 @@ namespace vrock::log
 
         return collection;
     }
-    
+
     auto compile_file_pattern( std::string_view pattern ) -> formatter_collection_t
     {
         return compile_pattern( pattern, false, true );
