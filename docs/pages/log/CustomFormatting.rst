@@ -29,8 +29,8 @@ The simplest log pattern might include only the log message itself.
 .. code-block:: c++
     :caption: Basic Example
 
-    logger.set_pattern("%v");
-    logger.info("This is a log message");
+    logger->set_pattern("%v");
+    logger->info("This is a log message");
 
 .. code-block:: console
     :caption: output
@@ -45,8 +45,8 @@ Including timestamps in log messages is a common practice. You can use %c to rep
 .. code-block:: c++
     :caption: with Timestamp
 
-    logger.set_pattern("[ %x %T ] %v");
-    logger.info("Logging with timestamps");
+    logger->set_pattern("[ %x %T ] %v");
+    logger->info("Logging with timestamps");
 
 .. code-block:: console
     :caption: output
@@ -61,8 +61,8 @@ Log patterns often include the log level for better categorization. Use %l to re
 .. code-block:: c++
     :caption: with Timestamp
 
-    logger.set_pattern("[ %l ] %v");
-    logger.info("A warning message");
+    logger->set_pattern("[ %l ] %v");
+    logger->info("A warning message");
 
 .. code-block:: console
     :caption: output

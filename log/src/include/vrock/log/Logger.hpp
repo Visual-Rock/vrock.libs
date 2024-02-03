@@ -6,6 +6,7 @@
 #include "Sinks/Sink.hpp"
 
 #include <memory>
+#include <mutex>
 #include <utility>
 #include <vector>
 

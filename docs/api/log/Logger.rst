@@ -3,6 +3,12 @@
 Logger
 ======
 
+.. doxygenfunction:: vrock::log::make_logger
+    :project: vrock.libs
+
+.. doxygenfunction:: vrock::log::get_logger
+    :project: vrock.libs
+
 Logger class
 ^^^^^^^^^^^^
 

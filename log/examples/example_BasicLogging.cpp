@@ -3,15 +3,9 @@ using namespace vrock::log;
 
 int main( )
 {
-    const auto logger = make_logger( "EXAMPLE", LogLevel::Trace );
+    auto logger = make_logger( "example" );
     logger->add_sink( std::make_shared<StandardOutSink>( ) );
-
-    logger->trace( "trace" );
-    logger->debug( "debug" );
-    logger->info( "info" );
-    logger->warn( "warn" );
-    logger->error( "error" );
-    logger->critical( "critical" );
+    logger->info( "Hello, World!" );
 
     return 0;
 }
