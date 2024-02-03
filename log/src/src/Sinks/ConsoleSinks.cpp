@@ -15,7 +15,7 @@ namespace vrock::log
 #ifdef WIN32
         HANDLE hOutput = GetStdHandle( STD_OUTPUT_HANDLE );
         if ( hOutput == INVALID_HANDLE_VALUE )
-            throw std::runtime_exception( "failed to get output handle." );
+            throw std::runtime_error( "failed to get output handle." );
 
         SetConsoleMode( hOutput, ENABLE_VIRTUAL_TERMINAL_PROCESSING );
 #endif
