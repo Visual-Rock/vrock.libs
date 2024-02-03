@@ -1,6 +1,7 @@
 cmake-build-*/
 vcpkg_installed/
 build/
+builds/
 builddir/
 .idea/
 .vs/
