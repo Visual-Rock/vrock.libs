@@ -100,8 +100,8 @@ namespace vrock::pdf
 
         if ( decrypt )
             return std::make_shared<PDFByteString>(
-                decryption_handler->decrypt( utils::from_hex_string_shared( str ), std::move( ref ) ) );
-        return std::make_shared<PDFByteString>( utils::from_hex_string_shared( str ) );
+                decryption_handler->decrypt( utils::from_hex_string<std::string>( str ), std::move( ref ) ) );
+        return std::make_shared<PDFByteString>( utils::from_hex_string<std::string>( str ) );
     }
 
     auto PDFObjectParser::parse_string( std::shared_ptr<PDFRef> ref, bool decrypt ) -> std::shared_ptr<PDFString>
@@ -151,10 +151,7 @@ namespace vrock::pdf
             {
                 if ( decrypt )
                     return std::make_shared<PDFUTF8String>(
-                        decryption_handler
-                            ->decrypt(
-                                std::make_shared<vrock::utils::ByteArray<>>( str.substr( 1, str.length( ) - 2 ) ), ref )
-                            ->to_string( ) );
+                        decryption_handler->decrypt( str.substr( 1, str.length( ) - 2 ), ref ) );
                 return std::make_shared<PDFUTF8String>( str.substr( 1, str.length( ) - 2 ) );
             }
         }
@@ -218,8 +215,7 @@ namespace vrock::pdf
         }
         else
             end = find_end_of_stream( );
-        auto data = std::make_shared<utils::ByteArray<>>( end - start );
-        std::memcpy( data->data( ), _string.data( ) + start, data->size( ) );
+        auto data = _string.substr( start, end - start );
 
         auto type = dict->get<PDFName>( "Type" );
         if ( type && type->name == "XRef" )
@@ -308,7 +304,7 @@ namespace vrock::pdf
             auto obj = parse_object( nullptr, false );
             if ( auto stream = obj->to<PDFStream>( )->to_stream<PDFXRefStream>( ) )
             {
-                table->entries = std::move( stream->get_entries( ) );
+                table->entries = stream->get_entries( );
                 table->trailer = stream->dict;
             }
             else if ( auto dict = obj->to<PDFDictionary>( ) )

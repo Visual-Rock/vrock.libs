@@ -6,9 +6,11 @@
 
 #include "PDFObjects.hpp"
 
+#include <vrock/utils/SpanHelpers.hpp>
+
 namespace vrock::pdf
 {
-    enum SecurityHandlerType
+    enum class SecurityHandlerType
     {
         Null,
         Standard
@@ -17,7 +19,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_handler_type( ) -> SecurityHandlerType
     {
-        static_assert( true, "unknown handler type" );
+        static_assert( false, "unknown handler type" );
     }
 
     enum class Permissions : uint32_t
@@ -62,10 +64,8 @@ namespace vrock::pdf
         }
 
         virtual auto is_encrypted( ) -> bool = 0;
-        virtual auto decrypt( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> = 0;
-        virtual auto encrypt( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> = 0;
+        virtual auto decrypt( in_data_t, std::shared_ptr<PDFRef> ) -> data_t = 0;
+        virtual auto encrypt( in_data_t, std::shared_ptr<PDFRef> ) -> data_t = 0;
         virtual auto has_permission( Permissions ) -> bool = 0;
 
         OPTNONE_START auto is( SecurityHandlerType t ) -> bool
@@ -105,11 +105,9 @@ namespace vrock::pdf
 
         auto is_encrypted( ) -> bool final;
 
-        auto decrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final;
+        auto decrypt( in_data_t data, std::shared_ptr<PDFRef> ) -> data_t final;
 
-        auto encrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final;
+        auto encrypt( in_data_t data, std::shared_ptr<PDFRef> ) -> data_t final;
 
         auto has_permission( Permissions permissions ) -> bool override;
     };
@@ -122,11 +120,9 @@ namespace vrock::pdf
 
         auto is_encrypted( ) -> bool final;
 
-        auto decrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final;
+        auto decrypt( in_data_t data, std::shared_ptr<PDFRef> ) -> data_t final;
 
-        auto encrypt( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> )
-            -> std::shared_ptr<utils::ByteArray<>> final;
+        auto encrypt( in_data_t data, std::shared_ptr<PDFRef> ) -> data_t final;
 
         auto has_user_password( ) -> bool;
 
@@ -140,7 +136,7 @@ namespace vrock::pdf
         std::shared_ptr<PDFContext> context;
 
         std::shared_ptr<PDFDictionary> dict;
-        std::shared_ptr<utils::ByteArray<>> key;
+        data_t key;
         AuthenticationState state = AuthenticationState::Failed;
         std::uint32_t permissions;
         std::uint8_t revision;
@@ -150,68 +146,52 @@ namespace vrock::pdf
     };
 
     /// PDF Algorithm declaration
-    auto encrypt_data_1( std::shared_ptr<utils::ByteArray<>> data, const std::shared_ptr<PDFRef> &ref,
-                         std::shared_ptr<utils::ByteArray<>> key, bool use_aes = true )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto encrypt_data_1( in_data_t data, const std::shared_ptr<PDFRef> &ref, in_data_t key, bool use_aes = true )
+        -> data_t;
 
-    auto encrypt_data_1a( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<utils::ByteArray<>> key )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto encrypt_data_1a( in_data_t data, in_data_t key ) -> data_t;
 
-    auto decrypt_data_1( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFRef> ref,
-                         std::shared_ptr<utils::ByteArray<>> key, bool use_aes = true )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto decrypt_data_1( in_data_t data, std::shared_ptr<PDFRef> ref, in_data_t key, bool use_aes = true ) -> data_t;
 
-    auto decrypt_data_1a( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<utils::ByteArray<>> key )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto decrypt_data_1a( in_data_t data, in_data_t key ) -> data_t;
 
     const auto fill =
-        utils::from_hex_string_shared( "28BF4E5E4E758A4164004E56FFFA01082E2E00B6D0683E802F0CA9FE6453697A" );
+        utils::from_hex_string<data_t>( "28BF4E5E4E758A4164004E56FFFA01082E2E00B6D0683E802F0CA9FE6453697A" );
 
-    auto compute_file_encryption_key_2( const std::string &password, const std::shared_ptr<utils::ByteArray<>> &o,
-                                        uint32_t p, const std::shared_ptr<utils::ByteArray<>> &id, int32_t length,
-                                        uint8_t revision, bool encrypt_metadata )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    // auto compute_file_encryption_key_2( const std::string &password, in_data_t o, uint32_t p, in_data_t id,
+    //                                     int32_t length, uint8_t revision, bool encrypt_metadata ) -> data_t;
 
-    auto retrieve_file_encryption_key_2a( const std::string &password, AuthenticationState state,
-                                          std::shared_ptr<utils::ByteArray<>> o, std::shared_ptr<utils::ByteArray<>> u,
-                                          std::shared_ptr<utils::ByteArray<>> oe,
-                                          std::shared_ptr<utils::ByteArray<>> ue, int32_t p,
-                                          std::shared_ptr<utils::ByteArray<>> perms, uint8_t revision,
-                                          bool *out_encrypt_metadata ) -> std::shared_ptr<utils::ByteArray<>>;
+    auto retrieve_file_encryption_key_2a( const std::string &password, AuthenticationState state, in_data_t o,
+                                          in_data_t u, in_data_t oe, in_data_t ue, int32_t p, in_data_t perms,
+                                          uint8_t revision, bool *out_encrypt_metadata ) -> data_t;
 
-    auto compute_hash_2b( const std::string &password, std::shared_ptr<utils::ByteArray<>> salt,
-                          std::shared_ptr<utils::ByteArray<>> user_key, uint8_t revision )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto compute_hash_2b( const std::string &password, in_data_t salt, in_data_t user_key, uint8_t revision ) -> data_t;
 
     auto compute_o_3( const std::string &owner_password, const std::string &user_password, int32_t length,
-                      uint8_t revision ) -> std::shared_ptr<utils::ByteArray<>>;
+                      uint8_t revision ) -> data_t;
 
-    auto compute_u_4( std::shared_ptr<utils::ByteArray<>> key ) -> std::shared_ptr<utils::ByteArray<>>;
+    auto compute_u_4( in_data_t key ) -> data_t;
 
-    auto compute_u_5( std::shared_ptr<utils::ByteArray<>> key, std::shared_ptr<utils::ByteArray<>> id )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto compute_u_5( in_data_t key, in_data_t id ) -> data_t;
 
     auto authenticate_user_password_6( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
-                                       std::shared_ptr<utils::ByteArray<>> id ) -> std::shared_ptr<utils::ByteArray<>>;
+                                       in_data_t id ) -> data_t;
 
     auto authenticate_owner_password_7( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
-                                        std::shared_ptr<utils::ByteArray<>> id ) -> std::shared_ptr<utils::ByteArray<>>;
+                                        in_data_t id ) -> data_t;
 
-    auto compute_u_ue_8( const std::string &password, std::shared_ptr<utils::ByteArray<>> key, uint8_t revision )
-        -> std::pair<std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<utils::ByteArray<>>>;
+    auto compute_u_ue_8( const std::string &password, in_data_t key, uint8_t revision ) -> std::pair<data_t, data_t>;
 
-    auto compute_o_oe_9( const std::string &password, std::shared_ptr<utils::ByteArray<>> key,
-                         std::shared_ptr<utils::ByteArray<>> u, uint8_t revision )
-        -> std::pair<std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<utils::ByteArray<>>>;
+    auto compute_o_oe_9( const std::string &password, in_data_t key, in_data_t u, uint8_t revision )
+        -> std::pair<data_t, data_t>;
 
-    auto encrypt_perms_10( int32_t p, bool enc_meta_data, std::shared_ptr<utils::ByteArray<>> key )
-        -> std::shared_ptr<utils::ByteArray<>>;
+    auto encrypt_perms_10( int32_t p, bool enc_meta_data, in_data_t key ) -> data_t;
 
     auto authenticate_user_password_11( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
-                                        bool *out_encrypt_meta ) -> std::shared_ptr<utils::ByteArray<>>;
+                                        bool *out_encrypt_meta ) -> data_t;
 
     auto authenticate_owner_password_12( const std::string &password, const std::shared_ptr<PDFDictionary> &dict,
-                                         bool *out_encrypt_meta ) -> std::shared_ptr<utils::ByteArray<>>;
+                                         bool *out_encrypt_meta ) -> data_t;
 
     template <>
     auto to_handler_type<PDFNullSecurityHandler>( ) -> SecurityHandlerType;

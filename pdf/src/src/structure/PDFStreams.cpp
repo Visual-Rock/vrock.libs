@@ -3,10 +3,13 @@
 
 #include "vrock/pdf/structure/PDFFilters.hpp"
 
+#include <iomanip>
+
+#include <vrock/utils/SpanHelpers.hpp>
+
 namespace vrock::pdf
 {
-    PDFStream::PDFStream( std::shared_ptr<PDFDictionary> dictionary, std::shared_ptr<utils::ByteArray<>> _data,
-                          PDFStreamType t )
+    PDFStream::PDFStream( std::shared_ptr<PDFDictionary> dictionary, in_data_t _data, PDFStreamType t )
         : PDFBaseObject( PDFObjectType::Stream ), stream_type( t ), dict( std::move( dictionary ) )
     {
         // get filters and param dictionary
@@ -25,19 +28,19 @@ namespace vrock::pdf
         }
 
         // apply filters on data and save data
-        auto d = std::move( _data );
+        data_t d = std::string( _data );
 
         for ( auto &f : filters )
             if ( encodings.contains( f ) )
                 d = encodings[ f ]->decode( d, param );
-        data = std::move( d );
+        data = d;
     }
 
-    PDFObjectStream::PDFObjectStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data,
+    PDFObjectStream::PDFObjectStream( std::shared_ptr<PDFDictionary> d, in_data_t data,
                                       std::shared_ptr<PDFContext> ctx )
-        : PDFStream( std::move( d ), std::move( data ), PDFStreamType::Object ), context( std::move( ctx ) )
+        : PDFStream( std::move( d ), data, PDFStreamType::Object ), context( std::move( ctx ) )
     {
-        parser = std::make_shared<PDFObjectParser>( this->data->to_string( ) );
+        parser = std::make_shared<PDFObjectParser>( data_t( this->data ) );
         parser->set_context( context );
         auto n = dict->get<PDFInteger>( "N" );
         auto f = dict->get<PDFInteger>( "First" );
@@ -101,31 +104,24 @@ namespace vrock::pdf
                     auto start = index[ i ];
                     for ( auto j = 0; j < index[ i + 1 ]; ++j )
                     {
-                        std::stringstream field;
                         // read field 1
                         unsigned long field_1 = 0;
                         if ( field_size[ 0 ] != 0 )
                         {
-                            for ( size_t l = 0; l < field_size[ 0 ]; ++l )
-                                field << std::setw( 2 ) << std::setfill( '0' ) << std::hex
-                                      << (int)data->data( )[ offset + l ];
-                            field_1 = std::stoul( field.str( ), nullptr, 16 );
-                            field.str( "" );
+                            auto d = utils::to_hex_string( data.substr( offset, field_size[ 0 ] ) );
+                            field_1 = std::stoul( d, nullptr, 16 );
                         }
                         else
                             field_1 = 1;
 
                         // read field 2
-                        for ( size_t l = 0; l < field_size[ 1 ]; ++l )
-                            field << std::setw( 2 ) << std::setfill( '0' ) << std::hex
-                                  << (int)data->data( )[ offset + field_size[ 0 ] + l ];
-                        auto field_2 = std::stoul( field.str( ), nullptr, 16 );
-                        field.str( "" );
+                        auto d = utils::to_hex_string( data.substr( offset + field_size[ 0 ], field_size[ 1 ] ) );
+                        auto field_2 = std::stoul( d, nullptr, 16 );
+
                         // read field 3
-                        for ( size_t l = 0; l < field_size[ 2 ]; ++l )
-                            field << std::setw( 2 ) << std::setfill( '0' ) << std::hex
-                                  << (int)data->data( )[ offset + field_size[ 0 ] + field_size[ 1 ] + l ];
-                        auto field_3 = std::stoul( field.str( ), nullptr, 16 );
+                        d = utils::to_hex_string(
+                            data.substr( offset + field_size[ 0 ] + field_size[ 1 ], field_size[ 2 ] ) );
+                        auto field_3 = std::stoul( d, nullptr, 16 );
 
                         auto e = std::make_shared<XRefEntry>( field_2, start + j, field_3, field_1 );
                         entries[ e ] = e;
@@ -141,9 +137,9 @@ namespace vrock::pdf
         else
             throw std::runtime_error( "Size not found in XRefStream Dictionary or it is not an Integer" );
     }
-    
-    PDFXRefStream::PDFXRefStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data )
-        : PDFStream( std::move( d ), std::move( data ), PDFStreamType::XRef )
+
+    PDFXRefStream::PDFXRefStream( std::shared_ptr<PDFDictionary> d, in_data_t data )
+        : PDFStream( std::move( d ), data, PDFStreamType::XRef )
     {
     }
 

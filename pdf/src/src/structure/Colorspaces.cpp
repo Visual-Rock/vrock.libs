@@ -81,7 +81,7 @@ namespace vrock::pdf
             c = 1.0f - rgb.r;
             m = 1.0f - rgb.g;
             y = 1.0f - rgb.b;
-            k = std::min( { c, m, y } );
+            k = std::min( std::min( c, m ), y );
         }
         else
         {
@@ -93,15 +93,15 @@ namespace vrock::pdf
     {
     }
     //
-    //    auto RGBColorSpace::convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
-    //        -> std::shared_ptr<utils::ByteArray<>>
+    //    auto RGBColorSpace::convert_to_rgb( data_t data, std::shared_ptr<PDFBaseObject> )
+    //        -> data_t
     //    {
     //        return data;
     //    }
     //
-    //    auto RGBColorSpace::convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> data,
+    //    auto RGBColorSpace::convert_to_cmyk( data_t data,
     //                                         std::shared_ptr<PDFBaseObject> sharedPtr )
-    //        -> std::shared_ptr<utils::ByteArray<>>
+    //        -> data_t
     //    {
     //        auto processed = std::make_shared<utils::ByteArray<>>( ( data->size( ) / 3 ) * 4 * sizeof( CMYKFloat ) );
     //
@@ -121,35 +121,32 @@ namespace vrock::pdf
     //            processed->at( cmyk ) = ( 1.0f - r - k ) / ( 1 - k );
     //        }
     //
-    //        return std::shared_ptr<utils::ByteArray<>>( );
+    //        return { };
     //    }
 
-    //    auto RGBColorSpace::convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr,
+    //    auto RGBColorSpace::convert_to_gray( data_t ptr,
     //                                         std::shared_ptr<PDFBaseObject> sharedPtr )
-    //        -> std::shared_ptr<utils::ByteArray<>>
+    //        -> data_t
     //    {
-    //        return std::shared_ptr<utils::ByteArray<>>( );
+    //        return { };
     //    }
 
     GrayColorSpace::GrayColorSpace( ) : ColorSpace( ColorSpaceType::Gray )
     {
     }
 
-    auto GrayColorSpace::convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data,
-                                         std::shared_ptr<PDFBaseObject> params ) -> std::shared_ptr<utils::ByteArray<>>
+    auto GrayColorSpace::convert_to_rgb( data_t data, std::shared_ptr<PDFBaseObject> params ) -> data_t
     {
-        return std::shared_ptr<utils::ByteArray<>>( );
+        return { };
     }
 
-    std::shared_ptr<utils::ByteArray<>> GrayColorSpace::convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr,
-                                                                         std::shared_ptr<PDFBaseObject> sharedPtr )
+    data_t GrayColorSpace::convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
     {
-        return std::shared_ptr<utils::ByteArray<>>( );
+        return { };
     }
-    std::shared_ptr<utils::ByteArray<>> GrayColorSpace::convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr,
-                                                                         std::shared_ptr<PDFBaseObject> sharedPtr )
+    data_t GrayColorSpace::convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
     {
-        return std::shared_ptr<utils::ByteArray<>>( );
+        return { };
     }
 
     auto get_num( std::uint8_t *data, std::size_t idx, std::uint8_t stride ) -> std::uint8_t
@@ -160,14 +157,12 @@ namespace vrock::pdf
         auto mask = ( ( (uint8_t)std::pow( 2, stride ) ) - 1 ) << offset;
         return ( data[ byte_offset ] & mask ) >> offset;
     }
-    std::shared_ptr<utils::ByteArray<>> IndexedColorSpace::convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr,
-                                                                            std::shared_ptr<PDFBaseObject> sharedPtr )
+    data_t IndexedColorSpace::convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
     {
-        return std::shared_ptr<utils::ByteArray<>>( );
+        return { };
     }
-    std::shared_ptr<utils::ByteArray<>> IndexedColorSpace::convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr,
-                                                                            std::shared_ptr<PDFBaseObject> sharedPtr )
+    data_t IndexedColorSpace::convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
     {
-        return std::shared_ptr<utils::ByteArray<>>( );
+        return { };
     }
 } // namespace vrock::pdf

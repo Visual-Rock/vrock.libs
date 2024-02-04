@@ -122,7 +122,7 @@ namespace vrock::pdf
         }
         std::string content;
         for ( auto &content_stream : content_streams )
-            content += content_stream->data->to_string( );
+            content += content_stream->data;
 
         auto parser = ContentStreamParser( content, resources, context );
         images = std::move( parser.images );

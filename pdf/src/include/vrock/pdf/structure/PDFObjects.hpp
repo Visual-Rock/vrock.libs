@@ -1,13 +1,10 @@
 #pragma once
 
-#include <vrock/utils/ByteArray.hpp>
-
 #include <cstdint>
 #include <format>
 #include <iostream>
 #include <memory>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #if defined( __clang__ )
@@ -28,6 +25,9 @@
 
 namespace vrock::pdf
 {
+    using data_t = std::string;
+    using in_data_t = std::string_view;
+
     class PDFContext;
     enum class PDFObjectType
     {
@@ -52,7 +52,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_object_type( ) -> PDFObjectType
     {
-        static_assert( "unknown conversion from type" );
+        static_assert( false, "unknown conversion from type" );
     }
 
     class PDFBaseObject : public std::enable_shared_from_this<PDFBaseObject>
@@ -220,24 +220,22 @@ namespace vrock::pdf
         ~PDFString( ) override = default;
 
         virtual auto get_string( ) -> std::string;
-        virtual auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>>;
-        virtual auto set( const std::string &str ) -> void;
-        virtual auto set( std::shared_ptr<utils::ByteArray<>> data ) -> void;
+        virtual auto get_data( ) -> data_t;
+        virtual auto set( in_data_t data ) -> void;
     };
 
     class PDFByteString : public PDFString
     {
     public:
-        explicit PDFByteString( std::shared_ptr<utils::ByteArray<>> d = nullptr );
+        explicit PDFByteString( in_data_t d = "" );
         ~PDFByteString( ) override = default;
 
         auto get_string( ) -> std::string override;
-        auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>> override;
-        auto set( const std::string &str ) -> void override;
-        auto set( std::shared_ptr<utils::ByteArray<>> d ) -> void override;
+        auto get_data( ) -> data_t override;
+        auto set( in_data_t data ) -> void override;
 
     private:
-        std::shared_ptr<utils::ByteArray<>> data;
+        data_t data;
     };
 
     class PDFTextString : public PDFString
@@ -247,9 +245,8 @@ namespace vrock::pdf
         ~PDFTextString( ) override = default;
 
         auto get_string( ) -> std::string override;
-        auto get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>> override;
-        auto set( const std::string &s ) -> void override;
-        auto set( std::shared_ptr<utils::ByteArray<>> data ) -> void override;
+        auto get_data( ) -> data_t override;
+        auto set( in_data_t s ) -> void override;
 
         // TODO: virtual auto convert_to() -> str::string = 0;
         virtual auto convert_from( const std::string &str ) -> std::string = 0;
