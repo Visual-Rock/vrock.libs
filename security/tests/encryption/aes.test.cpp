@@ -6,22 +6,7 @@ using namespace vrock::utils;
 
 #include <gtest/gtest.h>
 
-//
-// TEST( AESCBCEncryptTest, BasicAssertion )
-// {
-//     auto data = vrock::utils::ByteArray( "Test" );
-//     auto key = vrock::utils::from_hex_string( "B10851065A82E228EE29CF3A8322DB6A" );
-//     auto iv = vrock::utils::from_hex_string( "AC0EF343B92D165D8E75703C7B3E0770" );
-//
-//     auto encrypted = vrock::security::encrypt_aes_cbc( data, key, iv, vrock::security::Padding::PkcsPadding );
-//     EXPECT_EQ( encrypted.to_string( ),
-//                vrock::utils::from_hex_string( "78f293772a958631d43de02e31b84673" ).to_string( ) );
-//     EXPECT_EQ(
-//         vrock::security::decrypt_aes_cbc( encrypted, key, iv, vrock::security::Padding::PkcsPadding ).to_string( ),
-//         "Test" );
-// }
-
-TEST( AESGCMEncryptTest, BasicAssertion )
+TEST( AESTest, AESGCMTest )
 {
     std::vector<std::uint8_t> data( 16, '\0' );
     std::vector<std::uint8_t> key( 32, '\0' );
@@ -42,7 +27,7 @@ TEST( AESGCMEncryptTest, BasicAssertion )
     }
 }
 
-TEST( AESECBEncryptTest, BasicAssertion )
+TEST( AESTest, AESECBTest )
 {
     std::vector<std::uint8_t> data( 16, '\0' );
     std::vector<std::uint8_t> key( 32, '\0' );
@@ -60,7 +45,7 @@ TEST( AESECBEncryptTest, BasicAssertion )
     }
 }
 
-TEST( AESCBCEncryptTest, BasicAssertion )
+TEST( AESTest, AESCBCTest )
 {
     std::vector<std::uint8_t> data( 16, '\0' );
     std::vector<std::uint8_t> key( 32, '\0' );

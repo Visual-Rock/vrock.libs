@@ -1,5 +1,5 @@
-#include <iomanip>
 #include <iostream>
+
 #include <vrock/security.hpp>
 #include <vrock/utils/SpanHelpers.hpp>
 

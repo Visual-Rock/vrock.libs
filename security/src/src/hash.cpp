@@ -9,11 +9,11 @@ namespace vrock::security
     auto md5( byte_span_t data ) -> return_t
     {
         CryptoPP::Weak::MD5 hash;
-        return_t return_{ };
-        return_.reserve( hash.DigestSize( ) );
-        hash.Update( data.data( ), hash.DigestSize( ) );
-        hash.Final( return_.data( ) );
-        return return_;
+        return_t hashed{ };
+        hashed.resize( hash.DigestSize( ) );
+        hash.Update( data.data( ), data.size( ) );
+        hash.Final( hashed.data( ) );
+        return hashed;
     }
 
     auto sha224( byte_span_t data ) -> return_t

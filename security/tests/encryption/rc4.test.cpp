@@ -6,7 +6,7 @@ using namespace vrock::utils;
 
 #include <gtest/gtest.h>
 
-TEST( RC4EncryptTest, BasicAssertion )
+TEST( RC4Test, RC4Test )
 {
     std::vector<std::uint8_t> data( 10, '\0' );
     std::vector<std::uint8_t> key( 10, '\0' );
