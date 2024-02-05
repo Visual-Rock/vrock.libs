@@ -45,3 +45,8 @@ endif ()
 if (${VROCKLIBS_DOCS})
     add_subdirectory(docs)
 endif ()
+
+add_library(vrocklibs INTERFACE)
+add_library(vrock::libs ALIAS vrocklibs)
+
+target_link_libraries(vrocklibs INTERFACE ${VROCKLIBS_TARGETS})

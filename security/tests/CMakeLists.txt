@@ -4,7 +4,7 @@ add_executable(security_tests hash/MD5.test.cpp hash/SHA2.test.cpp encryption/ae
 
 target_link_libraries(
         security_tests PRIVATE
-        vrocksecurity
+        vrock::security
         GTest::gtest_main
 )
 

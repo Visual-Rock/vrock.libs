@@ -10,7 +10,7 @@ add_executable(utils_tests
 
 target_link_libraries(
         utils_tests PRIVATE
-        vrockutils
+        vrock::utils
         GTest::gtest_main
 )
 

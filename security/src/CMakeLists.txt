@@ -1,4 +1,6 @@
 add_library(vrocksecurity)
+add_library(vrock::security ALIAS vrocksecurity)
+
 
 find_package(cryptopp CONFIG REQUIRED)
 
@@ -9,5 +11,5 @@ target_sources(vrocksecurity PRIVATE
         src/hash.cpp
 )
 
-target_link_libraries(vrocksecurity PUBLIC vrockutils)
+target_link_libraries(vrocksecurity PUBLIC vrock::utils)
 target_link_libraries(vrocksecurity PRIVATE cryptopp::cryptopp)

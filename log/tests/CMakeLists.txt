@@ -12,7 +12,7 @@ add_executable(log_tests
 
 target_link_libraries(
         log_tests PRIVATE
-        vrocklog
+        vrock::log
         GTest::gtest_main
 )
 

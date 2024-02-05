@@ -1,4 +1,8 @@
 add_library(vrocklog)
+add_library(vrock::log ALIAS vrocklog)
+
+set(VROCKLIBS_TARGETS ${VROCKLIBS_TARGETS} vrocklog)
+
 target_include_directories(vrocklog PUBLIC ./include/)
 target_sources(vrocklog PRIVATE
         src/AnsiColors.cpp
