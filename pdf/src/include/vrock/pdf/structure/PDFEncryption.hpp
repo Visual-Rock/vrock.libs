@@ -12,6 +12,7 @@ namespace vrock::pdf
 {
     enum class SecurityHandlerType
     {
+        None,
         Null,
         Standard
     };
@@ -19,7 +20,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_handler_type( ) -> SecurityHandlerType
     {
-        static_assert( false, "unknown handler type" );
+        return SecurityHandlerType::None;
     }
 
     enum class Permissions : uint32_t

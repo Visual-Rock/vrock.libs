@@ -52,7 +52,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_object_type( ) -> PDFObjectType
     {
-        static_assert( false, "unknown conversion from type" );
+        return PDFObjectType::None;
     }
 
     class PDFBaseObject : public std::enable_shared_from_this<PDFBaseObject>

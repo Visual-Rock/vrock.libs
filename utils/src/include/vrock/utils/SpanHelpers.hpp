@@ -37,7 +37,7 @@ namespace vrock::utils
     template <typename T>
     auto from_hex_string( std::string_view data ) -> T
     {
-        static_assert( false, "from_hex_string not implemented for this type" );
+        return T( );
     }
 
     template <>

@@ -12,6 +12,7 @@ namespace vrock::pdf
 
     enum class PDFStreamType
     {
+        None,
         Raw,
         XRef,
         Object
@@ -20,7 +21,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_stream_type( ) -> PDFStreamType
     {
-        static_assert( false, "unknown conversion from type" );
+        return PDFStreamType::None;
     }
 
     class PDFStream : public PDFBaseObject
