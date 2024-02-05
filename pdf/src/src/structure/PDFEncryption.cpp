@@ -13,14 +13,6 @@
 #include <string>
 #include <utility>
 
-#ifdef WIN32
-    #define VPTR
-#else
-    #define VPTR ( void * )
-#endif // WIN32
-
-
-
 namespace vrock::pdf
 {
     PDFNullSecurityHandler::PDFNullSecurityHandler( ) : PDFBaseSecurityHandler( SecurityHandlerType::Null )
@@ -265,11 +257,11 @@ namespace vrock::pdf
     {
         if ( pw.length( ) < 32 )
         {
-            std::memcpy( VPTR out.data( ) + pos, pw.data( ), pw.size( ) );
-            std::memcpy( VPTR out.data( ) + pw.size( ) + pos, fill.data( ), 32 - pw.size( ) );
+            std::memcpy( out.data( ) + pos, pw.data( ), pw.size( ) );
+            std::memcpy( out.data( ) + pw.size( ) + pos, fill.data( ), 32 - pw.size( ) );
         }
         else
-            std::memcpy( VPTR out.data( ) + pos, pw.data( ), 32 );
+            std::memcpy( out.data( ) + pos, pw.data( ), 32 );
     }
 
     auto compute_file_encryption_key_2( const std::string &password, const in_data_t &o, std::uint32_t p,
