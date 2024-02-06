@@ -1,8 +1,0 @@
-[wrap-git]
-url=https://github.com/Visual-Rock/vrock.libs
-revision=master
-depth=2
-clone-recursive=true
-
-[provide]
-vrocklibs=vrockutils_dep

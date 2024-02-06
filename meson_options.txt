@@ -1,7 +1,0 @@
-option('tests', type: 'boolean', value: true, description: 'build tests for all libs')
-option('examples', type: 'boolean', value: true, description: 'build examples for all libs')
-option('docs', type: 'boolean', value: true, description: 'build docs for vrock.libs')
-
-option('security', type: 'boolean', value: false, description: 'build the utils module')
-option('ui', type: 'boolean', value: false, description: 'build the utils module')
-option('pdf', type: 'boolean', value: false, description: 'build the utils module')
