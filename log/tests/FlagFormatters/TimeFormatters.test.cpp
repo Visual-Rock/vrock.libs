@@ -53,7 +53,6 @@ TEST( TimeFormattersTest, DateTimeFormatterTest )
     Message msg( "" );
     buffer_t buffer;
     formatter.format( msg, buffer );
-    std::cout << buffer << std::endl;
     // EXPECT_EQ( buffer, "Thu Jan  1 00:00:00 1970" );
 }
 

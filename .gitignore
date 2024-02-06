@@ -5,6 +5,7 @@ builds/
 builddir/
 .idea/
 .vs/
+.vscode/
 /build/*
 !/build/build.sh
 /subprojects/*

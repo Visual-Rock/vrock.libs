@@ -30,7 +30,7 @@ namespace vrock::log
     auto StandardOutSink::log( const Message &message ) -> void
     {
         // TODO: Use std::print when compiler support is available
-        std::cout << write( message ) << std::endl;
+        std::cout << write( message ) << '\n';
     }
 
     auto StandardOutSink::flush( ) -> void
@@ -47,7 +47,7 @@ namespace vrock::log
     {
         if ( includes_level( level_, message.level ) )
         {
-            std::cerr << write( message ) << std::endl;
+            std::cerr << write( message ) << '\n';
         }
     }
 
