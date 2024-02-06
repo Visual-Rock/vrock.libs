@@ -2,6 +2,7 @@
 #include "vrock/pdf/structure/PDFContext.hpp"
 
 #include <vrock/security.hpp>
+#include <vrock/log.hpp>
 
 #include <unicode/unistr.h>
 #include <unicode/usprep.h>
@@ -322,11 +323,31 @@ namespace vrock::pdf
         auto decrypted_perm = security::decrypt_aes_ecb( perms, key );
         if ( decrypted_perm.at( 9 ) != 'a' || decrypted_perm.at( 10 ) != 'd' || decrypted_perm.at( 11 ) != 'b' )
             throw std::runtime_error( "perms byte 9 to 11 do not match adb" );
-        std::int16_t p_calc = decrypted_perm.at( 0 );
-        p_calc |= static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) << 8;  // NOLINT
-        p_calc |= static_cast<std::int16_t>( decrypted_perm.at( 2 ) ) << 16; // NOLINT
-        if ( p_calc != p )
-            throw std::runtime_error( "p does not match decrypted perm byte 0 to 3" );
+
+        // used to convert the 32-bit int to a array of 8-bit integers
+        union PermUnion {
+            std::int32_t p;
+            std::int8_t pa[ 4 ];
+        };
+
+        PermUnion perm = { p };
+        if constexpr (std::endian::native == std::endian::big)
+        {
+            if ( perm.pa[ 0 ] == static_cast<std::int16_t>( decrypted_perm.at( 0 ) ) &&
+                 perm.pa[ 1 ] == static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) &&
+                 perm.pa[ 2 ] == static_cast<std::int16_t>( decrypted_perm.at( 2 ) ) )
+                throw std::runtime_error( "p does not match decrypted perm byte 0 to 3" );
+        }
+        else if (std::endian::native == std::endian::little)
+        {
+
+            if ( perm.pa[ 3 ] == static_cast<std::int16_t>( decrypted_perm.at( 0 ) ) &&
+                 perm.pa[ 2 ] == static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) && 
+                 perm.pa[ 1 ] == static_cast<std::int16_t>( decrypted_perm.at( 2 ) ) )
+                throw std::runtime_error( "p does not match decrypted perm byte 0 to 3" );
+        }
+
+        
         *out_encrypt_metadata = decrypted_perm.at( 8 ) == 'T';
         return key;
     }
@@ -513,7 +534,7 @@ namespace vrock::pdf
             u_com = compute_u_5( key, id );
             break;
         default:
-            // log::get_logger( "pdf" )->log->info( "revision {} is not supported!", r );
+            log::get_logger( "pdf" )->error( "revision {} is not supported!", r );
             return "";
         }
         if ( u_com.substr( 0, 16 ) == u->get_data( ).substr( 0, 16 ) )
@@ -673,8 +694,7 @@ namespace vrock::pdf
         auto profile = usprep_openByType( USPREP_RFC4013_SASLPREP, &err );
         if ( err > U_ZERO_ERROR )
         {
-            //  log::get_logger( "pdf" )->log->info( "string_prep_open failed Error: {0}, {1}", 0, u_errorName( err
-            //  ) );
+            log::get_logger( "pdf" )->warn( "string_prep_open failed Error: {0}, {1}", 0, u_errorName( err ) );
             return str;
         }
         err = U_ZERO_ERROR;
@@ -687,7 +707,7 @@ namespace vrock::pdf
                               0, nullptr, &err );
         if ( err > U_ZERO_ERROR )
         {
-            // log::get_logger( "pdf" )->log->info( "string_prep failed Error: {0}, {1}", 0, u_errorName( err ) );
+            log::get_logger( "pdf" )->warn( "string_prep failed Error: {0}, {1}", 0, u_errorName( err ) );
             return str;
         }
         usprep_close( profile );
