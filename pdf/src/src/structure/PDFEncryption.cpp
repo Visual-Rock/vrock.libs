@@ -534,7 +534,7 @@ namespace vrock::pdf
             u_com = compute_u_5( key, id );
             break;
         default:
-            log::get_logger( "pdf" )->error( "revision {} is not supported!", r );
+            log::get_logger( "pdf" )->error( "revision {} is not supported!", r->as_int() );
             return "";
         }
         if ( u_com.substr( 0, 16 ) == u->get_data( ).substr( 0, 16 ) )
