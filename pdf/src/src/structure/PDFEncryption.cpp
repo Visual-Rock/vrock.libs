@@ -1,8 +1,8 @@
 #include "vrock/pdf/structure/PDFEncryption.hpp"
 #include "vrock/pdf/structure/PDFContext.hpp"
 
-#include <vrock/security.hpp>
 #include <vrock/log.hpp>
+#include <vrock/security.hpp>
 
 #include <unicode/unistr.h>
 #include <unicode/usprep.h>
@@ -331,23 +331,22 @@ namespace vrock::pdf
         };
 
         PermUnion perm = { p };
-        if constexpr (std::endian::native == std::endian::big)
+        if constexpr ( std::endian::native == std::endian::big )
         {
             if ( perm.pa[ 0 ] == static_cast<std::int16_t>( decrypted_perm.at( 0 ) ) &&
                  perm.pa[ 1 ] == static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) &&
                  perm.pa[ 2 ] == static_cast<std::int16_t>( decrypted_perm.at( 2 ) ) )
                 throw std::runtime_error( "p does not match decrypted perm byte 0 to 3" );
         }
-        else if (std::endian::native == std::endian::little)
+        else if ( std::endian::native == std::endian::little )
         {
 
             if ( perm.pa[ 3 ] == static_cast<std::int16_t>( decrypted_perm.at( 0 ) ) &&
-                 perm.pa[ 2 ] == static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) && 
+                 perm.pa[ 2 ] == static_cast<std::int16_t>( decrypted_perm.at( 1 ) ) &&
                  perm.pa[ 1 ] == static_cast<std::int16_t>( decrypted_perm.at( 2 ) ) )
                 throw std::runtime_error( "p does not match decrypted perm byte 0 to 3" );
         }
 
-        
         *out_encrypt_metadata = decrypted_perm.at( 8 ) == 'T';
         return key;
     }
@@ -388,7 +387,7 @@ namespace vrock::pdf
         if ( revision == 5 )
             return k;
 
-        while ( rounds < 64 || rounds < e.at( len - 1 ) + 32 )
+        while ( rounds < 64 || rounds < (std::uint8_t)e.at( len - 1 ) + 32 ) // NOLINT
         {
             // a)
             seq_len = pw_len + hash_len + uk_len;
@@ -408,24 +407,26 @@ namespace vrock::pdf
             // c)
             memcpy( num.data( ), e.data( ), 16 );
             uint64_t n1 = 0, n2 = 0, n3 = 0;
-            n1 |= static_cast<uint64_t>( num.at( 0 ) ) << 56;
-            n1 |= static_cast<uint64_t>( num.at( 1 ) ) << 48;
-            n1 |= static_cast<uint64_t>( num.at( 2 ) ) << 40;
-            n1 |= static_cast<uint64_t>( num.at( 3 ) ) << 32;
-            n1 |= static_cast<uint64_t>( num.at( 4 ) ) << 24;
-            n1 |= static_cast<uint64_t>( num.at( 5 ) ) << 16;
-            n1 |= static_cast<uint64_t>( num.at( 6 ) ) << 8;
-            n1 |= static_cast<uint64_t>( num.at( 7 ) );
+            // NOLINTBEGIN
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 0 ) ) << 56;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 1 ) ) << 48;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 2 ) ) << 40;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 3 ) ) << 32;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 4 ) ) << 24;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 5 ) ) << 16;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 6 ) ) << 8;
+            n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 7 ) );
             rem = n1 % 3;
-            n2 |= static_cast<uint64_t>( num.at( 8 ) ) << 24;
-            n2 |= static_cast<uint64_t>( num.at( 9 ) ) << 16;
-            n2 |= static_cast<uint64_t>( num.at( 10 ) ) << 8;
-            n2 |= static_cast<uint64_t>( num.at( 11 ) );
+            n2 |= static_cast<uint64_t>( (std::uint8_t)num.at( 8 ) ) << 24;
+            n2 |= static_cast<uint64_t>( (std::uint8_t)num.at( 9 ) ) << 16;
+            n2 |= static_cast<uint64_t>( (std::uint8_t)num.at( 10 ) ) << 8;
+            n2 |= static_cast<uint64_t>( (std::uint8_t)num.at( 11 ) );
             rem = ( n2 | rem << 32 ) % 3;
-            n3 |= static_cast<uint64_t>( num.at( 12 ) ) << 24;
-            n3 |= static_cast<uint64_t>( num.at( 13 ) ) << 16;
-            n3 |= static_cast<uint64_t>( num.at( 14 ) ) << 8;
-            n3 |= static_cast<uint64_t>( num.at( 15 ) );
+            n3 |= static_cast<uint64_t>( (std::uint8_t)num.at( 12 ) ) << 24;
+            n3 |= static_cast<uint64_t>( (std::uint8_t)num.at( 13 ) ) << 16;
+            n3 |= static_cast<uint64_t>( (std::uint8_t)num.at( 14 ) ) << 8;
+            n3 |= static_cast<uint64_t>( (std::uint8_t)num.at( 15 ) );
+            // NOLINTEND
             rem = ( n3 | rem << 32 ) % 3;
 
             if ( rem == 0 )
@@ -534,7 +535,7 @@ namespace vrock::pdf
             u_com = compute_u_5( key, id );
             break;
         default:
-            log::get_logger( "pdf" )->error( "revision {} is not supported!", r->as_int() );
+            log::get_logger( "pdf" )->error( "revision {} is not supported!", r->as_int( ) );
             return "";
         }
         if ( u_com.substr( 0, 16 ) == u->get_data( ).substr( 0, 16 ) )
