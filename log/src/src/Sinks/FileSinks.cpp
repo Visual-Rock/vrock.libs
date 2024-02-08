@@ -17,7 +17,7 @@ namespace vrock::log
 
     void FileSink::log( const Message &message )
     {
-        file_ << write( message ) << std::endl;
+        file_ << write( message ) << '\n';
     }
 
     void FileSink::flush( )
@@ -88,7 +88,7 @@ namespace vrock::log
             file_ = std::ofstream( file_name, truncate_ ? std::ios::trunc : std::ios_base::app );
             files_.push_file( file_name );
         }
-        file_ << write( message ) << std::endl;
+        file_ << write( message ) << '\n';
     }
 
     void DailyFileSink::flush( )
@@ -131,7 +131,7 @@ namespace vrock::log
             file_ = std::ofstream( file_name, truncate_ ? std::ios_base::trunc : std::ios_base::app );
             files_.push_file( file_name );
         }
-        file_ << msg << std::endl;
+        file_ << msg << '\n';
     }
 
     void SizeFileSink::flush( )
