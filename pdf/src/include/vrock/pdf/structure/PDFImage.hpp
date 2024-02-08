@@ -33,12 +33,12 @@ namespace vrock::pdf
             return bpp;
         }
 
-        inline auto as_rgb( ) -> std::shared_ptr<utils::ByteArray<>>
+        inline auto as_rgb( ) -> data_t
         {
-            return color_space->convert_to_rgb( stream->data, stream->dict );
+            return color_space->convert_to_rgb( data_t( stream->data ), stream->dict );
         }
 
-        auto as_rgba( ) -> std::shared_ptr<utils::ByteArray<>>;
+        auto as_rgba( ) -> data_t;
 
     private:
         std::int32_t width = 0, height = 0, channel = 3;

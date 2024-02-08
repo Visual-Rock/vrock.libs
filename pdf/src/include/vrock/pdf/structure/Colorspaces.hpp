@@ -32,14 +32,11 @@ namespace vrock::pdf
         {
         }
 
-        virtual auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>> = 0;
+        virtual auto convert_to_rgb( data_t, std::shared_ptr<PDFBaseObject> ) -> data_t = 0;
 
-        virtual auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>> = 0;
+        virtual auto convert_to_cmyk( data_t, std::shared_ptr<PDFBaseObject> ) -> data_t = 0;
 
-        virtual auto convert_to_gray( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>> = 0;
+        virtual auto convert_to_gray( data_t, std::shared_ptr<PDFBaseObject> ) -> data_t = 0;
 
         ColorSpaceType type;
 
@@ -54,20 +51,17 @@ namespace vrock::pdf
     public:
         RGBColorSpace( );
 
-        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>> final
+        auto convert_to_rgb( data_t data, std::shared_ptr<PDFBaseObject> ) -> data_t final
         {
             return data;
         }
-        auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> final
+        auto convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t final
         {
-            return std::shared_ptr<utils::ByteArray<>>( );
+            return data_t( );
         }
-        auto convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> final
+        auto convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t final
         {
-            return std::shared_ptr<utils::ByteArray<>>( );
+            return data_t( );
         }
     };
 
@@ -81,12 +75,9 @@ namespace vrock::pdf
     public:
         explicit GrayColorSpace( );
 
-        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> params )
-            -> std::shared_ptr<utils::ByteArray<>> final;
-        auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override;
-        auto convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override;
+        auto convert_to_rgb( data_t data, std::shared_ptr<PDFBaseObject> params ) -> data_t final;
+        auto convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override;
+        auto convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override;
     };
 
     class CMYKColorSpace : public ColorSpace
@@ -96,20 +87,17 @@ namespace vrock::pdf
         {
         }
 
-        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>> data, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>> final
+        auto convert_to_rgb( data_t data, std::shared_ptr<PDFBaseObject> ) -> data_t final
         {
             return data;
         }
-        auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override
+        auto convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override
         {
-            return std::shared_ptr<utils::ByteArray<>>( );
+            return data_t( );
         }
-        auto convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override
+        auto convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override
         {
-            return std::shared_ptr<utils::ByteArray<>>( );
+            return data_t( );
         }
     };
 
@@ -118,16 +106,13 @@ namespace vrock::pdf
     public:
         explicit IndexedColorSpace( std::shared_ptr<PDFArray> );
 
-        auto convert_to_rgb( std::shared_ptr<utils::ByteArray<>>, std::shared_ptr<PDFBaseObject> )
-            -> std::shared_ptr<utils::ByteArray<>>;
-        auto convert_to_cmyk( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override;
-        auto convert_to_gray( std::shared_ptr<utils::ByteArray<>> ptr, std::shared_ptr<PDFBaseObject> sharedPtr )
-            -> std::shared_ptr<utils::ByteArray<>> override;
+        auto convert_to_rgb( data_t, std::shared_ptr<PDFBaseObject> ) -> data_t;
+        auto convert_to_cmyk( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override;
+        auto convert_to_gray( data_t ptr, std::shared_ptr<PDFBaseObject> sharedPtr ) -> data_t override;
 
     protected:
         std::int32_t highest_value = 0;
-        std::shared_ptr<utils::ByteArray<>> map = nullptr;
+        data_t map;
     };
 
     auto to_colorspace( std::shared_ptr<PDFBaseObject> ) -> std::shared_ptr<ColorSpace>;

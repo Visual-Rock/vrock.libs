@@ -43,11 +43,10 @@ namespace vrock::pdf
         std::function<void( )> fn = [ this ]( ) {
             if ( auto root = context->trailer->get<PDFDictionary>( "Root" ) )
             {
-                // load pages from Root dictionary
-                if ( auto pages_root = root->get<PDFDictionary>( "Pages" ) )
-                    page_tree = PDFPageTree( pages_root, context );
-                else
-                    throw std::runtime_error( "Pages is not a Dictionary" );
+                 // load pages from Root dictionary
+                 if ( auto pages_root = root->get<PDFDictionary>( "Pages" ) )
+                     page_tree = PDFPageTree( pages_root, context );
+                 else throw std::runtime_error( "Pages is not a Dictionary" );
             }
             else
                 throw std::runtime_error( "missing required Root entry in Trailer Dictionary" );

@@ -36,7 +36,6 @@ namespace vrock::pdf
                                               std::shared_ptr<PDFContext> ctx )
         : PDFObjectParser( std::move( data ) ), res( std::move( res_dict ) )
     {
-        std::cout << _string << std::endl;
         set_context( std::move( ctx ) );
 
         graphic_state_stack.push( GraphicState( ) );
@@ -47,7 +46,6 @@ namespace vrock::pdf
             std::size_t i = 0;
             for ( auto op : operator_seq )
             {
-                std::cout << i++ << ' ' << op->_operator << std::endl;
                 if ( operator_fn.find( op->o ) != operator_fn.end( ) )
                 {
                     operator_fn[ op->o ]( this, op );

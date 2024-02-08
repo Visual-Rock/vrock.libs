@@ -49,14 +49,14 @@ namespace vrock::pdf
         {
             _offset++;
         }
-        
+
         auto get_char( ) -> char
         {
             return _string[ _offset ];
         }
 
         std::string _string;
-        size_t _offset;
+        size_t _offset = 0;
 
     protected:
         const std::vector<char> _whitespace = { '\0', '\t', '\n', '\f', '\r', ' ' };

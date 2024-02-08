@@ -38,7 +38,7 @@ TEST( ParsePDFName, BasicAssertions )
 TEST( ParseHexString, BasicAssertions )
 {
     PDFObjectParser parser( "<31323334>123" );
-    EXPECT_EQ( parser.parse_hex_string( nullptr, false )->get_byte_array( )->to_string( ), "1234" );
+    EXPECT_EQ( parser.parse_hex_string( nullptr, false )->get_data( ), "1234" );
     EXPECT_ANY_THROW( parser.parse_hex_string( nullptr, false ) );
 }
 
@@ -87,7 +87,7 @@ TEST( ParseString, BasicAssertions )
         EXPECT_EQ( parser.parse_string( nullptr, false )->get_string( ), "So does this one.\n" );
     }
     {
-        PDFObjectParser parser( "(\\053)(this is octal + sign \\53 so is this with a trailing 4 \\0534)" );
+        PDFObjectParser parser( R"((\053)(this is octal + sign \53 so is this with a trailing 4 \0534))" );
         EXPECT_EQ( parser.parse_string( nullptr, false )->get_string( ), "+" );
         EXPECT_EQ( parser.parse_string( nullptr, false )->get_string( ),
                    "this is octal + sign + so is this with a trailing 4 +4" );
@@ -131,13 +131,14 @@ TEST( ParseDictionaryOrStream, BasicAssertions )
         PDFObjectParser parser( "<</Length 4>>stream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
+        auto tmp = std::string( stream->to<PDFStream>( )->data );
+        EXPECT_EQ( stream->to<PDFStream>( )->data, "Test" );
     }
     {
         PDFObjectParser parser( "<<>>\nstream\nTest\nendstream" );
         auto stream = parser.parse_dictionary_or_stream( nullptr, false );
         EXPECT_EQ( stream->type, PDFObjectType::Stream );
-        EXPECT_EQ( stream->to<PDFStream>( )->data->to_string( ), "Test" );
+        EXPECT_EQ( stream->to<PDFStream>( )->data, "Test" );
     }
     {
         PDFObjectParser parser( "<</Length 5/Test /Test /Active true>>" );

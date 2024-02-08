@@ -4,6 +4,8 @@
 
 #include <utility>
 
+#include <cstring>
+
 namespace vrock::pdf
 {
     PDFImage::PDFImage( std::shared_ptr<PDFStream> stm ) : stream( std::move( stm ) )
@@ -25,19 +27,19 @@ namespace vrock::pdf
         switch ( format )
         {
         case ImageSaveFormat::png:
-            stbi_write_png( path.c_str( ), width, height, 4, rgba->data( ), rgba->size( ) / height );
+            stbi_write_png( path.c_str( ), width, height, 4, rgba.data( ), rgba.size( ) / height );
             break;
         }
     }
-    
-    auto PDFImage::as_rgba( ) -> std::shared_ptr<utils::ByteArray<>>
+
+    auto PDFImage::as_rgba( ) -> data_t
     {
         auto rgb = as_rgb( );
-        auto converted = std::make_shared<utils::ByteArray<>>( ( rgb->size( ) / 3 ) * 4 );
-        for ( auto i = 0; i < rgb->size( ) / 3; i++ )
+        auto converted = data_t( rgb.size( ) / 3 * 4, '\0' );
+        for ( auto i = 0; i < rgb.size( ) / 3; i++ )
         {
-            std::memcpy( converted->data( ) + ( 4 * i ), rgb->data( ) + ( 3 * i ), 3 );
-            converted->at( ( 4 * i ) + 3 ) = 0xff;
+            std::memcpy( converted.data( ) + 4 * i, rgb.data( ) + 3 * i, 3 );
+            converted.at( 4 * i + 3 ) = 0xff;
         }
         // TODO: Image mask Soft Masks...
         return converted;

@@ -147,41 +147,32 @@ namespace vrock::pdf
         return "";
     }
 
-    auto PDFString::get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>>
+    auto PDFString::get_data( ) -> data_t
     {
-        return std::make_shared<utils::ByteArray<>>( );
+        return data_t( );
     }
 
-    auto PDFString::set( const std::string &str ) -> void
-    {
-    }
-
-    auto PDFString::set( std::shared_ptr<utils::ByteArray<>> data ) -> void
+    auto PDFString::set( in_data_t str ) -> void
     {
     }
 
-    PDFByteString::PDFByteString( std::shared_ptr<utils::ByteArray<>> d ) : data( std::move( d ) )
+    PDFByteString::PDFByteString( in_data_t d ) : data( d )
     {
     }
 
     auto PDFByteString::get_string( ) -> std::string
     {
-        return data->to_string( );
+        return data;
     }
 
-    auto PDFByteString::get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>>
+    auto PDFByteString::get_data( ) -> data_t
     {
         return data;
     }
 
-    auto PDFByteString::set( const std::string &str ) -> void
+    auto PDFByteString::set( in_data_t str ) -> void
     {
-        data = std::make_shared<utils::ByteArray<>>( str );
-    }
-
-    auto PDFByteString::set( std::shared_ptr<utils::ByteArray<>> d ) -> void
-    {
-        data = d;
+        data = data_t( str );
     }
 
     PDFTextString::PDFTextString( std::string s ) : str( std::move( s ) )
@@ -193,19 +184,14 @@ namespace vrock::pdf
         return str;
     }
 
-    auto PDFTextString::get_byte_array( ) -> std::shared_ptr<utils::ByteArray<>>
+    auto PDFTextString::get_data( ) -> data_t
     {
-        return std::make_shared<utils::ByteArray<>>( str );
+        return str;
     }
 
-    auto PDFTextString::set( const std::string &s ) -> void
+    auto PDFTextString::set( in_data_t s ) -> void
     {
         str = s;
-    }
-
-    auto PDFTextString::set( std::shared_ptr<utils::ByteArray<>> data ) -> void
-    {
-        str = data->to_string( );
     }
 
     PDFUTF8String::PDFUTF8String( const std::string &s ) : PDFTextString( convert_from( s ) )

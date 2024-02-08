@@ -19,6 +19,7 @@ namespace vrock::pdf
 {
     enum class RenderableObjectType
     {
+        None,
         Image,
         Text
     };
@@ -26,7 +27,7 @@ namespace vrock::pdf
     template <typename T>
     auto to_renderable_object_type( ) -> RenderableObjectType
     {
-        static_assert( "unknown conversion from type" );
+        return RenderableObjectType::None;
     }
 
     class RenderableObject : public std::enable_shared_from_this<RenderableObject>

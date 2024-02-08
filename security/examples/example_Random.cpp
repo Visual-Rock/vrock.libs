@@ -1,13 +1,13 @@
 #include <iostream>
 
 #include <vrock/security.hpp>
+#include <vrock/utils.hpp>
 using namespace vrock::security;
+using namespace vrock::utils;
 
 int main( )
 {
     auto data = generate_random_bytes( 10 );
-    for ( size_t i = 0; i < data.size( ); i++ )
-        std::cout << data[ i ];
-    std::cout << std::endl;
+    std::cout << to_hex_string( data ) << std::endl;
     return 0;
 }

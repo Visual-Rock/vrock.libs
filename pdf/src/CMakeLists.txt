@@ -40,7 +40,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vrockpdf PRIVATE "-Wno-unknown-attributes")
 endif ()
 
-target_link_libraries(vrockpdf PUBLIC vrockutils)
+target_link_libraries(vrockpdf PUBLIC vrockutils vrocklog)
 target_link_libraries(vrockpdf PRIVATE vrocksecurity ZLIB::ZLIB stb_image)
 
 if (WIN32)

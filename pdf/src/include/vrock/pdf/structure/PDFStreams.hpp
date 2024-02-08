@@ -12,6 +12,7 @@ namespace vrock::pdf
 
     enum class PDFStreamType
     {
+        None,
         Raw,
         XRef,
         Object
@@ -20,14 +21,13 @@ namespace vrock::pdf
     template <typename T>
     auto to_stream_type( ) -> PDFStreamType
     {
-        static_assert( "unknown conversion from type" );
+        return PDFStreamType::None;
     }
 
     class PDFStream : public PDFBaseObject
     {
     public:
-        PDFStream( std::shared_ptr<PDFDictionary> dictionary, std::shared_ptr<utils::ByteArray<>> _data,
-                   PDFStreamType t = PDFStreamType::Raw );
+        PDFStream( std::shared_ptr<PDFDictionary> dictionary, in_data_t _data, PDFStreamType t = PDFStreamType::Raw );
 
         template <typename T>
             requires std::is_base_of_v<PDFStream, T>
@@ -42,7 +42,7 @@ namespace vrock::pdf
 
         PDFStreamType stream_type;
         std::shared_ptr<PDFDictionary> dict;
-        std::shared_ptr<utils::ByteArray<>> data;
+        data_t data;
 
         utils::List<std::string> filters = { };
     };
@@ -50,8 +50,7 @@ namespace vrock::pdf
     class PDFObjectStream : public PDFStream
     {
     public:
-        explicit PDFObjectStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data,
-                                  std::shared_ptr<PDFContext> ctx );
+        explicit PDFObjectStream( std::shared_ptr<PDFDictionary> d, in_data_t data, std::shared_ptr<PDFContext> ctx );
 
         auto get_object( std::size_t idx ) -> std::shared_ptr<PDFBaseObject>;
 
@@ -66,7 +65,7 @@ namespace vrock::pdf
     class PDFXRefStream : public PDFStream
     {
     public:
-        explicit PDFXRefStream( std::shared_ptr<PDFDictionary> d, std::shared_ptr<utils::ByteArray<>> data );
+        explicit PDFXRefStream( std::shared_ptr<PDFDictionary> d, in_data_t data );
 
         auto get_entries( ) -> std::unordered_map<std::shared_ptr<XRefEntry>, std::shared_ptr<XRefEntry>,
                                                   XRefEntryPtrHash, XRefEntryPtrEqual>;
