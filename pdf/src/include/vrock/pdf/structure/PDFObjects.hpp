@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <vrock/log.hpp>
+
 #if defined( __clang__ )
 #define OPTNONE_START [[clang::optnone]]
 #elif defined( __GNUC__ )

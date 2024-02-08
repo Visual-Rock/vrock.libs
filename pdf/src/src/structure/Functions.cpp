@@ -133,5 +133,6 @@ namespace vrock::pdf
                 }
             }
         }
+        return nullptr;
     }
 } // namespace vrock::pdf

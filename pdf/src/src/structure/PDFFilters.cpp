@@ -109,9 +109,9 @@ namespace vrock::pdf
             switch ( pred )
             {
             case 0:
-                memcpy( decoded.data( ) + row_start_d, data.data( ) + row_start_o, len );
+                std::memcpy( decoded.data( ) + row_start_d, data.data( ) + row_start_o, len );
             case 1:
-                memcpy( decoded.data( ) + row_start_d, data.data( ) + row_start_o, bpp );
+                std::memcpy( decoded.data( ) + row_start_d, data.data( ) + row_start_o, bpp );
                 for ( size_t j = bpp; j < len; j++ )
                     decoded.at( row_start_d + j ) = data.at( row_start_o + j ) + decoded.at( row_start_d + j - bpp );
                 break;
@@ -121,10 +121,10 @@ namespace vrock::pdf
                         decoded.at( row_start_d + j ) =
                             data.at( row_start_o + j ) + decoded.at( row_start_d - len + j );
                 else
-                    memcpy( decoded.data( ), data.data( ) + 1, col );
+                    std::memcpy( decoded.data( ), data.data( ) + 1, col );
                 break;
             default:
-                // vrock::log::get_logger( "pdf" )->log->error( "PNG predictor {} not supported!", pred );
+                vrock::log::get_logger( "pdf" )->error( "PNG predictor {} not supported!", pred );
                 break;
             }
         }

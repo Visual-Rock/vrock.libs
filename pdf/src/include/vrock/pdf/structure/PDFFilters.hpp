@@ -4,11 +4,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "vrock/pdf/typedefs.hpp"
+
 namespace vrock::pdf
 {
-    using data_t = std::string;
-    using in_data_t = std::string_view;
-
     class PDFDictionary;
 
     class BaseFilter

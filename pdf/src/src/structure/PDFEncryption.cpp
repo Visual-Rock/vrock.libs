@@ -1,7 +1,6 @@
 #include "vrock/pdf/structure/PDFEncryption.hpp"
 #include "vrock/pdf/structure/PDFContext.hpp"
 
-#include <vrock/log.hpp>
 #include <vrock/security.hpp>
 
 #include <unicode/unistr.h>
@@ -375,10 +374,10 @@ namespace vrock::pdf
         if ( !salt.empty( ) )
         {
             auto h = std::string( password.length( ) + salt.size( ) + uk_len, '\0' );
-            memcpy( h.data( ), password.data( ), pw_len );
-            memcpy( h.data( ) + pw_len, salt.data( ), salt.size( ) );
+            std::memcpy( h.data( ), password.data( ), pw_len );
+            std::memcpy( h.data( ) + pw_len, salt.data( ), salt.size( ) );
             if ( !user_key.empty( ) )
-                memcpy( h.data( ) + pw_len + salt.size( ), user_key.data( ), uk_len );
+                std::memcpy( h.data( ) + pw_len + salt.size( ), user_key.data( ), uk_len );
             k = security::sha256( h );
         }
         else
@@ -392,20 +391,20 @@ namespace vrock::pdf
             // a)
             seq_len = pw_len + hash_len + uk_len;
             len = 64 * seq_len;
-            memcpy( k1.data( ), password.data( ), pw_len );
-            memcpy( k1.data( ) + pw_len, k.data( ), hash_len );
+            std::memcpy( k1.data( ), password.data( ), pw_len );
+            std::memcpy( k1.data( ) + pw_len, k.data( ), hash_len );
             if ( !user_key.empty( ) )
-                memcpy( k1.data( ) + pw_len + +hash_len, user_key.data( ), uk_len );
+                std::memcpy( k1.data( ) + pw_len + +hash_len, user_key.data( ), uk_len );
             for ( size_t i = 1; i < 64; i++ )
-                memcpy( k1.data( ) + ( i * seq_len ), k1.data( ), seq_len );
+                std::memcpy( k1.data( ) + ( i * seq_len ), k1.data( ), seq_len );
             // b)
             t = std::string( len, '\0' );
-            memcpy( com_key.data( ), k.data( ), 16 );
-            memcpy( iv.data( ), k.data( ) + 16, 16 );
-            memcpy( t.data( ), k1.data( ), len );
+            std::memcpy( com_key.data( ), k.data( ), 16 );
+            std::memcpy( iv.data( ), k.data( ) + 16, 16 );
+            std::memcpy( t.data( ), k1.data( ), len );
             e = security::encrypt_aes_cbc( t, com_key, iv );
             // c)
-            memcpy( num.data( ), e.data( ), 16 );
+            std::memcpy( num.data( ), e.data( ), 16 );
             uint64_t n1 = 0, n2 = 0, n3 = 0;
             // NOLINTBEGIN
             n1 |= static_cast<uint64_t>( (std::uint8_t)num.at( 0 ) ) << 56;
@@ -439,7 +438,7 @@ namespace vrock::pdf
             rounds++;
         }
         auto ret = data_t( 32, '\0' );
-        memcpy( ret.data( ), k.data( ), 32 );
+        std::memcpy( ret.data( ), k.data( ), 32 );
         return ret;
     }
 
@@ -471,7 +470,7 @@ namespace vrock::pdf
         {
             for ( int i = 1; i < 20; ++i )
             {
-                memcpy( key.data( ), key_com.data( ), key.size( ) );
+                std::memcpy( key.data( ), key_com.data( ), key.size( ) );
                 for ( size_t j = 0; j < key.size( ); ++j )
                     key[ j ] ^= i;
                 encrypted = security::encrypt_rc4( encrypted, key );
@@ -572,7 +571,7 @@ namespace vrock::pdf
             auto com_key = std::string( key.size( ), '\0' );
             for ( int i = 19; i >= 0; i-- )
             {
-                memcpy( com_key.data( ), key.data( ), key.size( ) );
+                std::memcpy( com_key.data( ), key.data( ), key.size( ) );
                 for ( char &j : com_key )
                     j ^= i;
                 u = security::decrypt_rc4( u, com_key );
@@ -628,10 +627,10 @@ namespace vrock::pdf
     auto encrypt_perms_10( std::int32_t p, bool enc_meta_data, in_data_t key ) -> data_t
     {
         auto perm = std::string( 16, '\0' );
-        perm.at( 0 ) = static_cast<uint8_t>( p );
-        perm.at( 1 ) = static_cast<uint8_t>( p >> 8 );
-        perm.at( 2 ) = static_cast<uint8_t>( p >> 16 );
-        perm.at( 3 ) = static_cast<uint8_t>( p >> 24 );
+        perm.at( 0 ) = (std::uint8_t)p;
+        perm.at( 1 ) = (std::uint8_t)p >> 8;
+        perm.at( 2 ) = (std::uint8_t)p >> 16;
+        perm.at( 3 ) = (std::uint8_t) p >> 24;
         std::memset( perm.data( ) + 4, 0xff, 4 ); // higher order 32 bit to 1
         perm.at( 8 ) = enc_meta_data ? 'T' : 'F';
         perm.at( 9 ) = 'a';
@@ -656,7 +655,7 @@ namespace vrock::pdf
             return "";
         // a)
         auto d = std::string( 8, '\0' );
-        memcpy( d.data( ), u->get_data( ).data( ) + 32, 8 );
+        std::memcpy( d.data( ), u->get_data( ).data( ) + 32, 8 );
         auto hash = compute_hash_2b( password, d, "", r->value );
         if ( u->get_data( ).substr( 0, 32 ) != hash )
             return "";
