@@ -28,7 +28,7 @@ namespace vrock::pdf
         return { };
     }
 
-    PDFDocument::PDFDocument( std::string path ) : file_path( std::move( path ) )
+    PDFDocument::PDFDocument( std::filesystem::path path ) : file_path( std::move( path ) )
     {
         std::ifstream file( file_path, std::ifstream::binary );
         std::stringstream buffer;
@@ -73,7 +73,7 @@ namespace vrock::pdf
     {
     }
 
-    auto PDFDocument::save( const std::string &path, PDFSaveMode mode ) -> void
+    auto PDFDocument::save( std::filesystem::path path, PDFSaveMode mode ) -> void
     {
     }
 } // namespace vrock::pdf
