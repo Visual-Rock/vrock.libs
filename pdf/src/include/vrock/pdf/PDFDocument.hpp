@@ -11,7 +11,7 @@ namespace vrock::pdf
     enum class PDFSaveMode
     {
         /**
-         * \brief Overwrites the file if it exists
+         * @brief Overwrites the file if it exists
          */
         Overwrite,
         /**
