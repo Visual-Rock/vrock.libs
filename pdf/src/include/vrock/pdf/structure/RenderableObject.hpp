@@ -78,13 +78,8 @@ namespace vrock::pdf
         std::shared_ptr<PDFImage> image;
     };
 
-    class Text : public RenderableObject
+    struct TextString
     {
-    public:
-        Text( );
-
-        explicit Text( std::int64_t z );
-
         std::string text;
         /// @brief List of offsets. the pairs are structured in the following way:
         ///         substring length, offset
@@ -93,6 +88,16 @@ namespace vrock::pdf
         /// @brief font size in pt
         std::int32_t font_size = 0;
         std::shared_ptr<Font> font;
+    };
+
+    class Text : public RenderableObject
+    {
+    public:
+        Text( );
+
+        explicit Text( std::int64_t z );
+
+        std::vector<std::shared_ptr<TextString>> strings{ };
     };
 
     class Form;

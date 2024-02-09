@@ -361,14 +361,18 @@ namespace vrock::pdf
     public:
         std::shared_ptr<ResourceDictionary> res;
         std::stack<GraphicState> graphic_state_stack = { };
+        std::shared_ptr<Text> current_text_section = nullptr;
     };
 
     // operator functions
     // void operator_b( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
+    void operator_BT( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_cm( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
     void operator_Do( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+
+    void operator_ET( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
     void operator_gs( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
@@ -395,7 +399,8 @@ namespace vrock::pdf
     inline std::unordered_map<ContentStreamOperator,
                               std::function<void( ContentStreamParser *, std::shared_ptr<PDFOperator> )>>
         operator_fn = {
-            { ContentStreamOperator::cm, operator_cm }, { ContentStreamOperator::Do, operator_Do },
+            { ContentStreamOperator::BT, operator_BT }, { ContentStreamOperator::cm, operator_cm }, 
+            { ContentStreamOperator::Do, operator_Do }, { ContentStreamOperator::ET, operator_ET },
             { ContentStreamOperator::gs, operator_gs }, { ContentStreamOperator::q, operator_q },
             { ContentStreamOperator::Q, operator_Q },   { ContentStreamOperator::Tf, operator_Tf },
             { ContentStreamOperator::Tc, operator_Tc }, { ContentStreamOperator::Tj, operator_Tj },

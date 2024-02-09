@@ -159,6 +159,13 @@ namespace vrock::pdf
             _operator, idx, []( auto n ) { return n->name; }, "" );
     }
 
+    auto operator_BT( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op ) -> void
+    {
+        if ( parser->current_text_section != nullptr )
+            throw std::runtime_error( "nested BT operator is not allowed" );
+        parser->current_text_section = std::make_shared<Text>( );
+    }
+
     auto operator_cm( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op ) -> void
     {
         std::array<double, 6> data = { };
@@ -204,6 +211,14 @@ namespace vrock::pdf
         }
     }
 
+    auto operator_ET( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op ) -> void
+    {
+        if ( parser->current_text_section == nullptr )
+            throw std::runtime_error( "ET called outside of text section" );
+        parser->text.push_back( parser->current_text_section );
+        parser->current_text_section = nullptr;
+    }
+
     auto operator_gs( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op ) -> void
     {
         check_operator_param_count( op, 1 );
@@ -247,8 +262,8 @@ namespace vrock::pdf
     {
         check_operator_param_count( op, 1 );
 
-        auto text = std::make_shared<Text>( );
-        parser->text.push_back( text );
+        auto text = std::make_shared<TextString>( );
+        parser->current_text_section->strings.push_back( text );
         text->text = check_type_and_get_value<PDFString, std::string>(
             op, 0, []( auto s ) { return s->get_string( ); }, "" );
         text->offsets = { { text->text.length( ), 0 } };
@@ -262,8 +277,8 @@ namespace vrock::pdf
         auto arr = check_type_and_get_value<PDFArray, std::vector<std::shared_ptr<PDFBaseObject>>>(
             op, 0, []( auto a ) { return a->value; }, { } );
 
-        auto text = std::make_shared<Text>( );
-        parser->text.push_back( text );
+        auto text = std::make_shared<TextString>( );
+        parser->current_text_section->strings.push_back( text );
         int32_t offset = 0;
         for ( const auto &i : arr )
         {
