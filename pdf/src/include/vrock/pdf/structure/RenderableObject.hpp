@@ -63,6 +63,7 @@ namespace vrock::pdf
         }
 
         std::int64_t z_index;
+        Point position;
         RenderableObjectType type;
     };
 
@@ -73,13 +74,17 @@ namespace vrock::pdf
 
         explicit Image( std::int64_t z );
 
-        Point position, scale;
+        Point scale;
         double shear = 0, rotation = 0;
+
         std::shared_ptr<PDFImage> image;
     };
 
-    struct TextString
+    class TextString : public RenderableObject
     {
+    public:
+        explicit TextString( std::int64_t z );
+
         std::string text;
         /// @brief List of offsets. the pairs are structured in the following way:
         ///         substring length, offset
@@ -90,12 +95,10 @@ namespace vrock::pdf
         std::shared_ptr<Font> font;
     };
 
-    class Text : public RenderableObject
+    class Text
     {
     public:
-        Text( );
-
-        explicit Text( std::int64_t z );
+        Text( ) = default;
 
         std::vector<std::shared_ptr<TextString>> strings{ };
     };

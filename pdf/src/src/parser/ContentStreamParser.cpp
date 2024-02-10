@@ -155,8 +155,7 @@ namespace vrock::pdf
 
     std::string check_type_and_get_name( const std::shared_ptr<PDFOperator> &_operator, std::size_t idx )
     {
-        return check_type_and_get_value<PDFName, std::string>(
-            _operator, idx, []( auto n ) { return n->name; }, "" );
+        return check_type_and_get_value<PDFName, std::string>( _operator, idx, []( auto n ) { return n->name; }, "" );
     }
 
     auto operator_BT( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op ) -> void
@@ -240,6 +239,15 @@ namespace vrock::pdf
         parser->graphic_state_stack.pop( );
     }
 
+    void operator_Tst( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        auto TD = std::make_shared<PDFOperator>( "TD" );
+        TD->paramteres.push_back( std::make_shared<PDFInteger>( 0 ) );
+        TD->paramteres.push_back(
+            std::make_shared<PDFInteger>( parser->graphic_state_stack.top( ).text_state.leading * -1 ) );
+        operator_TD( parser, TD );
+    }
+
     void operator_Tf( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         check_operator_param_count( op, 2 );
@@ -258,14 +266,37 @@ namespace vrock::pdf
         parser->graphic_state_stack.top( ).text_state.character_spacing = check_type_and_get_double( op, 0 );
     }
 
+    void operator_Td( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        std::array<double, 2> data = { };
+        check_operator_param_count( op, 2 );
+        for ( size_t i = 0; i < 2; i++ )
+            data[ i ] = check_type_and_get_double( op, i );
+
+        const mat3 mat{ { { 1, 0, 0 }, { 0, 1, 0 }, { data[ 0 ], data[ 1 ], 1 } } };
+        parser->graphic_state_stack.top( ).text_state.current_text_matrix =
+            mul( mat, parser->graphic_state_stack.top( ).text_state.current_text_matrix );
+    }
+
+    void operator_TD( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        check_operator_param_count( op, 2 );
+        int32_t leading = check_type_and_get_int( op, 1 ) * -1;
+        parser->graphic_state_stack.top( ).text_state.leading = leading;
+        operator_Td( parser, op );
+    }
+
     void operator_Tj( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         check_operator_param_count( op, 1 );
 
-        auto text = std::make_shared<TextString>( );
+        auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-        text->text = check_type_and_get_value<PDFString, std::string>(
-            op, 0, []( auto s ) { return s->get_string( ); }, "" );
+        const auto x = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 0 ];
+        const auto y = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 1 ];
+        text->position = Point{ Unit( x ), Unit( y ) };
+        text->text =
+            check_type_and_get_value<PDFString, std::string>( op, 0, []( auto s ) { return s->get_string( ); }, "" );
         text->offsets = { { text->text.length( ), 0 } };
         text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
         text->font = parser->graphic_state_stack.top( ).text_state.font;
@@ -277,8 +308,11 @@ namespace vrock::pdf
         auto arr = check_type_and_get_value<PDFArray, std::vector<std::shared_ptr<PDFBaseObject>>>(
             op, 0, []( auto a ) { return a->value; }, { } );
 
-        auto text = std::make_shared<TextString>( );
+        auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
+        const auto x = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 0 ];
+        const auto y = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 1 ];
+        text->position = Point{ Unit( x ), Unit( y ) };
         int32_t offset = 0;
         for ( const auto &i : arr )
         {
@@ -299,6 +333,18 @@ namespace vrock::pdf
     {
         check_operator_param_count( op, 1 );
         parser->graphic_state_stack.top( ).text_state.leading = check_type_and_get_int( op, 0 );
+    }
+
+    void operator_Tm( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        std::array<double, 6> data = { };
+        check_operator_param_count( op, 6 );
+        for ( size_t i = 0; i < 6; i++ )
+            data[ i ] = check_type_and_get_double( op, i );
+
+        // TODO: check if this is correct behavior
+        mat3 mat{ { { data[ 0 ], data[ 1 ], 0 }, { data[ 2 ], data[ 3 ], 0 }, { data[ 4 ], data[ 5 ], 1 } } };
+        parser->graphic_state_stack.top( ).text_state.current_text_matrix = mat;
     }
 
     void operator_Tw( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )

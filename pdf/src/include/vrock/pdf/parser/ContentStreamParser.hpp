@@ -290,6 +290,7 @@ namespace vrock::pdf
 
     struct TextState
     {
+        mat3 current_text_matrix{ { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } } };
         double character_spacing = 0.0;
         double word_spacing = 0.0;
         double horizontal_scaling = 100.0f;
@@ -379,12 +380,16 @@ namespace vrock::pdf
     void operator_q( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Q( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
+    // Text Operators
+    void operator_Tst( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tc( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
-
+    void operator_Td( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+    void operator_TD( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tf( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tj( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_TJ( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_TL( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+    void operator_Tm( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
     void operator_Tw( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tz( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
@@ -399,13 +404,25 @@ namespace vrock::pdf
     inline std::unordered_map<ContentStreamOperator,
                               std::function<void( ContentStreamParser *, std::shared_ptr<PDFOperator> )>>
         operator_fn = {
-            { ContentStreamOperator::BT, operator_BT }, { ContentStreamOperator::cm, operator_cm }, 
-            { ContentStreamOperator::Do, operator_Do }, { ContentStreamOperator::ET, operator_ET },
-            { ContentStreamOperator::gs, operator_gs }, { ContentStreamOperator::q, operator_q },
-            { ContentStreamOperator::Q, operator_Q },   { ContentStreamOperator::Tf, operator_Tf },
-            { ContentStreamOperator::Tc, operator_Tc }, { ContentStreamOperator::Tj, operator_Tj },
-            { ContentStreamOperator::TJ, operator_TJ }, { ContentStreamOperator::TL, operator_TL },
-            { ContentStreamOperator::Tw, operator_Tw }, { ContentStreamOperator::Tz, operator_Tz },
+            { ContentStreamOperator::BT, operator_BT },
+            { ContentStreamOperator::cm, operator_cm },
+            { ContentStreamOperator::Do, operator_Do },
+            { ContentStreamOperator::ET, operator_ET },
+            { ContentStreamOperator::gs, operator_gs },
+            { ContentStreamOperator::q, operator_q },
+            { ContentStreamOperator::Q, operator_Q },
+            // Text Operators
+            { ContentStreamOperator::Tst, operator_Tst },
+            { ContentStreamOperator::Tc, operator_Tc },
+            { ContentStreamOperator::Td, operator_Td },
+            { ContentStreamOperator::TD, operator_TD },
+            { ContentStreamOperator::Tf, operator_Tf },
+            { ContentStreamOperator::Tj, operator_Tj },
+            { ContentStreamOperator::TJ, operator_TJ },
+            { ContentStreamOperator::TL, operator_TL },
+            { ContentStreamOperator::Tm, operator_Tm },
+            { ContentStreamOperator::Tw, operator_Tw },
+            { ContentStreamOperator::Tz, operator_Tz },
             { ContentStreamOperator::w, operator_w },
         };
 

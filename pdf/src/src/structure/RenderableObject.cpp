@@ -18,11 +18,7 @@ namespace vrock::pdf
     {
     }
 
-    Text::Text( ) : RenderableObject( RenderableObjectType::Text, 0 )
-    {
-    }
-
-    Text::Text( std::int64_t z ) : RenderableObject( RenderableObjectType::Text, z )
+    TextString::TextString( std::int64_t z ) : RenderableObject( RenderableObjectType::Text, z )
     {
     }
 

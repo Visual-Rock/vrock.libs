@@ -22,7 +22,6 @@ namespace vrock::pdf
 
     struct XRefEntryPtrHash
     {
-    public:
         size_t operator( )( const std::shared_ptr<XRefEntry> &r ) const;
     };
 
