@@ -11,6 +11,10 @@ namespace vrock::pdf
     enum class PDFSaveMode
     {
         /**
+         * @brief Overwrites the file if it exists
+         */
+        Overwrite,
+        /**
          * @brief Appends to the end of the PDF file (incremental update)
          * */
         Append // needs implementation
@@ -20,21 +24,20 @@ namespace vrock::pdf
     {
     public:
         PDFDocument( );
-        PDFDocument( std::string path );
+        PDFDocument( std::filesystem::path path );
 
         // TODO: implement
-        auto save( PDFSaveMode mode = PDFSaveMode::Append ) -> void;
-        auto save( const std::string &path, PDFSaveMode mode = PDFSaveMode::Append ) -> void;
+        auto save( PDFSaveMode mode = PDFSaveMode::Overwrite ) -> void;
+        auto save( std::filesystem::path path, PDFSaveMode mode = PDFSaveMode::Overwrite ) -> void;
 
-        auto get_path( ) -> std::string
+        auto get_path( ) -> std::filesystem::path
         {
             return file_path;
         }
 
-        auto get_file_name( ) -> std::string
+        auto get_file_name( ) const -> std::string
         {
-            std::filesystem::path p( file_path );
-            return p.filename( ).generic_string( );
+            return file_path.filename( ).generic_string( );
         }
 
         auto get_page( std::size_t idx ) -> std::shared_ptr<Page>
@@ -57,7 +60,7 @@ namespace vrock::pdf
         std::shared_ptr<PDFBaseSecurityHandler> encryption_handler;
 
     private:
-        std::string file_path;
+        std::filesystem::path file_path;
         PDFPageTree page_tree;
         // std::vector<std::shared_ptr<Page>> pages;
 
