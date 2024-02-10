@@ -115,13 +115,25 @@ namespace vrock::pdf
                             field_1 = 1;
 
                         // read field 2
-                        auto d = utils::to_hex_string( data.substr( offset + field_size[ 0 ], field_size[ 1 ] ) );
-                        auto field_2 = std::stoul( d, nullptr, 16 );
+                        unsigned long field_2 = 0;
+                        if ( field_size[ 1 ] != 0 )
+                        {
+                            auto d = utils::to_hex_string( data.substr( offset + field_size[ 0 ], field_size[ 1 ] ) );
+                            field_2 = std::stoul( d, nullptr, 16 );
+                        }
+                        else
+                            field_2 = 0;
 
                         // read field 3
-                        d = utils::to_hex_string(
-                            data.substr( offset + field_size[ 0 ] + field_size[ 1 ], field_size[ 2 ] ) );
-                        auto field_3 = std::stoul( d, nullptr, 16 );
+                        unsigned long field_3 = 0;
+                        if ( field_size[ 2 ] != 0 )
+                        {
+                            auto d = utils::to_hex_string(
+                                data.substr( offset + field_size[ 0 ] + field_size[ 1 ], field_size[ 2 ] ) );
+                            field_3 = std::stoul( d, nullptr, 16 );
+                        }
+                        else
+                            field_3 = 0;
 
                         auto e = std::make_shared<XRefEntry>( field_2, start + j, field_3, field_1 );
                         entries[ e ] = e;
