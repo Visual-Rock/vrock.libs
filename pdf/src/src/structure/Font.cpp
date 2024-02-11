@@ -14,6 +14,52 @@ namespace vrock::pdf
         { "MacExpertEncoding", FontEncoding::MacExpertEncoding }
     };
 
+    FontDescriptor::FontDescriptor( std::shared_ptr<PDFDictionary> dict )
+    {
+        if ( auto name = dict->get<PDFName>( "FontName" ) )
+            font_name = name->name;
+        if ( auto family = dict->get<PDFString>( "FontFamily" ) )
+            font_family = family->get_data( );
+        if ( auto stretch = dict->get<PDFName>( "FontStretch" ) )
+            font_name = stretch->name;
+        if ( auto weight = dict->get<PDFNumber>( "FontWeight" ) )
+            font_weight = weight->as_int( );
+        if ( auto flag = dict->get<PDFInteger>( "Flags" ) )
+            flags = flag->value;
+        if ( auto bbox = dict->get<PDFArray>( "FontBBox" ) )
+            font_bbox = std::make_shared<Rectangle>( bbox );
+        if ( auto angle = dict->get<PDFNumber>( "ItalicAngle" ) )
+            italic_angle = angle->as_double( );
+        if ( auto ascent = dict->get<PDFNumber>( "Ascent" ) )
+            this->ascent = ascent->as_int( );
+        if ( auto descent = dict->get<PDFNumber>( "Descent" ) )
+            this->descent = descent->as_int( );
+        if ( auto leading = dict->get<PDFNumber>( "Leading" ) )
+            this->leading = leading->as_int( );
+        if ( auto cap_height = dict->get<PDFNumber>( "CapHeight" ) )
+            this->cap_height = cap_height->as_int( );
+        if ( auto x_height = dict->get<PDFNumber>( "XHeight" ) )
+            this->x_height = x_height->as_int( );
+        if ( auto stem_v = dict->get<PDFNumber>( "StemV" ) )
+            this->stem_v = stem_v->as_int( );
+        if ( auto stem_h = dict->get<PDFNumber>( "StemH" ) )
+            this->stem_h = stem_h->as_int( );
+        if ( auto avg_width = dict->get<PDFNumber>( "AvgWidth" ) )
+            this->avg_width = avg_width->as_int( );
+        if ( auto max_width = dict->get<PDFNumber>( "MaxWidth" ) )
+            this->max_width = max_width->as_int( );
+        if ( auto missing_width = dict->get<PDFNumber>( "MissingWidth" ) )
+            this->missing_width = missing_width->as_int( );
+        if ( auto file = dict->get<PDFStream>( "FontFile" ) )
+            font_file = file;
+        if ( auto file2 = dict->get<PDFStream>( "FontFile2" ) )
+            font_file2 = file2;
+        if ( auto file3 = dict->get<PDFStream>( "FontFile3" ) )
+            font_file3 = file3;
+        if ( auto charset = dict->get<PDFString>( "CharSet" ) )
+            char_set = charset;
+    }
+
     Font::Font( std::shared_ptr<PDFDictionary> dict )
     {
         if ( auto type = dict->get<PDFName>( "Subtype" ) )
@@ -31,6 +77,8 @@ namespace vrock::pdf
         if ( auto encoding = dict->get<PDFName>( "Encoding" ) )
             if ( font_encodings.contains( encoding->name ) )
                 this->encoding = font_encodings[ encoding->name ];
+        if ( auto descriptor = dict->get<PDFDictionary>( "FontDescriptor" ) )
+            this->descriptor = std::make_shared<FontDescriptor>( descriptor );
 
         if ( auto w = dict->get<PDFArray>( "Widths" ) )
         {

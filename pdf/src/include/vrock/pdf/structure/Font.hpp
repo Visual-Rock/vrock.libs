@@ -1,6 +1,9 @@
 #pragma once
 
+#include "PDFDataStructures.hpp"
 #include "PDFObjects.hpp"
+#include "PDFStreams.hpp"
+#include "Rectangle.hpp"
 
 namespace vrock::pdf
 {
@@ -22,7 +25,37 @@ namespace vrock::pdf
         MacExpertEncoding
     };
 
-    class Font
+    class FontDescriptor
+    {
+    public:
+        FontDescriptor( std::shared_ptr<PDFDictionary> dict );
+        ~FontDescriptor( ) = default;
+
+        std::string font_name;
+        std::string font_family;
+        std::string font_stretch;
+        std::int32_t font_weight = 0;
+        std::int32_t flags = 0;
+        std::shared_ptr<Rectangle> font_bbox = nullptr;
+        double italic_angle = 0;
+        std::int32_t ascent = 0;
+        std::int32_t descent = 0;
+        std::int32_t leading = 0;
+        std::int32_t cap_height = 0;
+        std::int32_t x_height = 0;
+        std::int32_t stem_v = 0;
+        std::int32_t stem_h = 0;
+        std::int32_t avg_width = 0;
+        std::int32_t max_width = 0;
+        std::int32_t missing_width = 0;
+
+        std::shared_ptr<PDFStream> font_file = nullptr;
+        std::shared_ptr<PDFStream> font_file2 = nullptr;
+        std::shared_ptr<PDFStream> font_file3 = nullptr;
+
+        std::shared_ptr<PDFString> char_set = nullptr;
+    };
+
     class Font : public std::enable_shared_from_this<Font>
     {
     public:
@@ -45,7 +78,7 @@ namespace vrock::pdf
 
         FontEncoding encoding = FontEncoding::None;
 
-        // std::shared_ptr<FontDescriptor> descriptor = nullptr;
+        std::shared_ptr<FontDescriptor> descriptor = nullptr;
 
         // TODO: Encoding
 

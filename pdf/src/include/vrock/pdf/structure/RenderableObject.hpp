@@ -75,9 +75,6 @@ namespace vrock::pdf
 
         explicit Image( std::int64_t z );
 
-        Point scale;
-        double shear = 0, rotation = 0;
-
         std::shared_ptr<PDFImage> image;
     };
 
@@ -150,7 +147,6 @@ namespace vrock::pdf
 
         std::shared_ptr<PDFContext> context;
 
-    protected:
         auto parse_content( ) -> void;
     };
 
