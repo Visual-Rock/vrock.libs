@@ -22,7 +22,7 @@ namespace vrock::pdf
 
         if ( auto first = dict->get<PDFInteger>( "FirstChar" ) )
             first_char = first->value;
-        if ( auto last = dict->get<PDFInteger>( "FirstChar" ) )
+        if ( auto last = dict->get<PDFInteger>( "LastChar" ) )
             last_char = last->value;
         if ( auto base = dict->get<PDFName>( "BaseFont" ) )
             base_font = base->name;
