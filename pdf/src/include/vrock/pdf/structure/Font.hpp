@@ -7,8 +7,19 @@ namespace vrock::pdf
     enum class FontType
     {
         None,
+        Type0,
         Type1,
         TrueType
+    };
+
+    enum class FontEncoding
+    {
+        None,
+        StandardEncoding,
+        MacRomanEncoding,
+        WinAnsiEncoding,
+        PDFDocEncoding,
+        MacExpertEncoding
     };
 
     class Font
@@ -28,10 +39,14 @@ namespace vrock::pdf
 
         std::vector<int32_t> widths = { };
 
+        FontEncoding encoding = FontEncoding::None;
+
         // std::shared_ptr<FontDescriptor> descriptor = nullptr;
 
         // TODO: Encoding
 
         // std::shared_ptr<structure::ToUnicode> to_unicode;
     };
+
+    auto convert_to_font_encoding( std::shared_ptr<Font>, std::string_view str ) -> std::string;
 } // namespace vrock::pdf
