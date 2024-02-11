@@ -21,6 +21,29 @@ namespace vrock::pdf
         return res;
     }
 
+    struct Transform
+    {
+        Point position, scale;
+        double shear = 0, rotation = 0;
+    };
+
+    auto mat_to_transform( const mat3 &mat ) -> Transform
+    {
+        // TODO: check if it's really working (with shear and rotation)
+        auto a = mat[ 0 ][ 0 ];
+        auto b = mat[ 1 ][ 0 ];
+        auto c = mat[ 2 ][ 0 ];
+        auto d = mat[ 0 ][ 1 ];
+        auto e = mat[ 1 ][ 1 ];
+        auto f = mat[ 2 ][ 1 ];
+
+        auto p = std::sqrt( a * a + b * b );
+        auto r = ( a * e - b * d ) / ( p );
+        auto q = ( a * d + b * e ) / ( a * e - b * d );
+
+        return { Point{ Unit( c ), Unit( f ) }, Point{ Unit( p ), Unit( r ) }, q, std::atan2( b, a ) };
+    }
+
     PDFOperator::PDFOperator( std::string op )
         : PDFBaseObject( PDFObjectType::Operator ), _operator( op ), o( string_to_operator[ op ] )
     {
@@ -181,16 +204,7 @@ namespace vrock::pdf
     void operator_Do( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         auto &ctm = parser->graphic_state_stack.top( ).current_transformation_matrix;
-        auto a = ctm[ 0 ][ 0 ];
-        auto b = ctm[ 1 ][ 0 ];
-        auto c = ctm[ 2 ][ 0 ];
-        auto d = ctm[ 0 ][ 1 ];
-        auto e = ctm[ 1 ][ 1 ];
-        auto f = ctm[ 2 ][ 1 ];
-
-        auto p = std::sqrt( a * a + b * b );
-        auto r = ( a * e - b * d ) / ( p );
-        auto q = ( a * d + b * e ) / ( a * e - b * d );
+        auto [ pos, scale, shear, rot ] = mat_to_transform( ctm );
 
         check_operator_param_count( op, 1 );
         auto name = check_type_and_get_name( op, 0 );
@@ -198,13 +212,11 @@ namespace vrock::pdf
         // check if image and if so add it to images
         if ( parser->res->images.contains( name ) )
         {
-            // TODO: check if it's really working (with shear and rotation)
-            // TODO: move to function
             auto img = std::make_shared<Image>( );
-            img->position = Point{ Unit( c ), Unit( f ) };
-            img->scale = Point{ Unit( p ), Unit( r ) };
-            img->shear = q;
-            img->rotation = std::atan2( b, a );
+            img->position = pos;
+            img->scale = scale;
+            img->shear = shear;
+            img->rotation = rot;
             img->image = parser->res->images[ name ];
             parser->images.push_back( img );
         }
@@ -292,9 +304,14 @@ namespace vrock::pdf
 
         auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-        const auto x = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 0 ];
-        const auto y = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 1 ];
-        text->position = Point{ Unit( x ), Unit( y ) };
+
+        auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
+        auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
+        text->position = pos;
+        text->scale = scale;
+        text->shear = shear;
+        text->rotation = rot;
+
         text->text =
             check_type_and_get_value<PDFString, std::string>( op, 0, []( auto s ) { return s->get_string( ); }, "" );
         text->offsets = { { text->text.length( ), 0 } };
@@ -310,9 +327,14 @@ namespace vrock::pdf
 
         auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-        const auto x = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 0 ];
-        const auto y = parser->graphic_state_stack.top( ).text_state.current_text_matrix[ 2 ][ 1 ];
-        text->position = Point{ Unit( x ), Unit( y ) };
+
+        auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
+        auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
+        text->position = pos;
+        text->scale = scale;
+        text->shear = shear;
+        text->rotation = rot;
+
         int32_t offset = 0;
         for ( const auto &i : arr )
         {

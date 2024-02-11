@@ -23,10 +23,14 @@ namespace vrock::pdf
     };
 
     class Font
+    class Font : public std::enable_shared_from_this<Font>
     {
     public:
         Font( std::shared_ptr<PDFDictionary> dict );
         ~Font( ) = default;
+
+        auto to_font_encoding( std::string_view str ) -> std::string;
+        auto get_length( std::string_view str ) -> Unit;
 
         /// Subtype
         FontType font_type;

@@ -63,7 +63,8 @@ namespace vrock::pdf
         }
 
         std::int64_t z_index;
-        Point position;
+        Point position, scale;
+        double shear = 0, rotation = 0;
         RenderableObjectType type;
     };
 

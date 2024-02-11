@@ -20,6 +20,26 @@ namespace vrock::pdf
         }
 
         float units = 0.0;
+
+        auto operator+( const Unit &u ) const -> Unit
+        {
+            return Unit( units + u.units );
+        }
+
+        auto operator-( const Unit &u ) const -> Unit
+        {
+            return Unit( units - u.units );
+        }
+
+        auto operator*( const Unit &u ) const -> Unit
+        {
+            return Unit( units * u.units );
+        }
+
+        auto operator/( const Unit &u ) const -> Unit
+        {
+            return Unit( units / u.units );
+        }
     };
 
     struct Point

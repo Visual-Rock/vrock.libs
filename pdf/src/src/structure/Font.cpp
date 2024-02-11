@@ -41,6 +41,27 @@ namespace vrock::pdf
         }
     }
 
+    auto Font::to_font_encoding( std::string_view str ) -> std::string
+    {
+        return convert_to_font_encoding( shared_from_this( ), str );
+    }
+
+    auto Font::get_length( std::string_view str ) -> Unit
+    {
+        auto converted = to_font_encoding( str );
+        std::size_t length = 0;
+        for ( const unsigned char c : converted )
+        {
+            if ( c - first_char > last_char )
+            {
+                log::get_logger( "pdf" )->error( "Character '{}' out of range", c );
+                continue;
+            }
+            length += widths[ c - first_char ];
+        }
+        return Unit( length / 1000.0f );
+    }
+
     std::unordered_map<std::string, char> to_standard = {
         { "A", 0101 },  { "Æ", 0341 }, { "Á", 00 },   { "Â", 00 },   { "Ä", 00 },   { "À", 00 },   { "Å", 00 },
         { "Ã", 00 },    { "B", 0102 }, { "C", 0103 }, { "Ç", 00 },   { "D", 0104 }, { "E", 0105 }, { "É", 00 },
