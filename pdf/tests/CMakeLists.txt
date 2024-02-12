@@ -6,6 +6,7 @@ add_executable(pdf_tests
 
         parser/BaseParser.test.cpp
         parser/ContentStreamParser.test.cpp
+        parser/ContentStreamParser.Text.test.cpp
         parser/PDFObjectParser.test.cpp
 
         structure/PDFFilter.test.cpp

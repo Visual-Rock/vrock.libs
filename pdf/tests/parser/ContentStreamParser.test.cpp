@@ -2,15 +2,9 @@
 
 #include <gtest/gtest.h>
 
-using namespace vrock::pdf;
+#include "Helper.hpp"
 
-std::pair<std::shared_ptr<ResourceDictionary>, std::shared_ptr<PDFContext>> create_res_dict( )
-{
-    auto ctx = std::make_shared<PDFContext>( std::make_shared<PDFObjectParser>( ) );
-    auto dict = std::make_shared<PDFDictionary>( ctx );
-    auto res = std::make_shared<ResourceDictionary>( dict, ctx );
-    return { res, ctx };
-}
+using namespace vrock::pdf;
 
 TEST( ParseOperatorCm, BasicAssertions )
 {

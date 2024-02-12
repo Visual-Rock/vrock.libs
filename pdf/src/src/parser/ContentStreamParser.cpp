@@ -293,8 +293,8 @@ namespace vrock::pdf
     void operator_TD( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         check_operator_param_count( op, 2 );
-        int32_t leading = check_type_and_get_int( op, 1 ) * -1;
-        parser->graphic_state_stack.top( ).text_state.leading = leading;
+        int32_t leading = check_type_and_get_int( op, 1 );
+        parser->graphic_state_stack.top( ).text_state.leading = -leading;
         operator_Td( parser, op );
     }
 

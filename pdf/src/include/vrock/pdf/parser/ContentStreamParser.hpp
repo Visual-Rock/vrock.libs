@@ -294,7 +294,7 @@ namespace vrock::pdf
         double character_spacing = 0.0;
         double word_spacing = 0.0;
         double horizontal_scaling = 100.0f;
-        int32_t leading = 100;
+        int32_t leading = 0;
         std::shared_ptr<Font> font = nullptr;
         int32_t font_size = 0;
         TextRenderingModes text_render_mode = TextRenderingModes::FillText;
