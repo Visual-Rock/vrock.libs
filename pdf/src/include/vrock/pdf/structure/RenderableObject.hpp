@@ -83,6 +83,8 @@ namespace vrock::pdf
     public:
         explicit TextString( std::int64_t z );
 
+        auto to_string( ) -> std::string;
+
         std::string text;
         /// @brief List of offsets. the pairs are structured in the following way:
         ///         substring length, offset

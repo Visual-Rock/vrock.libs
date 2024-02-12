@@ -22,6 +22,23 @@ namespace vrock::pdf
     {
     }
 
+    auto TextString::to_string( ) -> std::string
+    {
+        if ( auto map = font->to_unicode )
+        {
+            std::string result;
+            std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+            for ( auto c : text )
+            {
+                auto code = static_cast<std::uint32_t>( c );
+                if ( map->map.contains( code ) )
+                    result += convert.to_bytes( static_cast<char16_t>( map->map[ code ] ) );
+            }
+            return result;
+        }
+        return text;
+    }
+
     ResourceDictionary::ResourceDictionary( std::shared_ptr<PDFDictionary> dict_, std::shared_ptr<PDFContext> ctx )
         : dict( std::move( dict_ ) ), context( std::move( ctx ) )
     {

@@ -79,6 +79,8 @@ namespace vrock::pdf
                 this->encoding = font_encodings[ encoding->name ];
         if ( auto descriptor = dict->get<PDFDictionary>( "FontDescriptor" ) )
             this->descriptor = std::make_shared<FontDescriptor>( descriptor );
+        if ( auto to_unicode = dict->get<PDFStream>( "ToUnicode" ) )
+            this->to_unicode = parse_cmap( to_unicode->data );
 
         if ( auto w = dict->get<PDFArray>( "Widths" ) )
         {

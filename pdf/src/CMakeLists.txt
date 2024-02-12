@@ -11,6 +11,7 @@ target_sources(vrockpdf
         src/PDFDocument.cpp
 
         src/parser/BaseParser.cpp
+        src/parser/CMapParser.cpp
         src/parser/ContentStreamParser.cpp
         src/parser/PDFObjectParser.cpp
 
@@ -46,6 +47,6 @@ target_link_libraries(vrockpdf PRIVATE vrocksecurity ZLIB::ZLIB stb_image)
 if (WIN32)
     find_package(ICU COMPONENTS uc REQUIRED)
     target_link_libraries(vrockpdf PRIVATE ICU::uc)
-else()
+else ()
     target_link_libraries(vrockpdf PRIVATE icu)
-endif()
+endif ()

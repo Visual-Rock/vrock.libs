@@ -5,6 +5,8 @@
 #include "PDFStreams.hpp"
 #include "Rectangle.hpp"
 
+#include "vrock/pdf/parser/CMapParser.hpp"
+
 namespace vrock::pdf
 {
     enum class FontType
@@ -76,13 +78,11 @@ namespace vrock::pdf
 
         std::vector<int32_t> widths = { };
 
+        // TODO: Encoding
         FontEncoding encoding = FontEncoding::None;
 
         std::shared_ptr<FontDescriptor> descriptor = nullptr;
-
-        // TODO: Encoding
-
-        // std::shared_ptr<structure::ToUnicode> to_unicode;
+        std::shared_ptr<CMap> to_unicode;
     };
 
     auto convert_to_font_encoding( std::shared_ptr<Font>, std::string_view str ) -> std::string;
