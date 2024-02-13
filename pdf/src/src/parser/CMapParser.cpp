@@ -1,6 +1,7 @@
 #include "vrock/pdf/parser/CMapParser.hpp"
 
 #include "vrock/pdf/structure/PDFEncryption.hpp"
+#include "vrock/pdf/parser/PDFObjectParser.hpp"
 
 namespace vrock::pdf
 {
@@ -72,7 +73,7 @@ namespace vrock::pdf
                 skip_comments_and_whitespaces( );
 
                 if ( src.size( ) > 4 || dst.size( ) > 4 )
-                    throw PDFParserException( "Invalid hex string" );
+                    throw PDFParserException( "hex string to large only 4 bytes supported" );
 
                 std::uint32_t s = 0, d = 0;
                 s = std::stoul( utils::to_hex_string( src ), nullptr, 16 );
@@ -80,6 +81,37 @@ namespace vrock::pdf
                 cmap->map[ s ] = d;
             }
             skip_comments_and_whitespaces( );
+        }
+
+        auto parse_beginbfrange() -> void
+        {
+            while (!is_keyword("beginbfrange"))
+            {
+                auto l = parse_hex_string( nullptr, false )->get_data( );
+                skip_comments_and_whitespaces( );
+                auto u = parse_hex_string( nullptr, false )->get_data( );
+                skip_comments_and_whitespaces( );
+
+                if ( l.size( ) > 4 || u.size( ) > 4 )
+                    throw PDFParserException( "hex string to large only 4 bytes supported" );
+
+                std::uint32_t lower = std::stoul( utils::to_hex_string( l ), nullptr, 16 );
+                std::uint32_t upper = std::stoul( utils::to_hex_string( u ), nullptr, 16 );
+
+                auto obj = parse_object( nullptr, false );
+                if (auto string = obj->to<PDFString>())
+                {
+                    std::uint32_t start = std::stoul( utils::to_hex_string( string->get_data( ) ), nullptr, 16 );
+                    for ( std::uint32_t i = lower; i < upper + 1 ; i++ )
+                        cmap->map[ i ] = start + ( c - lower );
+                }
+                else if (auto arr = obj->to<PDFArray>())
+                {
+                }
+                else
+                {
+                }
+            }
         }
 
         std::shared_ptr<CMap> cmap;
