@@ -1,23 +1,39 @@
 #include "vrock/pdf/parser/CMapParser.hpp"
 
-#include "vrock/pdf/structure/PDFEncryption.hpp"
 #include "vrock/pdf/parser/PDFObjectParser.hpp"
+#include "vrock/pdf/structure/PDFEncryption.hpp"
+#include "vrock/utils/NumberHelper.hpp"
+
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace vrock::pdf
 {
+    auto to_utf8( const std::u16string &utf16 ) -> std::string
+    {
+        UErrorCode err = U_ZERO_ERROR;
+        auto ustr = icu::UnicodeString( utf16.data( ) );
+        std::int32_t len = -1;
+        u_strToUTF8( nullptr, 0, &len, ustr.getBuffer( ), ustr.length( ), &err );
+        std::string result( len, 0 );
+        err = U_ZERO_ERROR;
+        u_strToUTF8( result.data( ), len, &len, ustr.getBuffer( ), ustr.length( ), &err );
+        return result;
+    }
+
     class CMapParser : public PDFObjectParser
     {
     public:
         explicit CMapParser( const std::string &cmap ) : PDFObjectParser( cmap )
         {
-            this->cmap = std::make_shared<CMap>( );
+            this->cmap = std::make_shared<UnicodeMap>( );
             _offset = _string.find( "begincmap" ) + 9;
             while ( !is_keyword( "endcmap" ) )
             {
                 if ( is_keyword( "beginbfchar" ) )
-                {
                     parse_beginbfchar( );
-                }
+                else if ( is_keyword( "beginbfrange" ) )
+                    parse_beginbfrange( );
                 else
                     parse_object( );
             }
@@ -75,17 +91,15 @@ namespace vrock::pdf
                 if ( src.size( ) > 4 || dst.size( ) > 4 )
                     throw PDFParserException( "hex string to large only 4 bytes supported" );
 
-                std::uint32_t s = 0, d = 0;
-                s = std::stoul( utils::to_hex_string( src ), nullptr, 16 );
-                d = std::stoul( utils::to_hex_string( dst ), nullptr, 16 );
-                cmap->map[ s ] = d;
+                std::uint32_t s = std::stoul( utils::to_hex_string( src ), nullptr, 16 );
+                cmap->map[ s ] = to_utf8( utils::from_hex_string<std::u16string>( utils::to_hex_string( dst ) ) );
             }
             skip_comments_and_whitespaces( );
         }
 
-        auto parse_beginbfrange() -> void
+        auto parse_beginbfrange( ) -> void
         {
-            while (!is_keyword("beginbfrange"))
+            while ( !is_keyword( "beginbfrange" ) )
             {
                 auto l = parse_hex_string( nullptr, false )->get_data( );
                 skip_comments_and_whitespaces( );
@@ -99,14 +113,22 @@ namespace vrock::pdf
                 std::uint32_t upper = std::stoul( utils::to_hex_string( u ), nullptr, 16 );
 
                 auto obj = parse_object( nullptr, false );
-                if (auto string = obj->to<PDFString>())
+                if ( auto string = obj->to<PDFString>( ) )
                 {
-                    std::uint32_t start = std::stoul( utils::to_hex_string( string->get_data( ) ), nullptr, 16 );
-                    for ( std::uint32_t i = lower; i < upper + 1 ; i++ )
-                        cmap->map[ i ] = start + ( c - lower );
+                    auto start = std::stoul( utils::to_hex_string( string->get_data( ) ), nullptr, 16 );
+                    for ( std::uint32_t i = lower; i < upper + 1; i++ )
+                        cmap->map[ i ] =
+                            to_utf8( utils::from_hex_string<std::u16string>( utils::to_hex( start + ( i - lower ) ) ) );
                 }
-                else if (auto arr = obj->to<PDFArray>())
+                else if ( auto arr = obj->to<PDFArray>( ) )
                 {
+                    for ( std::uint32_t i = lower; i < upper + 1; i++ )
+                    {
+
+                        if ( auto string = arr->get( i - lower )->to<PDFString>( ) )
+                            cmap->map[ i ] = to_utf8(
+                                utils::from_hex_string<std::u16string>( utils::to_hex_string( string->get_data( ) ) ) );
+                    }
                 }
                 else
                 {
@@ -114,10 +136,10 @@ namespace vrock::pdf
             }
         }
 
-        std::shared_ptr<CMap> cmap;
+        std::shared_ptr<UnicodeMap> cmap;
     };
 
-    auto parse_cmap( const std::string &cmap ) -> std::shared_ptr<CMap>
+    auto parse_unicode_map( const std::string &cmap ) -> std::shared_ptr<UnicodeMap>
     {
         auto parser = CMapParser( cmap );
         parser.set_context( nullptr );

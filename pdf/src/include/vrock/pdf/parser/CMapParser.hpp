@@ -1,19 +1,25 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <unordered_map>
-#include <memory>
 
 namespace vrock::pdf
 {
-    class CMap
+    class UnicodeMap
     {
     public:
-        CMap( ) = default;
+        std::unordered_map<std::uint32_t, std::string> map{ };
+    };
+
+    class ByteMap
+    {
+    public:
+        ByteMap( ) = default;
 
         std::unordered_map<std::uint32_t, std::uint32_t> map;
     };
 
-    extern auto parse_cmap( const std::string &cmap ) -> std::shared_ptr<CMap>;
+    extern auto parse_unicode_map( const std::string &map ) -> std::shared_ptr<UnicodeMap>;
 } // namespace vrock::pdf

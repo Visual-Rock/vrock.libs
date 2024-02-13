@@ -82,7 +82,7 @@ namespace vrock::pdf
         FontEncoding encoding = FontEncoding::None;
 
         std::shared_ptr<FontDescriptor> descriptor = nullptr;
-        std::shared_ptr<CMap> to_unicode;
+        std::shared_ptr<UnicodeMap> to_unicode;
     };
 
     auto convert_to_font_encoding( std::shared_ptr<Font>, std::string_view str ) -> std::string;

@@ -50,6 +50,16 @@ namespace vrock::utils
         return result;
     }
 
+    template <>
+    inline auto from_hex_string<std::u16string>( std::string_view data ) -> std::u16string
+    {
+        std::u16string result;
+        result.reserve( data.size( ) + 3 / 4 );
+        for ( std::size_t i = 0; i < data.size( ); i += 4 )
+            result.push_back( static_cast<char16_t>( std::stoul( std::string( data.substr( i, 4 ) ), nullptr, 16 ) ) );
+        return result;
+    }
+
     inline auto combine_strings( std::span<std::string> strings, std::size_t size ) -> std::string
     {
         std::string ret( size, '\0' );

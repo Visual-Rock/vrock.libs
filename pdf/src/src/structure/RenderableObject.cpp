@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <locale>
-#include <codecvt>
 
 namespace vrock::pdf
 {
@@ -29,13 +28,11 @@ namespace vrock::pdf
         if ( auto map = font->to_unicode )
         {
             std::string result;
-            // TODO: use icu -> std::codecvt_utf8_utf16 is deprecated 
-            std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-            for ( auto c : text )
+            for ( unsigned char c : text )
             {
                 auto code = static_cast<std::uint32_t>( c );
                 if ( map->map.contains( code ) )
-                    result += convert.to_bytes( static_cast<char16_t>( map->map[ code ] ) );
+                    result += map->map[ code ];
             }
             return result;
         }
