@@ -64,6 +64,56 @@ TEST( ParseText, ParseOperatorTD )
     EXPECT_EQ( parser.graphic_state_stack.top( ).text_state.leading, -50 );
 }
 
+TEST( ParseText, ParseOperatorTf )
+{
+    auto [ res, ctx ] = create_res_dict( );
+    res->fonts[ "F0" ] = create_font( ctx );
+    ContentStreamParser parser( "/F0 12 Tf", res, ctx );
+    auto state = parser.graphic_state_stack.top( ).text_state;
+    EXPECT_EQ( state.font, res->fonts[ "F0" ] );
+    EXPECT_EQ( state.font_size, 12 );
+}
+
+TEST( ParseText, ParseOperatorTj )
+{
+    auto [ res, ctx ] = create_res_dict( );
+    res->fonts[ "F0" ] = create_font( ctx );
+    ContentStreamParser parser( "BT /F0 12 Tf (ABC) Tj ET", res, ctx );
+    auto text = parser.text;
+    EXPECT_EQ( text.size(), 1 );
+    auto str = text[ 0 ];
+    EXPECT_EQ( str->strings.size(), 1);
+    EXPECT_EQ( str->strings[ 0 ]->text, "ABC" );
+    EXPECT_EQ( str->strings[ 0 ]->font, res->fonts[ "F0" ] );
+    EXPECT_EQ( str->strings[ 0 ]->font_size, 12 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets.size( ), 1 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[0].first, 3 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[0].second, 0 );
+}
+
+TEST( ParseText, ParseOperatorTJ )
+{
+    auto [ res, ctx ] = create_res_dict( );
+    res->fonts[ "F0" ] = create_font( ctx );
+    ContentStreamParser parser( "BT /F0 12 Tf [(A) 120 (W) 120 (A) 95 (Y again) ] TJ ET", res, ctx );
+    auto text = parser.text;
+    EXPECT_EQ( text.size( ), 1 );
+    auto str = text[ 0 ];
+    EXPECT_EQ( str->strings.size( ), 1 );
+    EXPECT_EQ( str->strings[ 0 ]->text, "AWAY again" );
+    EXPECT_EQ( str->strings[ 0 ]->font, res->fonts[ "F0" ] );
+    EXPECT_EQ( str->strings[ 0 ]->font_size, 12 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets.size( ), 4 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 0 ].first, 1 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 0 ].second, 0 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 1 ].first, 1 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 1 ].second, 120 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 2 ].first, 1 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 2 ].second, 120 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 3 ].first, 7 );
+    EXPECT_EQ( str->strings[ 0 ]->offsets[ 3 ].second, 95 );
+}
+
 TEST( ParseText, ParseOperatorTm )
 {
     auto [ res, ctx ] = create_res_dict( );

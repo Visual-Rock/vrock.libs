@@ -3,6 +3,8 @@
 #include "vrock/pdf/parser/ContentStreamParser.hpp"
 
 #include <iostream>
+#include <locale>
+#include <codecvt>
 
 namespace vrock::pdf
 {
@@ -27,6 +29,7 @@ namespace vrock::pdf
         if ( auto map = font->to_unicode )
         {
             std::string result;
+            // TODO: use icu -> std::codecvt_utf8_utf16 is deprecated 
             std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
             for ( auto c : text )
             {
