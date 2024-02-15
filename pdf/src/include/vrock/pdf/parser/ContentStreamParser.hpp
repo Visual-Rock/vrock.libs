@@ -390,14 +390,17 @@ namespace vrock::pdf
     void operator_TJ( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_TL( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tm( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
-
+    void operator_Tr( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+    void operator_Ts( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tw( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Tz( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+
     void operator_v( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_w( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_W( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_Ws( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_y( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
+
     void operator_NL( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
     void operator_SNLST( ContentStreamParser *, std::shared_ptr<PDFOperator> op );
 
@@ -421,9 +424,15 @@ namespace vrock::pdf
             { ContentStreamOperator::TJ, operator_TJ },
             { ContentStreamOperator::TL, operator_TL },
             { ContentStreamOperator::Tm, operator_Tm },
+            { ContentStreamOperator::Tr, operator_Tr },
+            { ContentStreamOperator::Ts, operator_Tr },
             { ContentStreamOperator::Tw, operator_Tw },
             { ContentStreamOperator::Tz, operator_Tz },
+
             { ContentStreamOperator::w, operator_w },
+            { ContentStreamOperator::NextLine, operator_NL },
+            { ContentStreamOperator::SpacingNextLineShowText, operator_SNLST },
+
         };
 
 } // namespace vrock::pdf

@@ -304,7 +304,7 @@ namespace vrock::pdf
 
         auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-
+        // TODO: honor text rise etc.
         auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
         auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
         text->position = pos;
@@ -327,7 +327,7 @@ namespace vrock::pdf
 
         auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-
+        // TODO: honor text rise etc.
         auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
         auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
         text->position = pos;
@@ -369,6 +369,21 @@ namespace vrock::pdf
         parser->graphic_state_stack.top( ).text_state.current_text_matrix = mat;
     }
 
+    void operator_Tr( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        check_operator_param_count( op, 1 );
+        auto mode = check_type_and_get_int( op, 0 );
+        if ( mode < 0 || mode > 7 )
+            throw std::runtime_error( std::format( "unknown text rendering mode {}", mode ) );
+        parser->graphic_state_stack.top( ).text_state.text_render_mode = static_cast<TextRenderingModes>( mode );
+    }
+
+    void operator_Ts( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        check_operator_param_count( op, 1 );
+        parser->graphic_state_stack.top( ).text_state.text_rise = check_type_and_get_double( op, 1 );
+    }
+
     void operator_Tw( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
     {
         check_operator_param_count( op, 1 );
@@ -385,5 +400,28 @@ namespace vrock::pdf
     {
         check_operator_param_count( op, 1 );
         parser->graphic_state_stack.top( ).line_width = check_type_and_get_double( op, 0 );
+    }
+
+    void operator_NL( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        operator_Tst( parser, nullptr );
+        operator_Tj( parser, op );
+    }
+
+    void operator_SNLST( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        check_operator_param_count( op, 3 );
+        // Word spacing
+        auto Tw = std::make_shared<PDFOperator>( "Tw" );
+        Tw->paramteres.push_back( op->paramteres[ 0 ] );
+        operator_Tw( parser, Tw );
+        // character spacing
+        auto Tc = std::make_shared<PDFOperator>( "Tc" );
+        Tc->paramteres.push_back( op->paramteres[ 1 ] );
+        operator_Tw( parser, Tw );
+        // new line with text
+        auto NL = std::make_shared<PDFOperator>( "'" );
+        NL->paramteres.push_back( op->paramteres[ 2 ] );
+        operator_NL( parser, NL );
     }
 } // namespace vrock::pdf
