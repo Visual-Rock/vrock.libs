@@ -298,12 +298,8 @@ namespace vrock::pdf
         operator_Td( parser, op );
     }
 
-    void operator_Tj( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    void set_text_attr( ContentStreamParser *parser, std::shared_ptr<TextString> text )
     {
-        check_operator_param_count( op, 1 );
-
-        auto text = std::make_shared<TextString>( 0 );
-        parser->current_text_section->strings.push_back( text );
         // TODO: honor text rise etc.
         auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
         auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
@@ -312,11 +308,23 @@ namespace vrock::pdf
         text->shear = shear;
         text->rotation = rot;
 
+        text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
+        text->font = parser->graphic_state_stack.top( ).text_state.font;
+        text->character_spacing = parser->graphic_state_stack.top( ).text_state.character_spacing;
+        text->word_spacing = parser->graphic_state_stack.top( ).text_state.word_spacing;
+    }
+
+    void operator_Tj( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
+    {
+        check_operator_param_count( op, 1 );
+
+        auto text = std::make_shared<TextString>( 0 );
+        parser->current_text_section->strings.push_back( text );
+        set_text_attr( parser, text );
+
         text->text =
             check_type_and_get_value<PDFString, std::string>( op, 0, []( auto s ) { return s->get_string( ); }, "" );
         text->offsets = { { text->text.length( ), 0 } };
-        text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
-        text->font = parser->graphic_state_stack.top( ).text_state.font;
     }
 
     void operator_TJ( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )
@@ -327,13 +335,7 @@ namespace vrock::pdf
 
         auto text = std::make_shared<TextString>( 0 );
         parser->current_text_section->strings.push_back( text );
-        // TODO: honor text rise etc.
-        auto &mat = parser->graphic_state_stack.top( ).text_state.current_text_matrix;
-        auto [ pos, scale, shear, rot ] = mat_to_transform( mat );
-        text->position = pos;
-        text->scale = scale;
-        text->shear = shear;
-        text->rotation = rot;
+        set_text_attr( parser, text );
 
         int32_t offset = 0;
         for ( const auto &i : arr )
@@ -347,8 +349,6 @@ namespace vrock::pdf
             else if ( auto num = i->to<PDFNumber>( ) )
                 offset = num->as_int( );
         }
-        text->font_size = parser->graphic_state_stack.top( ).text_state.font_size;
-        text->font = parser->graphic_state_stack.top( ).text_state.font;
     }
 
     void operator_TL( ContentStreamParser *parser, std::shared_ptr<PDFOperator> op )

@@ -92,6 +92,9 @@ namespace vrock::pdf
 
         /// @brief font size in pt
         std::int32_t font_size = 0;
+        double character_spacing = 0.0;
+        /// @brief word spacing only works on the space character
+        double word_spacing = 0.0;
         std::shared_ptr<Font> font;
     };
 
