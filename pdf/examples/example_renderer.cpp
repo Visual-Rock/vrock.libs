@@ -32,6 +32,15 @@ int main( )
         {
             for ( auto string : text->strings )
             {
+                // only truetype fonts are supported and the font file must be present (14 Standard Fonts are not
+                // supported)
+                if ( string->font->font_type != FontType::TrueType || string->font->descriptor->font_file2 == nullptr )
+                {
+                    vrock::log::get_logger( "pdf" )->info( "font type not supported or not embeded" );
+                    continue;
+                }
+                else
+                    vrock::log::get_logger( "pdf" )->info( "text \"{}\" is being displayed", string->text );
                 BLFontData data;
                 auto res = data.createFromData( string->font->descriptor->font_file2->data.c_str( ),
                                                 string->font->descriptor->font_file2->data.size( ) );
@@ -45,13 +54,13 @@ int main( )
                 res = font.createFromFace( face, string->font_size );
                 check_res( res );
 
-                ctx.setFillStyle( BLRgba32( 0x00000000 ) );
+                ctx.setFillStyle( BLRgba32( 0xff000000 ) );
                 ctx.rotate( string->rotation );
                 ctx.scale( string->scale.x.units, string->scale.y.units );
-                auto str = string->to_string( );
-                for ( int j = 0; j < str.size( ); j++ )
-                    str[ j ] = str[ j ] - (char)string->font->first_char;
-                res = ctx.fillUtf8Text( BLPoint( string->position.x.units, 50 ), font, str.c_str( ), str.size( ) );
+                auto str = string->text;
+                res = ctx.fillUtf8Text( BLPoint( string->position.x.units,
+                                                 page->media_box->get_height( ).units - string->position.y.units ),
+                                        font, str.c_str( ), str.size( ) );
                 check_res( res );
             }
         }
