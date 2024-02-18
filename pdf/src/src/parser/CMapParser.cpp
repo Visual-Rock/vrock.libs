@@ -79,10 +79,9 @@ namespace vrock::pdf
 
         auto parse_beginbfchar( ) -> void
         {
-            skip_whitespace( );
-
             while ( !is_keyword( "endbfchar" ) )
             {
+                skip_comments_and_whitespaces( );
                 auto src = parse_hex_string( nullptr, false )->get_data( );
                 skip_comments_and_whitespaces( );
                 auto dst = parse_hex_string( nullptr, false )->get_data( );
@@ -99,8 +98,9 @@ namespace vrock::pdf
 
         auto parse_beginbfrange( ) -> void
         {
-            while ( !is_keyword( "beginbfrange" ) )
+            while ( !is_keyword( "endbfrange" ) )
             {
+                skip_comments_and_whitespaces( );
                 auto l = parse_hex_string( nullptr, false )->get_data( );
                 skip_comments_and_whitespaces( );
                 auto u = parse_hex_string( nullptr, false )->get_data( );
@@ -133,7 +133,9 @@ namespace vrock::pdf
                 else
                 {
                 }
+                skip_comments_and_whitespaces( );
             }
+            skip_comments_and_whitespaces( );
         }
 
         std::shared_ptr<UnicodeMap> cmap;
