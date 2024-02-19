@@ -18,16 +18,18 @@ int main( )
 
     auto doc = PDFDocument( "simple.pdf" );
 
+    int scale = 4;
     for ( int i = 0; i < doc.get_page_count( ); i++ )
     {
         auto page = doc.get_page( i );
-        BLImage img( page->media_box->get_width( ).units, page->media_box->get_height( ).units, BL_FORMAT_PRGB32 );
+        BLImage img( page->media_box->get_width( ).units * scale, page->media_box->get_height( ).units * scale,
+                     BL_FORMAT_PRGB32 );
         BLContext ctx( img );
 
         ctx.clearAll( );
 
         ctx.setFillStyle( BLRgba32( 0xFFFFFFFF ) );
-        ctx.fillRect( 0, 0, page->media_box->get_width( ).units, page->media_box->get_height( ).units );
+        ctx.fillRect( 0, 0, page->media_box->get_width( ).units * scale, page->media_box->get_height( ).units * scale );
         for ( const auto &text : page->get_text( ) )
         {
             for ( auto string : text->strings )
@@ -51,16 +53,17 @@ int main( )
                 check_res( res );
 
                 BLFont font;
-                res = font.createFromFace( face, string->font_size );
+                res = font.createFromFace( face, string->font_size * scale );
                 check_res( res );
 
                 ctx.setFillStyle( BLRgba32( 0xff000000 ) );
                 ctx.rotate( string->rotation );
                 ctx.scale( string->scale.x.units, string->scale.y.units );
                 auto str = string->text;
-                res = ctx.fillUtf8Text( BLPoint( string->position.x.units,
-                                                 page->media_box->get_height( ).units - string->position.y.units ),
-                                        font, str.c_str( ), str.size( ) );
+                res = ctx.fillUtf8Text(
+                    BLPoint( string->position.x.units * scale,
+                             ( page->media_box->get_height( ).units - string->position.y.units ) * scale ),
+                    font, str.c_str( ), str.size( ) );
                 check_res( res );
             }
         }
