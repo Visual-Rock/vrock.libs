@@ -4,6 +4,7 @@
 #include "vrock/pdf/structure/PDFEncryption.hpp"
 #include "vrock/utils/NumberHelper.hpp"
 
+#include <unicode/ucnv.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
 
@@ -12,12 +13,12 @@ namespace vrock::pdf
     auto to_utf8( const std::u16string &utf16 ) -> std::string
     {
         UErrorCode err = U_ZERO_ERROR;
-        auto ustr = icu::UnicodeString( utf16.data( ) );
-        std::int32_t len = -1;
-        u_strToUTF8( nullptr, 0, &len, ustr.getBuffer( ), ustr.length( ), &err );
-        std::string result( len, 0 );
+        UConverter *conv = ucnv_open( "UTF-8", &err );
+        auto bytes = ucnv_fromUChars( conv, nullptr, 0, utf16.data( ), utf16.size( ), &err );
+        std::string result( bytes, 0 );
         err = U_ZERO_ERROR;
-        u_strToUTF8( result.data( ), len, &len, ustr.getBuffer( ), ustr.length( ), &err );
+        auto ustr = icu::UnicodeString( utf16.data( ) );
+        u_strToUTF8( result.data( ), bytes, &bytes, ustr.getBuffer( ), ustr.length( ), &err );
         return result;
     }
 
@@ -87,7 +88,7 @@ namespace vrock::pdf
                 auto dst = parse_hex_string( nullptr, false )->get_data( );
                 skip_comments_and_whitespaces( );
 
-                if ( src.size( ) > 4 || dst.size( ) > 4 )
+                if ( src.size( ) > 4 )
                     throw PDFParserException( "hex string to large only 4 bytes supported" );
 
                 std::uint32_t s = std::stoul( utils::to_hex_string( src ), nullptr, 16 );
